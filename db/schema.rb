@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_22_194013) do
+ActiveRecord::Schema.define(version: 2022_11_21_061507) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -170,6 +170,16 @@ ActiveRecord::Schema.define(version: 2021_07_22_194013) do
     t.datetime "updated_at", null: false
     t.string "grants"
     t.index ["email"], name: "index_people_on_email", unique: true
+  end
+
+  create_table "proposals", force: :cascade do |t|
+    t.string "code"
+    t.string "workshop_name"
+    t.date "dates"
+    t.jsonb "participants"
+    t.integer "proposal_id"
+    t.string "proposal_year"
+    t.string "proposal_type"
   end
 
   create_table "schedules", id: :serial, force: :cascade do |t|

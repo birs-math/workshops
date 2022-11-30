@@ -18,7 +18,20 @@ class EventsController < ApplicationController
   # GET /events
   # GET /events.json
   def index
+    @proposals = Proposal.all
     @events = policy_scope(Event).reverse_order
+  end
+
+  def create_proposals
+    old_ids = Proposal.pluck(:proposal_id)
+    new_ids = proposal_params[:proposals].pluck(:proposal_id)
+    new_ids.each do |n_id|
+      if old_ids.include?(n_id)
+        Proposal.where(proposal_id: n_id).delete_all
+      end
+    end
+    @proposals = Proposal.create(proposal_params[:proposals])
+    render 'proposals/index'
   end
 
   # GET /events/my_events
@@ -41,6 +54,7 @@ class EventsController < ApplicationController
     @tense = 'Past'
     @events = policy_scope(Event).past.reverse_order.to_ary
     remove_locations
+    @proposals = Proposal.where('proposal_year < ?', Date.today.year.to_s)
     render :index unless performed?
   end
 
@@ -50,6 +64,7 @@ class EventsController < ApplicationController
     @tense = 'Future'
     @events = policy_scope(Event).future
     remove_locations
+    @proposals = Proposal.where('proposal_year > ?', Date.today.year.to_s)
     render :index unless performed?
   end
 
@@ -74,6 +89,7 @@ class EventsController < ApplicationController
       @location = Setting.Locations.keys.first
     end
     @events = Event.location(@location).order(:start_date).limit(100)
+    @proposals = Proposal.all
     render :index unless performed?
   end
 
@@ -93,7 +109,19 @@ class EventsController < ApplicationController
     else
       @events = policy_scope(Event).year(@year).kind(kind)
     end
-
+    if kind == "Focussed Research Group"
+      @proposals = Proposal.where(proposal_type: "Focussed Research Group")
+    elsif kind == "5 Day Workshop"
+      @proposals = Proposal.where(proposal_type: "5 Day Workshop")
+    elsif kind == "Summer School"
+      @proposals = Proposal.where(proposal_type: "Summer School")
+    elsif kind == "Research in Teams"
+      @proposals = Proposal.where(proposal_type: "Research in Teams")
+    elsif kind == "2 Day Workshop"
+      @proposals = Proposal.where(proposal_type: "2 Day Workshop")
+    elsif kind == "Public Lecture"
+      @proposals = Proposal.where(proposal_type: "Public Lecture")
+    end
     render :index unless performed?
   end
 
@@ -190,6 +218,10 @@ class EventsController < ApplicationController
   end
 
   private
+
+  def proposal_params
+    params.permit(proposals: [:proposal_type, :proposal_year, :proposal_id, :code, :workshop_name, :dates, participants: [:id, :firstname, :lastname, :email, :invited_as, :status]])
+  end
 
   def notify_staff(event: original_event, params: update_params)
     if params[:short_name] != event.short_name && event.upcoming?
