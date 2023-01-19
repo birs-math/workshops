@@ -51,7 +51,6 @@ $(document).on 'turbolinks:load', ->
 
   update_active =(item_id) ->
     remove_active()
-    console.log(item_id)
     if !year_location()
       if item_id
         item = $('#' + item_id)

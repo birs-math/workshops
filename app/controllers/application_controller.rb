@@ -40,6 +40,8 @@ class ApplicationController < ActionController::Base
     @attendance = Membership::ATTENDANCE unless @event.blank?
   end
 
+
+
   private
 
   def record_not_found
@@ -54,7 +56,8 @@ class ApplicationController < ActionController::Base
   def validate_event_id
     event_id = (params[:event_id] || params[:id])
     return if event_id.blank?
-    event_id if Event.where(id: event_id).or(Event.where(code: event_id)).exists?
+    all_events = Event.pluck(:id, :code).flatten.map(&:to_s)
+    return event_id if all_events.include?(event_id)
   end
 
   def invalid_auth_token
