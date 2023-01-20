@@ -59,7 +59,9 @@ class ExportEventMembers
   end
 
   def selected_options
-    @selected_options ||= options.select { |_, option| option == '1' }.keys.map(&:to_sym)
+    @selected_options ||= options.select do |field, option|
+      option == '1' && ALL_FIELDS.include?(field)
+    end.keys.map(&:to_sym)
   end
 
   def memberships_by_attendance(event)

@@ -12,7 +12,7 @@ module EventMembersPresenter
   ALL_FIELDS = DEFAULT_FIELDS + OPTIONAL_FIELDS
 
   def cell_field_values
-    @cell_values ||= {
+    @cell_field_values ||= {
       attendance: ->(mem) { mem.attendance },
       role: ->(mem) { mem.role },
       name: ->(mem) { mem.person.name },
@@ -30,7 +30,7 @@ module EventMembersPresenter
       organizer_notes: ->(mem) { mem.org_notes },
       gender: ->(mem) { mem.person.gender },
       research_areas: ->(mem) { mem.person.research_areas },
-      title: ->(mem) { mem.person.title },
+      title: ->(mem) { mem.person.title }
     }
   end
 end
