@@ -11,7 +11,7 @@ class ReportsController < ApplicationController
 
   # GET /events/:event_id/export
   def current_event
-    policy(@event).generate_report?
+    authorize @event, :generate_report?
 
     if @event.memberships.count.zero?
       flash[:error] = I18n.t('ui.flash.empty_event_members')
@@ -21,22 +21,28 @@ class ReportsController < ApplicationController
 
   # POST /events/:event_id/export
   def export
-    policy(@event).generate_report?
+    authorize @event, :generate_report?
 
-    csv = ExportEventMembers.new(event_ids: [@event.id], options: report_params).call
-    send_data csv, filename: "event-members-#{@event.code}-#{Date.today}.csv"
+    result = ExportEventMembers.new(event_ids: [@event.id], options: report_params).call
+
+    if result.valid?
+      send_data result.report, filename: "event-members-#{@event.code}-#{Date.today}.csv"
+    else
+      flash[:error] = result.error_message
+      redirect_to event_report_path(@event)
+    end
   end
 
   # GET /report
   def select_events
-    policy(current_user).admin?
+    authorize current_user, :admin?
 
     @show_datepicker = true
   end
 
   # POST /report
   def export_in_range
-    policy(current_user).admin?
+    authorize current_user, :admin?
 
     start_date = params[:start_date]
     end_date = params[:end_date]
@@ -47,9 +53,15 @@ class ReportsController < ApplicationController
     end
 
     event_ids = Event.in_range(start_date, end_date).pluck(:id)
-    csv = ExportEventMembers.new(event_ids: event_ids, options: report_params).call
 
-    send_data csv, filename: "event-members-#{start_date}-to-#{end_date}.csv"
+    result = ExportEventMembers.new(event_ids: event_ids, options: report_params).call
+
+    if result.valid?
+      send_data result.report, filename: "event-members-#{start_date}-to-#{end_date}.csv"
+    else
+      flash[:error] = result.error_message
+      redirect_to event_report_path(@event)
+    end
   end
 
   private

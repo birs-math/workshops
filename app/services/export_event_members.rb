@@ -3,9 +3,16 @@
 # the GNU Affero General Public License as published by the
 # Free Software Foundation, version 3 of the License.
 # See the COPYRIGHT file for details and exceptions.
+require 'csv'
 
 class ExportEventMembers
   include EventMembersPresenter
+
+  Result = Struct.new(:report, :error_message, keyword_init: true) do
+    def valid?
+      error_message.nil? && report
+    end
+  end
 
   def initialize(event_ids:, options:)
     @event_ids = event_ids
@@ -13,7 +20,11 @@ class ExportEventMembers
   end
 
   def call
-    to_csv
+    return Result.new(error_message: I18n.t('ui.error_messages.no_options_selected')) if selected_options.empty?
+
+    csv = to_csv
+
+    Result.new(report: csv)
   end
 
   private
@@ -38,7 +49,7 @@ class ExportEventMembers
   end
 
   def headers
-     selected_options.map do |field|
+    selected_options.map do |field|
       if DEFAULT_FIELDS.include?(field)
         I18n.t("event_report.default_fields.#{field}")
       else
@@ -48,7 +59,7 @@ class ExportEventMembers
   end
 
   def selected_options
-    @selected_options ||= options.select { |_, option| option == "1" }.keys.map(&:to_sym)
+    @selected_options ||= options.select { |_, option| option == '1' }.keys.map(&:to_sym)
   end
 
   def memberships_by_attendance(event)
