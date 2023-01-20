@@ -128,7 +128,7 @@
     </li>
     <% if policy(current_user).admin? %>
     <li class="nav-item">
-      <%= link_to '<i class="fa fa-bullhorn fa-fw"></i><span class="app-menu__label">Events Report</span>'.html_safe,
+      <%= link_to '<i class="fa fa-bullhorn fa-fw"></i><span class="app-menu__label">Global Events Report</span>'.html_safe,
         events_report_path, id: 'select_events-reports', class: 'app-menu__item' %>
     </li>
     <% end %>
