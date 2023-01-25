@@ -26,8 +26,21 @@ RSpec.describe ExportEventMembers do
   end
 
   context 'when some fields selected' do
-    let(:params) { { attendance: '1', name: '1', email: '1', department: '1', year_of_phd: '1' } }
-    let(:csv) { File.open(Rails.root.join('spec', 'files', 'reports', 'some_fields.csv')).read }
+    let(:params) do
+      {
+        attendance: '1',
+        confirmed: '1',
+        invited: '1',
+        undecided: '1',
+        not_yet_invited: '1',
+        declined: '1',
+        name: '1',
+        email: '1',
+        department: '1',
+        year_of_phd: '1'
+      }
+    end
+    let(:csv) { File.open(Rails.root.join('spec', 'files', 'reports', 'some_fields_selected.csv')).read }
 
     it 'uses only those fields' do
       expect(service_call.report).to eq(csv)
@@ -38,6 +51,11 @@ RSpec.describe ExportEventMembers do
     let(:params) do
       {
         attendance: '1',
+        confirmed: '1',
+        invited: '1',
+        undecided: '1',
+        not_yet_invited: '1',
+        declined: '1',
         role: '1',
         name: '1',
         email: '1',
@@ -58,7 +76,7 @@ RSpec.describe ExportEventMembers do
       }
     end
 
-    let(:csv) { File.open(Rails.root.join('spec', 'files', 'reports', 'all_fields.csv')).read }
+    let(:csv) { File.open(Rails.root.join('spec', 'files', 'reports', 'all_fields_selected.csv')).read }
 
     it 'reports on all fields' do
       expect(service_call.report).to eq(csv)
@@ -73,11 +91,43 @@ RSpec.describe ExportEventMembers do
   end
 
   context 'when non existent field is selected' do
-    let(:params) { { attendance: '1', name: '1', email: '1', department: '1', year_of_phd: '1', i_dont_exist: '1' } }
+    let(:params) do
+      {
+        attendance: '1',
+        confirmed: '1',
+        invited: '1',
+        undecided: '1',
+        not_yet_invited: '1',
+        declined: '1',
+        name: '1',
+        email: '1',
+        department: '1',
+        year_of_phd: '1',
+        i_dont_exist: '1'
+      }
+    end
 
-    let(:csv) { File.open(Rails.root.join('spec', 'files', 'reports', 'some_fields.csv')).read }
+    let(:csv) { File.open(Rails.root.join('spec', 'files', 'reports', 'some_fields_selected.csv')).read }
 
     it 'removes extra fields' do
+      expect(service_call.report).to eq(csv)
+    end
+  end
+
+  context 'when some attendance fields are selected' do
+    let(:params) do
+      {
+        attendance: '1',
+        confirmed: '1',
+        declined: '1',
+        name: '1',
+        email: '1'
+      }
+    end
+
+    let(:csv) { File.open(Rails.root.join('spec', 'files', 'reports', 'some_attendance_fields_selected.csv')).read }
+
+    it 'filters by attendance' do
       expect(service_call.report).to eq(csv)
     end
   end

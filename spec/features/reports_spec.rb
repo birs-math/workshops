@@ -82,10 +82,14 @@ RSpec.describe 'Reports', type: :feature do
 
     describe 'selecting fields' do
       let(:user) { admin }
+      let(:default_visible_fields) do
+        I18n.t('event_report.default_fields').values - ['Attendance'] + I18n.t('memberships.attendance').values
+      end
+      let(:optional_fields) { I18n.t('event_report.optional_fields').values }
 
       context 'when default' do
         it 'has checked fields' do
-          I18n.t('event_report.default_fields').each_value do |field|
+          default_visible_fields.each do |field|
             expect(page).to have_field(field, checked: true)
           end
         end
@@ -93,13 +97,13 @@ RSpec.describe 'Reports', type: :feature do
 
       context 'when optional' do
         before do
-          I18n.t('event_report.optional_fields').each_value do |field|
+          optional_fields.each do |field|
             check field
           end
         end
 
         it 'can select optional fields' do
-          I18n.t('event_report.optional_fields').each_value do |field|
+          optional_fields.each do |field|
             expect(page).to have_field(field, checked: true)
           end
         end
@@ -112,17 +116,17 @@ RSpec.describe 'Reports', type: :feature do
 
       context 'when no field selected' do
         before do
-          I18n.t('event_report.default_fields').each_value do |field|
+          default_visible_fields.each do |field|
             uncheck field
           end
         end
 
         it 'has no selected value' do
-          I18n.t('event_report.optional_fields').each_value do |field|
+          optional_fields.each do |field|
             expect(page).to have_field(field, checked: false)
           end
 
-          I18n.t('event_report.default_fields').each_value do |field|
+          default_visible_fields.each do |field|
             expect(page).to have_field(field, checked: false)
           end
         end

@@ -58,3 +58,10 @@ en:
       gender: Gender
       research_areas: Research areas
       title: Title
+  memberships:
+    attendance:
+      confirmed: Confirmed
+      invited: Invited
+      undecided: Undecided
+      not_yet_invited: Not Yet Invited
+      declined: Declined

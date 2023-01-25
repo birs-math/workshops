@@ -10,6 +10,7 @@ module EventMembersPresenter
   DEFAULT_FIELDS = I18n.t('event_report.default_fields').keys
   OPTIONAL_FIELDS = I18n.t('event_report.optional_fields').keys
   ALL_FIELDS = DEFAULT_FIELDS + OPTIONAL_FIELDS
+  ATTENDANCE_TYPES = I18n.t('memberships.attendance').keys
 
   def cell_field_values
     @cell_field_values ||= {

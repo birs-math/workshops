@@ -39,7 +39,9 @@ class ExportEventMembers
     CSV.generate(headers: true) do |csv|
       csv << headers
       events.each do |event|
-        memberships_by_attendance(event).each do |_attendance, members|
+        memberships_by_attendance(event).each do |attendance, members|
+          next unless attendance_options.include?(attendance)
+
           members.each do |member|
             csv << row(member, event.code)
           end
@@ -59,9 +61,20 @@ class ExportEventMembers
   end
 
   def selected_options
-    @selected_options ||= options.select do |field, option|
-      option == '1' && ALL_FIELDS.include?(field.to_sym)
-    end.keys.map(&:to_sym)
+    @selected_options ||= filter_options(ALL_FIELDS)
+  end
+
+  def attendance_options
+    @attendance_options ||=
+      begin
+        attendance_keys = filter_options(ATTENDANCE_TYPES)
+
+        attendance_keys.map { |key| I18n.t("memberships.attendance.#{key}") }
+      end
+  end
+
+  def filter_options(fields)
+    options.select { |field, value| value == '1' && fields.include?(field.to_sym) }.keys.map(&:to_sym)
   end
 
   def memberships_by_attendance(event)
@@ -69,6 +82,6 @@ class ExportEventMembers
   end
 
   def row(membership, event_code)
-    selected_options.map { |field| cell_field_values[field].call(membership) }.unshift(event_code)
+    (selected_options + [:attendance]).map { |field| cell_field_values[field].call(membership) }.unshift(event_code)
   end
 end
