@@ -9,7 +9,7 @@ class ApplicationController < ActionController::Base
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
   # Authorization module
-  include Pundit
+  include Pundit::Authorization
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   # Enforces access right checks for individuals resources
@@ -40,8 +40,6 @@ class ApplicationController < ActionController::Base
     @attendance = Membership::ATTENDANCE unless @event.blank?
   end
 
-
-
   private
 
   def record_not_found
@@ -56,8 +54,7 @@ class ApplicationController < ActionController::Base
   def validate_event_id
     event_id = (params[:event_id] || params[:id])
     return if event_id.blank?
-    all_events = Event.pluck(:id, :code).flatten.map(&:to_s)
-    return event_id if all_events.include?(event_id)
+    event_id if Event.where(id: event_id).or(Event.where(code: event_id)).exists?
   end
 
   def invalid_auth_token
