@@ -82,6 +82,6 @@ class ExportEventMembers
   end
 
   def row(membership, event_code)
-    (selected_options + [:attendance]).map { |field| cell_field_values[field].call(membership) }.unshift(event_code)
+    selected_options.map { |field| cell_field_values[field].call(membership) }.unshift(event_code)
   end
 end

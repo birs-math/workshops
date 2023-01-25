@@ -6,6 +6,7 @@
           <h4 class="form-label"><%= hash[:label] %></h4>
           <% I18n.t(hash[:i18n_key]).each do |option, option_value| %>
             <% if option == :attendance %>
+              <%= f.hidden_field option, value: '1' %>
               <%= f.label option, class: 'form-check-label' do %>
                 <%= option_value %>
               <% end %>

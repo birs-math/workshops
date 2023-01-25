@@ -113,34 +113,6 @@ RSpec.describe 'Reports', type: :feature do
           expect(page.response_headers['Content-Type']).to eq('text/csv')
         end
       end
-
-      context 'when no field selected' do
-        before do
-          default_visible_fields.each do |field|
-            uncheck field
-          end
-        end
-
-        it 'has no selected value' do
-          optional_fields.each do |field|
-            expect(page).to have_field(field, checked: false)
-          end
-
-          default_visible_fields.each do |field|
-            expect(page).to have_field(field, checked: false)
-          end
-        end
-
-        it 'does not return file' do
-          click_on 'Get report'
-          expect(page.response_headers['Content-Type']).not_to eq('text/csv')
-        end
-
-        it 'shows error message' do
-          click_on 'Get report'
-          expect(page).to have_text(I18n.t('ui.error_messages.no_options_selected'))
-        end
-      end
     end
   end
 
