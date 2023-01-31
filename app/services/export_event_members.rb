@@ -43,7 +43,7 @@ class ExportEventMembers
           next unless attendance_options.include?(attendance)
 
           members.each do |member|
-            csv << row(member, event.code)
+            csv << row(member)
           end
         end
       end
@@ -57,7 +57,7 @@ class ExportEventMembers
       else
         I18n.t("event_report.optional_fields.#{field}")
       end
-    end.unshift(I18n.t('event_report.event_code'))
+    end
   end
 
   def selected_options
@@ -81,7 +81,7 @@ class ExportEventMembers
     SortedMembers.new(event).memberships
   end
 
-  def row(membership, event_code)
-    selected_options.map { |field| cell_field_values[field].call(membership) }.unshift(event_code)
+  def row(membership)
+    selected_options.map { |field| cell_field_values[field].call(membership) }
   end
 end

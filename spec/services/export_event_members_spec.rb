@@ -5,7 +5,17 @@ require 'rails_helper'
 RSpec.describe ExportEventMembers do
   subject(:service_call) { described_class.new(event_ids: event_ids, options: params).call }
 
-  let(:event) { create(:event, code: '22w999', start_date: '2023-01-20', end_date: '2023-01-25') }
+  let(:event) do
+    create(:event, code:'22w999',
+                   start_date: '2023-01-20',
+                   end_date: '2023-01-25',
+                   event_format: 'Physical',
+                   event_type: '5 Day Workshop',
+                   location: 'EO',
+                   confirmed_count:  1,
+                   subjects: 'Some subjects')
+  end
+
   let(:event_ids) { [event.id] }
 
   def create_membership(person, role:, attendance:)
@@ -28,6 +38,7 @@ RSpec.describe ExportEventMembers do
   context 'when some fields selected' do
     let(:params) do
       {
+        event_code: '1',
         attendance: '1',
         confirmed: '1',
         invited: '1',
@@ -37,7 +48,9 @@ RSpec.describe ExportEventMembers do
         name: '1',
         email: '1',
         department: '1',
-        year_of_phd: '1'
+        year_of_phd: '1',
+        subjects: '0',
+        confirmed_count: '0'
       }
     end
     let(:csv) { File.open(Rails.root.join('spec', 'files', 'reports', 'some_fields_selected.csv')).read }
@@ -50,6 +63,12 @@ RSpec.describe ExportEventMembers do
   context 'when all fields' do
     let(:params) do
       {
+        event_code: '1',
+        event_format: '1',
+        event_type: '1',
+        confirmed_count: '1',
+        subjects: '1',
+        location: '1',
         attendance: '1',
         confirmed: '1',
         invited: '1',
@@ -72,11 +91,12 @@ RSpec.describe ExportEventMembers do
         organizer_notes: '1',
         gender: '1',
         research_areas: '1',
-        title: '1'
+        title: '1',
+        nserc_grant: '1'
       }
     end
 
-    let(:csv) { File.open(Rails.root.join('spec', 'files', 'reports', 'all_fields_selected.csv')).read }
+    let(:csv) { File.open(Rails.root.join('spec', 'files', 'reports', 'all_fields.csv')).read }
 
     it 'reports on all fields' do
       expect(service_call.report).to eq(csv)
@@ -93,6 +113,7 @@ RSpec.describe ExportEventMembers do
   context 'when non existent field is selected' do
     let(:params) do
       {
+        event_code: '1',
         attendance: '1',
         confirmed: '1',
         invited: '1',
@@ -117,6 +138,7 @@ RSpec.describe ExportEventMembers do
   context 'when some attendance fields are selected' do
     let(:params) do
       {
+        event_code: '1',
         attendance: '1',
         confirmed: '1',
         declined: '1',

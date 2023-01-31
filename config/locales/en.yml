@@ -37,8 +37,11 @@ en:
     error_messages:
       no_options_selected: Please select at least one option
   event_report:
-    event_code: Event code
     default_fields:
+      event_code: Event code
+      event_type: Event type
+      event_format: Event format
+      location: Location
       attendance: Attendance
       role: Role
       name: Name
@@ -50,14 +53,18 @@ en:
       billing: Billing
       special_info: Special info
     optional_fields:
+      subjects: Subjects
+      confirmed_count: Confirmed count
+      person_id: Person ID
+      organizer_notes: Organizer notes
       affiliation: Affiliation
       department: Department
       academic_status: Academic status
       year_of_phd: Year of PHD
-      organizer_notes: Organizer notes
       gender: Gender
       research_areas: Research areas
       title: Title
+      nserc_grant: NSERC grant
   memberships:
     attendance:
       confirmed: Confirmed
