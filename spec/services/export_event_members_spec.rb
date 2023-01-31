@@ -6,13 +6,13 @@ RSpec.describe ExportEventMembers do
   subject(:service_call) { described_class.new(event_ids: event_ids, options: params).call }
 
   let(:event) do
-    create(:event, code:'22w999',
+    create(:event, code: '22w999',
                    start_date: '2023-01-20',
                    end_date: '2023-01-25',
                    event_format: 'Physical',
                    event_type: '5 Day Workshop',
                    location: 'EO',
-                   confirmed_count:  1,
+                   confirmed_count: 1,
                    subjects: 'Some subjects')
   end
 
