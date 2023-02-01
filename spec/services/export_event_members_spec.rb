@@ -40,11 +40,6 @@ RSpec.describe ExportEventMembers do
       {
         event_code: '1',
         attendance: '1',
-        confirmed: '1',
-        invited: '1',
-        undecided: '1',
-        not_yet_invited: '1',
-        declined: '1',
         name: '1',
         email: '1',
         department: '1',
@@ -53,6 +48,7 @@ RSpec.describe ExportEventMembers do
         confirmed_count: '0'
       }
     end
+
     let(:csv) { File.open(Rails.root.join('spec', 'files', 'reports', 'some_fields_selected.csv')).read }
 
     it 'uses only those fields' do
@@ -70,11 +66,6 @@ RSpec.describe ExportEventMembers do
         subjects: '1',
         location: '1',
         attendance: '1',
-        confirmed: '1',
-        invited: '1',
-        undecided: '1',
-        not_yet_invited: '1',
-        declined: '1',
         role: '1',
         name: '1',
         email: '1',
@@ -115,11 +106,6 @@ RSpec.describe ExportEventMembers do
       {
         event_code: '1',
         attendance: '1',
-        confirmed: '1',
-        invited: '1',
-        undecided: '1',
-        not_yet_invited: '1',
-        declined: '1',
         name: '1',
         email: '1',
         department: '1',

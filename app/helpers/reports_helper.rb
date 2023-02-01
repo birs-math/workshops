@@ -9,8 +9,16 @@
 module ReportsHelper
   def fields_helper_object
     [
-      { label: 'Default fields', checked: true, i18n_key: 'event_report.default_fields' },
-      { label: 'Optional fields', checked: false, i18n_key: 'event_report.optional_fields' }
+      { label: I18n.t('event_report.default_field'), checked: true, i18n_key: 'event_report.default_fields' },
+      { label: I18n.t('event_report.optional_field'), checked: false, i18n_key: 'event_report.optional_fields' }
+    ]
+  end
+
+  def multiple_select_fields
+    [
+      { field: :attendance, i18n_key: 'memberships.attendance' },
+      { field: :role, i18n_key: 'memberships.roles' },
+      { field: :event_format, i18n_key: 'events.formats' }
     ]
   end
 end

@@ -36,12 +36,19 @@ en:
       invalid_date_range: Invalid dates
     error_messages:
       no_options_selected: Please select at least one option
+  events:
+    formats:
+      hybrid: Hybrid
+      physical: Physical
+      online: Online
   event_report:
+    default_field: Default fields
+    optional_field: Optional fields
     default_fields:
+      location: Location
       event_code: Event code
       event_type: Event type
       event_format: Event format
-      location: Location
       attendance: Attendance
       role: Role
       name: Name
@@ -72,3 +79,11 @@ en:
       undecided: Undecided
       not_yet_invited: Not Yet Invited
       declined: Declined
+    roles:
+      contact_organizer: Contact Organizer
+      organizer: Organizer
+      virtual_organizer: Virtual Organizer
+      participant: Participant
+      virtual_participant: Virtual Participant
+      observer: Observer
+      backup_participant: Backup Participant

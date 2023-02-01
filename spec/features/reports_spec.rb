@@ -83,7 +83,10 @@ RSpec.describe 'Reports', type: :feature do
     describe 'selecting fields' do
       let(:user) { admin }
       let(:default_visible_fields) do
-        I18n.t('event_report.default_fields').values - ['Attendance'] + I18n.t('memberships.attendance').values
+        I18n.t('event_report.default_fields').values - ['Attendance', 'Event format', 'Role'] +
+          I18n.t('memberships.attendance').values +
+          I18n.t('memberships.roles').values +
+          I18n.t('events.formats').values
       end
       let(:optional_fields) { I18n.t('event_report.optional_fields').values }
 

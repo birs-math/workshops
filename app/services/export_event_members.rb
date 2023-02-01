@@ -8,6 +8,8 @@ require 'csv'
 class ExportEventMembers
   include EventMembersPresenter
 
+  MULTISELECT_OPTIONS = %i[event_format attendance role]
+
   Result = Struct.new(:report, :error_message, keyword_init: true) do
     def valid?
       error_message.nil? && report
@@ -20,7 +22,7 @@ class ExportEventMembers
   end
 
   def call
-    return Result.new(error_message: I18n.t('ui.error_messages.no_options_selected')) if selected_options.empty?
+    return Result.new(error_message: I18n.t('ui.error_messages.no_options_selected')) if empty_fields?
 
     csv = to_csv
 
@@ -39,11 +41,14 @@ class ExportEventMembers
     CSV.generate(headers: true) do |csv|
       csv << headers
       events.each do |event|
-        memberships_by_attendance(event).each do |attendance, members|
-          next unless attendance_options.include?(attendance)
+        memberships_by_attendance(event).each do |attendance, memberships|
+          next unless include_attendance?(attendance)
+          next unless include_event_format?(event.event_format)
 
-          members.each do |member|
-            csv << row(member)
+          memberships.each do |membership|
+            next unless include_roles?(membership.role)
+
+            csv << row(membership)
           end
         end
       end
@@ -65,12 +70,15 @@ class ExportEventMembers
   end
 
   def attendance_options
-    @attendance_options ||=
-      begin
-        attendance_keys = filter_options(ATTENDANCE_TYPES)
+    @attendance_options ||= filter_options(ATTENDANCE_TYPES).map { |key| I18n.t("memberships.attendance.#{key}") }
+  end
 
-        attendance_keys.map { |key| I18n.t("memberships.attendance.#{key}") }
-      end
+  def roles_options
+    @roles_keys ||= filter_options(ROLES).map { |key| I18n.t("memberships.roles.#{key}") }
+  end
+
+  def event_format_options
+    @event_format_options ||= filter_options(EVENT_FORMATS).map { |key| I18n.t("events.formats.#{key}") }
   end
 
   def filter_options(fields)
@@ -83,5 +91,21 @@ class ExportEventMembers
 
   def row(membership)
     selected_options.map { |field| cell_field_values[field].call(membership) }
+  end
+
+  def empty_fields?
+    selected_options.all? { |option| MULTISELECT_OPTIONS.include?(option) }
+  end
+
+  def include_attendance?(attendance)
+    attendance_options.include?(attendance) || attendance_options.empty?
+  end
+
+  def include_roles?(role)
+    roles_options.include?(role) || roles_options.empty?
+  end
+
+  def include_event_format?(event_format)
+    event_format_options.include?(event_format) || event_format_options.empty?
   end
 end

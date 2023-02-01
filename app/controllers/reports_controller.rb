@@ -67,7 +67,14 @@ class ReportsController < ApplicationController
   private
 
   def report_params
-    params.permit(*(EventMembersPresenter::ALL_FIELDS + EventMembersPresenter::ATTENDANCE_TYPES))
+    params.permit(
+      *(
+        EventMembersPresenter::ALL_FIELDS +
+        EventMembersPresenter::ATTENDANCE_TYPES +
+        EventMembersPresenter::ROLES +
+        EventMembersPresenter::EVENT_FORMATS
+      )
+    )
   end
 
   def set_defaults
