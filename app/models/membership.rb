@@ -38,8 +38,8 @@ class Membership < ApplicationRecord
   validate :guest_disclaimer_acknowledgement
   validate :has_address_if_confirmed, unless: :is_rsvp
 
-  ROLES = I18n.t('memberships.roles').values
-  ATTENDANCE = I18n.t('memberships.attendance').values
+  ROLES = I18n.t('memberships.roles', locale: :en).values
+  ATTENDANCE = I18n.t('memberships.attendance', locale: :en).values
 
   include SharedDecorators
 

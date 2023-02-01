@@ -8,7 +8,7 @@ require 'csv'
 class ExportEventMembers
   include EventMembersPresenter
 
-  MULTISELECT_OPTIONS = %i[event_format attendance role]
+  MULTISELECT_OPTIONS = %i[event_format attendance role].freeze
 
   Result = Struct.new(:report, :error_message, keyword_init: true) do
     def valid?
@@ -70,19 +70,20 @@ class ExportEventMembers
   end
 
   def attendance_options
-    @attendance_options ||= filter_options(ATTENDANCE_TYPES).map { |key| I18n.t("memberships.attendance.#{key}") }
+    @attendance_options ||=
+      filter_options(ATTENDANCE_TYPES).map { |key| I18n.t("memberships.attendance.#{key}", locale: :en) }
   end
 
   def roles_options
-    @roles_keys ||= filter_options(ROLES).map { |key| I18n.t("memberships.roles.#{key}") }
+    @roles_options ||= filter_options(ROLES).map { |key| I18n.t("memberships.roles.#{key}", locale: :en) }
   end
 
   def event_format_options
-    @event_format_options ||= filter_options(EVENT_FORMATS).map { |key| I18n.t("events.formats.#{key}") }
+    @event_format_options ||= filter_options(EVENT_FORMATS).map { |key| I18n.t("events.formats.#{key}", locale: :en) }
   end
 
-  def filter_options(fields)
-    options.select { |field, value| value == '1' && fields.include?(field.to_sym) }.keys.map(&:to_sym)
+  def filter_options(template)
+    options.select { |field, value| ['1', true].include?(value) && template.include?(field.to_sym) }.keys.map(&:to_sym)
   end
 
   def memberships_by_attendance(event)
