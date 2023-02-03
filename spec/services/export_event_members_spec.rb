@@ -44,7 +44,7 @@ RSpec.describe ExportEventMembers do
         email: '1',
         department: '1',
         year_of_phd: '1',
-        subjects: '0',
+        event_subjects: '0',
         confirmed_count: '0'
       }
     end
@@ -63,8 +63,8 @@ RSpec.describe ExportEventMembers do
         event_format: '1',
         event_type: '1',
         confirmed_count: '1',
-        subjects: '1',
-        location: '1',
+        event_subjects: '1',
+        event_location: '1',
         attendance: '1',
         role: '1',
         name: '1',

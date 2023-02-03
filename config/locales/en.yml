@@ -45,7 +45,8 @@ en:
     default_field: Default fields
     optional_field: Optional fields
     default_fields:
-      location: Location
+      event_location: Event location
+      event_name: Event name
       event_code: Event code
       event_type: Event type
       event_format: Event format
@@ -60,8 +61,7 @@ en:
       billing: Billing
       special_info: Special info
     optional_fields:
-      subjects: Subjects
-      confirmed_count: Confirmed count
+      event_subjects: Event subjects
       person_id: Person ID
       organizer_notes: Organizer notes
       affiliation: Affiliation

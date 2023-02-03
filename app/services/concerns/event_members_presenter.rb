@@ -16,14 +16,14 @@ module EventMembersPresenter
 
   def cell_field_values
     @cell_field_values ||= {
-      person_id: ->(mem) { mem.person_id },
-      nserc_grant: ->(mem) { mem.person.grants.join(', ') },
-      confirmed_count: ->(mem) { mem.event.confirmed_count },
       event_format: ->(mem) { mem.event.event_format },
       event_type: ->(mem) { mem.event.event_type },
       event_code: ->(mem) { mem.event.code },
-      subjects: ->(mem) { mem.event.subjects },
-      location: ->(mem) { mem.event.location },
+      event_subjects: ->(mem) { mem.event.subjects },
+      event_location: ->(mem) { mem.event.location },
+      event_name: ->(mem) { mem.event.name || mem.event.short_name },
+      person_id: ->(mem) { mem.person_id.to_s },
+      nserc_grant: ->(mem) { mem.person.grants&.join(', ') },
       attendance: ->(mem) { mem.attendance },
       role: ->(mem) { mem.role },
       name: ->(mem) { mem.person.name },

@@ -59,7 +59,7 @@
       </div>
     <% end %>
       <div class="col-12 spaced" style="padding-left: 0;">
-        <%= f.submit 'Get report', class: 'btn btn-primary', disabled: @disable_inputs %>
+        <%= f.submit 'Get report', class: 'btn btn-primary', disabled: @disable_inputs, data: { disable_with: false } %>
       </div>
   </div>
 <% end %>
