@@ -11,9 +11,19 @@ module EventMembersPresenter
   OPTIONAL_FIELDS = I18n.t('event_report.optional_fields').keys
   ALL_FIELDS = DEFAULT_FIELDS + OPTIONAL_FIELDS
   ATTENDANCE_TYPES = I18n.t('memberships.attendance').keys
+  ROLES = I18n.t('memberships.roles').keys
+  EVENT_FORMATS = I18n.t('events.formats').keys
 
   def cell_field_values
     @cell_field_values ||= {
+      event_format: ->(mem) { mem.event.event_format },
+      event_type: ->(mem) { mem.event.event_type },
+      event_code: ->(mem) { mem.event.code },
+      event_subjects: ->(mem) { mem.event.subjects },
+      event_location: ->(mem) { mem.event.location },
+      event_name: ->(mem) { mem.event.name || mem.event.short_name },
+      person_id: ->(mem) { mem.person_id.to_s },
+      nserc_grant: ->(mem) { mem.person.grants&.join(', ') },
       attendance: ->(mem) { mem.attendance },
       role: ->(mem) { mem.role },
       name: ->(mem) { mem.person.name },

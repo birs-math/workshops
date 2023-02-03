@@ -41,5 +41,6 @@ FactoryBot.define do
     gender { 'M' }
     research_areas { 'cyber security' }
     title { 'Dr.' }
+    grants { 'some NSERC grant' }
   end
 end

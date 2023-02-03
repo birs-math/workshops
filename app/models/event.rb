@@ -55,7 +55,7 @@ class Event < ApplicationRecord
     where("start_date >= '?-01-01' AND end_date <= '?-12-31' AND template = ?", year.to_i, year.to_i, false)
   }
 
-  scope :in_range, -> (start_date, end_date) {
+  scope :in_range, lambda  { |start_date, end_date|
     where("start_date >= ? AND end_date <= ? AND template = false", start_date.to_s, end_date.to_s)
   }
 
