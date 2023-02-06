@@ -23,7 +23,7 @@ module EventMembersPresenter
       event_location: ->(mem) { mem.event.location },
       event_name: ->(mem) { mem.event.name || mem.event.short_name },
       person_id: ->(mem) { mem.person_id.to_s },
-      nserc_grant: ->(mem) { mem.person.grants&.join(', ') },
+      nserc_grant: ->(mem) { mem.person.grants },
       attendance: ->(mem) { mem.attendance },
       role: ->(mem) { mem.role },
       name: ->(mem) { mem.person.name },
