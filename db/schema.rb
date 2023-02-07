@@ -105,15 +105,6 @@ ActiveRecord::Schema.define(version: 2023_01_13_122057) do
     t.index ["person_id"], name: "index_lectures_on_person_id"
   end
 
-  create_table "locations", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "clarification"
-    t.datetime "discarded_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["discarded_at"], name: "index_locations_on_discarded_at"
-  end
-
   create_table "memberships", id: :serial, force: :cascade do |t|
     t.integer "event_id"
     t.integer "person_id"
