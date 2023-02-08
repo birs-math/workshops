@@ -120,8 +120,6 @@ describe 'Schedule Index', type: :feature do
     end
 
     context "Start/Stop Recording buttons" do
-      let(:location) { create(:location, name: @lecture.room) }
-
       before do
         # has to be today because buttons only appear today
         date = Date.today
@@ -141,7 +139,7 @@ describe 'Schedule Index', type: :feature do
                                         start_time: @lecture.start_time,
                                           end_time: @lecture.end_time,
                                               name: @lecture.title,
-                                          location: location)
+                                          location: @lecture.room)
 
         @link = "/events/#{@event.code}/schedule/#{@schedule_item.id}/recording"
       end

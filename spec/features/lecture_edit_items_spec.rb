@@ -18,7 +18,6 @@ describe 'Editing a Lecture Item', type: :feature do
     end
     @item = @event.schedules.first
     @lecture = @item.lecture
-    create(:location, name: 'In the woods')
     visit event_schedule_edit_path(@event, @item)
   end
 
@@ -80,7 +79,7 @@ describe 'Editing a Lecture Item', type: :feature do
   end
 
   it 'updates the room of the lecture item' do
-    page.select 'In the woods', from: 'schedule_location_id'
+    page.fill_in 'schedule_location', :with => 'In the woods'
     click_button 'Update Schedule'
     expect(Lecture.find(@lecture.id).room).to eq('In the woods')
   end

@@ -22,8 +22,6 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
     @membership = create(:membership, person: @person, event: @event)
     @day = @event.start_date + 3.days
     @weekday = @day.strftime("%A")
-    create(:location, name: 'Room 1')
-    create(:location, name: 'Lecture room')
 
     visit event_schedule_index_path(@event)
     click_link "Add an item on #{@weekday}"
@@ -34,8 +32,8 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
   end
 
   def add_a_lecture(title:, location:)
-    page.fill_in 'schedule_name', with: title.to_s
-    page.select location.to_s, from: 'schedule_location_id'
+    page.fill_in 'schedule_name', with: "#{title}"
+    page.fill_in 'schedule_location', with: "#{location}"
     select @person.lname, from: "schedule[lecture_attributes][person_id]"
     click_button 'Add New Schedule Item'
   end
@@ -49,7 +47,7 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
 
   it 'saves the lecture keywords, and removes trailing whitespace' do
     page.fill_in 'schedule_name', with: 'Testing lecture keywords'
-    page.select 'Lecture room', from: 'schedule_location_id'
+    page.fill_in 'schedule_location', with: 'Lecture room'
     select @person.lname, from: "schedule[lecture_attributes][person_id]"
     page.fill_in 'schedule[lecture_attributes][keywords]',
                  with: ' RSpec, Testing, Hashtags '
@@ -61,7 +59,7 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
 
   it 'also adds a Schedule entry' do
     page.fill_in 'schedule_name', with: 'New Lecture'
-    page.select 'Lecture room', from: 'schedule_location_id'
+    page.fill_in 'schedule_location', with: 'Lecture room'
     select @person.lname, from: "schedule[lecture_attributes][person_id]"
     click_button 'Add New Schedule Item'
 
@@ -76,7 +74,7 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
     click_link "Add an item on #{@weekday}"
 
     page.fill_in 'schedule_name', with: 'New test lecture'
-    page.select 'Lecture room', from: 'schedule_location_id'
+    page.fill_in 'schedule_location', with: 'Lecture room'
     select @person.lname, from: "schedule[lecture_attributes][person_id]"
     click_button 'Add New Schedule Item'
     expect(page).to have_content 'successfully scheduled'
@@ -88,7 +86,7 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
 
   it 'has a checkbox for indicating that recordings should not be published' do
     page.fill_in 'schedule_name', with: 'Testing Do Not Publish'
-    page.select 'Lecture room', from: 'schedule_location_id'
+    page.fill_in 'schedule_location', with: 'Lecture room'
     select @person.lname, from: "schedule[lecture_attributes][person_id]"
     page.check('schedule[lecture_attributes][do_not_publish]')
     click_button 'Add New Schedule Item'
@@ -99,7 +97,7 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
 
   it 'sets do_not_publish to false if the checkbox is not checked' do
     page.fill_in 'schedule_name', with: 'Testing Do Not Publish 2'
-    page.select 'Lecture room', from: 'schedule_location_id'
+    page.fill_in 'schedule_location', with: 'Lecture room'
     select @person.lname, from: "schedule[lecture_attributes][person_id]"
     click_button 'Add New Schedule Item'
 
@@ -109,7 +107,7 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
 
   it 'repopulates lecture description and title fields if validation fails' do
     page.fill_in 'schedule_name', with: 'Lecture 1'
-    page.select 'Lecture room', from: 'schedule_location_id'
+    page.fill_in 'schedule_location', with: 'Lecture room'
     select @person.lname, from: 'schedule[lecture_attributes][person_id]'
     click_button 'Add New Schedule Item'
 
@@ -134,7 +132,7 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
 
   it 'repopulates schedule description and title fields if validation fails' do
     page.fill_in 'schedule_name', with: 'Non-lecture'
-    page.select 'Lecture room', from: 'schedule_location_id'
+    page.fill_in 'schedule_location', with: 'Lecture room'
     click_button 'Add New Schedule Item'
 
     schedule = Schedule.last
@@ -144,7 +142,7 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
     visit event_schedule_index_path(@event)
     click_link "Add an item on #{@weekday}"
     page.fill_in 'schedule_name', with: 'Lecture 2'
-    page.select 'Room 1', from: 'schedule_location_id'
+    page.fill_in 'schedule_location', with: ''
     page.fill_in 'schedule_description', with: 'Best talk ever!'
     select start_hour, from: 'schedule_start_time_4i'
     select start_min, from: 'schedule_start_time_5i'

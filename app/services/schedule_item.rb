@@ -26,8 +26,7 @@ class ScheduleItem
       @lecture = @schedule.lecture
       @schedule.name = @lecture.title
       @schedule.description = @lecture.abstract
-      location = Location.find_or_create_by!(name: @lecture.room)
-      @schedule.location = location
+      @schedule.location = @lecture.room
     end
     @schedule
   end
@@ -143,7 +142,7 @@ class ScheduleItem
     new_schedule.name = "#{lecture.person.name}: #{new_schedule.name}"
     lecture.abstract = new_schedule.description
     new_schedule.description = nil
-    lecture.room = new_schedule.location.name
+    lecture.room = new_schedule.location
     new_schedule.lecture = lecture
     [lecture, new_schedule]
   end
@@ -319,9 +318,9 @@ class ScheduleItem
 
   def set_default_location
     rooms = Setting.get_all['Rooms']
-    location = nil
+    location = ''
     unless rooms.nil? || rooms[@event.location].nil?
-      location = Location.find_or_create_by!(name: rooms[@event.location][@event.event_type])
+      location = rooms[@event.location][@event.event_type]
     end
     location
   end
