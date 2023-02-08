@@ -126,7 +126,6 @@ Rails.application.routes.draw do
     resources :lectures
     resources :schedules
     resources :users
-    resources :locations
     root to: "people#index"
   end
 
