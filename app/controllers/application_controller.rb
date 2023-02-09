@@ -9,7 +9,7 @@ class ApplicationController < ActionController::Base
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
   # Authorization module
-  include Pundit::Authorization
+  include Pundit
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   # Enforces access right checks for individuals resources
