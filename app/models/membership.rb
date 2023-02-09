@@ -38,10 +38,10 @@ class Membership < ApplicationRecord
   validate :guest_disclaimer_acknowledgement
   validate :has_address_if_confirmed, unless: :is_rsvp
 
-  ROLES = I18n.t('memberships.roles', locale: :en).values
-  ATTENDANCE = I18n.t('memberships.attendance', locale: :en).values
-  ONLINE_ROLES = ['Virtual Organizer', 'Virtual Participant'].freeze
-  IN_PERSON_ROLES = ['Contact Organizer', 'Organizer', 'Participant'].freeze
+  ROLES = ['Contact Organizer', 'Organizer', 'Virtual Organizer', 'Participant',
+           'Virtual Participant', 'Observer', 'Backup Participant'].freeze
+  ATTENDANCE = ['Confirmed', 'Invited', 'Undecided', 'Not Yet Invited', 'Declined'].freeze
+
 
   include SharedDecorators
 

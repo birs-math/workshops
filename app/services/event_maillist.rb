@@ -8,17 +8,10 @@
 class EventMaillist
   include Sendable
 
-  ORGANIZERS_GROUP = %w[orgs organizers].freeze
-  SPEAKERS_GROUP = %w[speakers].freeze
-  ALL_GROUP = %w[all].freeze
-  ATTENDANCE_GROUP = Membership::ATTENDANCE
-  ATTENDANCE_SUB_GROUPS = %w[in_person online].freeze
-
   def initialize(email, mailist_params)
     @email       = email
     @event       = mailist_params[:event]
     @group       = mailist_params[:group]
-    @subgroup    = mailist_params[:subgroup]
     @destination = mailist_params[:destination]
   end
 
@@ -37,25 +30,22 @@ class EventMaillist
       attachments: @email.attachments,
     }
 
-    if ORGANIZERS_GROUP.include?(@group)
+    if @group == 'orgs' || @group == 'organizers'
       send_to_orgs(message)
-    elsif ALL_GROUP.include?(@group)
+    elsif @group == 'all'
       send_to_all(message)
-    elsif SPEAKERS_GROUP.include?(@group)
+    elsif @group == 'speakers'
       send_to_speakers(message)
-    elsif ATTENDANCE_GROUP.include?(@group) && ATTENDANCE_SUB_GROUPS.include?(@subgroup)
-      send_to_attendance_subgroup(message)
-    elsif ATTENDANCE_GROUP.include?(@group)
-      send_to_attendance_group(message)
     else
-      return report_unknown_group(message)
+      send_to_attendance_group(message)
     end
 
     record_sent_mail(subject, @destination)
   end
 
+
   def remove_trailing_comma(str)
-    str.blank? ? '' : str.chomp(",")
+      str.blank? ? '' : str.chomp(",")
   end
 
   def send_to_orgs(message)
@@ -108,18 +98,6 @@ class EventMaillist
     end
   end
 
-  def send_to_attendance_subgroup(message)
-    roles = {
-      'in_person' => Membership::IN_PERSON_ROLES,
-      'online' => Membership::ONLINE_ROLES
-    }
-
-    members = @event.attendance_and_role(role: roles[@subgroup], attendance: @group)
-    members.each do |member|
-      email_member(member, message)
-    end
-  end
-
   def email_member(member, message)
     if member.is_a?(Person)
       recipient = %Q("#{member.name}" <#{member.email}>)
@@ -141,15 +119,5 @@ class EventMaillist
             }
       StaffMailer.notify_sysadmin(@event.id, msg).deliver_now
     end
-  end
-
-  def report_unknown_group(message)
-    msg = {
-      problem: "Don't know how to send to group '#{@group}'",
-      email_object: @email.inspect,
-      message: message
-    }
-
-    StaffMailer.notify_sysadmin(@event.id, msg).deliver_now
   end
 end
