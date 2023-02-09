@@ -9,15 +9,15 @@ require 'rails_helper'
 # Griddler email processor
 describe 'EmailProcessor' do
   let(:params) do
-    {
-      to: ['some-identifier@example.com'],
-      recipient: 'some-identifier@example.com',
-      from: 'Webmaster <webmaster@example.net>',
-      subject: 'Testing email processing',
-      text: 'A Test Message.',
-      Date: "Tue, 25 Sep 2018 16:17:17 -0600",
-      headers: {'Message-Id' => 'b901cee7-e49a-4330-9ee2-3fc28c6343cb@domain.edu'}
-    }
+  {
+    to: ['some-identifier@example.com'],
+    recipient: 'some-identifier@example.com',
+    from: 'Webmaster <webmaster@example.net>',
+    subject: 'Testing email processing',
+    text: 'A Test Message.',
+    Date: "Tue, 25 Sep 2018 16:17:17 -0600",
+    headers: {'Message-Id' => 'b901cee7-e49a-4330-9ee2-3fc28c6343cb@domain.edu'}
+  }
   end
 
   subject { Griddler::Email.new(params) }
@@ -328,18 +328,6 @@ describe 'EmailProcessor' do
 
 
   context '.process delivers email to maillist' do
-    let(:email) { Griddler::Email.new(params) }
-    let(:subgroup) { nil }
-    let(:list_params) do
-      {
-        event: event,
-        group: group,
-        subgroup: subgroup,
-        destination: destination
-      }
-    end
-    let(:destination) { params[:to].first }
-
     before do
       maillist = double('EventMaillist')
       expect(maillist).to receive(:send_message).at_least(:once)
@@ -352,164 +340,116 @@ describe 'EmailProcessor' do
       @event2 = create(:event)
     end
 
-    after do
+    it 'invokes EventMaillist if sender and recipient are valid' do
+      params[:to] = ["#{event.code}@example.com"]
+      email = Griddler::Email.new(params)
+      list_params = {
+        event: event,
+        group: 'Confirmed',
+        destination: params[:to].first
+      }
+
       EmailProcessor.new(email).process
+      expect(EventMaillist).to have_received(:new).with(email, list_params)
     end
 
-    context 'if sender and recipient are valid' do
-      let(:group) { 'Confirmed' }
+    it 'passes attendance status from recipient email to EventMaillist' do
+      params[:to] = ["#{event.code}-not_yet_invited@example.com"]
+      params[:from] = organizer.person.email
+      email = Griddler::Email.new(params)
+      list_params = {
+        event: event,
+        group: 'Not Yet Invited',
+        destination: params[:to].first
+      }
 
-      before do
-        params[:to] = ["#{event.code}@example.com"]
-      end
-
-      it('invokes EventMaillist') { expect(EventMaillist).to receive(:new).with(email, list_params) }
+      EmailProcessor.new(email).process
+      expect(EventMaillist).to have_received(:new).with(email, list_params)
     end
 
-    describe 'passing attendance status from recipient email to EventMaillist' do
-      let(:group) { 'Not Yet Invited' }
+    it 'passes "orgs" from recipient email to EventMaillist' do
+      params[:to] = ["#{event.code}-orgs@example.com"]
+      email = Griddler::Email.new(params)
+      list_params = {
+        event: event,
+        destination: params[:to].first,
+        group: 'orgs'
+      }
 
-      before do
-        params[:to] = ["#{event.code}-not_yet_invited@example.com"]
-        params[:from] = organizer.person.email
-      end
-
-      it { expect(EventMaillist).to receive(:new).with(email, list_params) }
+      EmailProcessor.new(email).process
+      expect(EventMaillist).to have_received(:new).with(email, list_params)
     end
 
-    describe '"orgs" group' do
-      let(:group) { 'orgs' }
+    it 'passes "speakers" from recipient email to EventMaillist, for orgs' do
+      params[:to] = ["#{event.code}-speakers@example.com"]
+      params[:from] = "#{organizer.person.name} <#{organizer.person.email}>"
+      email = Griddler::Email.new(params)
 
-      before { params[:to] = ["#{event.code}-orgs@example.com"] }
-
-      it { expect(EventMaillist).to receive(:new).with(email, list_params) }
+      list_params = {
+                event: event,
+                destination: params[:to].first,
+                group: 'speakers'
+              }
+      EmailProcessor.new(email).process
+      expect(EventMaillist).to have_received(:new).with(email, list_params)
     end
 
-    describe '"speakers" group' do
-      let(:group) { 'speakers' }
+    it 'passes "all" from recipient email to EventMaillist' do
+      params[:to] = ["#{event.code}-all@example.com"]
+      params[:from] = organizer.person.email
+      email = Griddler::Email.new(params)
+      list_params = {
+        event: event,
+        destination: params[:to].first,
+        group: 'all'
+      }
 
-      before do
-        params[:to] = ["#{event.code}-speakers@example.com"]
-        params[:from] = "#{organizer.person.name} <#{organizer.person.email}>"
-      end
-
-      it { expect(EventMaillist).to receive(:new).with(email, list_params) }
+      EmailProcessor.new(email).process
+      expect(EventMaillist).to have_received(:new).with(email, list_params)
     end
 
-    describe '"all" group' do
-      let(:group) { 'all' }
+    it 'invokes EventMaillist once for each event in the To: field' do
+      create(:membership, event: @event2, person: person)
+      params[:to] = ["#{event.code}@example.com", "#{@event2.code}@example.com"]
+      email = Griddler::Email.new(params)
 
-      before do
-        params[:to] = ["#{event.code}-all@example.com"]
-        params[:from] = organizer.person.email
-      end
-
-      it { expect(EventMaillist).to receive(:new).with(email, list_params) }
+      EmailProcessor.new(email).process
+      expect(EventMaillist).to have_received(:new).exactly(2).times
     end
 
-    context 'when in person group' do
-      let(:subgroup) { 'in_person' }
+    it 'invokes EventMaillist once for each event in the Cc: field' do
+      create(:membership, event: @event2, person: person)
+      params[:to] = ['myfriend@example.com']
+      params[:cc] = ["#{event.code}@example.com", "#{@event2.code}@example.com"]
+      email = Griddler::Email.new(params)
 
-      before do
-        params[:to] = ["#{event.code}-#{group_from_email}@example.com"]
-        params[:from] = organizer.person.email
-      end
-
-      context 'when confirmed' do
-        let(:group) { 'Confirmed' }
-        let(:group_from_email) { 'in_person' }
-
-        it { expect(EventMaillist).to receive(:new).with(email, list_params) }
-      end
-
-      context 'when invited' do
-        let(:group) { 'Invited' }
-        let(:group_from_email) { 'invited-in_person' }
-
-        it { expect(EventMaillist).to receive(:new).with(email, list_params) }
-      end
-
-      context 'when not yet invited' do
-        let(:group) { 'Not Yet Invited' }
-        let(:group_from_email) { 'not_yet_invited-in_person' }
-
-        it { expect(EventMaillist).to receive(:new).with(email, list_params) }
-      end
+      EmailProcessor.new(email).process
+      expect(EventMaillist).to have_received(:new).exactly(2).times
     end
 
-    context 'when online group' do
-      let(:subgroup) { 'online' }
+    it 'invokes EventMaillist once and EmailFromNonmemberBounceJob once if
+      sender is confirmed for one event in To: but not another' do
+      params[:to] = ["#{event.code}@example.com", "#{@event2.code}@example.com"]
+      email = Griddler::Email.new(params)
+      allow(EmailFromNonmemberBounceJob).to receive(:perform_later)
 
-      before do
-        params[:to] = ["#{event.code}-#{group_from_email}@example.com"]
-        params[:from] = organizer.person.email
-      end
+      EmailProcessor.new(email).process
 
-      context 'when confirmed' do
-        let(:group) { 'Confirmed' }
-        let(:group_from_email) { 'online' }
-
-        it { expect(EventMaillist).to receive(:new).with(email, list_params) }
-      end
-
-      context 'when invited' do
-        let(:group) { 'Invited' }
-        let(:group_from_email) { 'invited-online' }
-
-        it { expect(EventMaillist).to receive(:new).with(email, list_params) }
-      end
-
-      context 'when not yet invited' do
-        let(:group) { 'Not Yet Invited' }
-        let(:group_from_email) { 'not_yet_invited-online' }
-
-        it { expect(EventMaillist).to receive(:new).with(email, list_params) }
-      end
+      expect(EventMaillist).to have_received(:new).exactly(1).times
+      expect(EmailFromNonmemberBounceJob).to have_received(:perform_later).exactly(1).times
     end
 
-    describe 'invoking EventMaillist once for each event in the To: field' do
-      before do
-        create(:membership, event: @event2, person: person)
-        params[:to] = %W[#{event.code}@example.com #{@event2.code}@example.com]
-      end
+    it 'handles comma-separated emails in the recipient field' do
+      params[:to] = ["#{event.code}@example.com"]
+      create(:membership, person: person, event: @event2, attendance: 'Confirmed')
+      params[:recipient] = "#{event.code}-orgs@example.com, #{@event2.code}@example.com"
+      email = Griddler::Email.new(params)
+      allow(EmailFromNonmemberBounceJob).to receive(:perform_later)
 
-      it { expect(EventMaillist).to receive(:new).exactly(2).times }
-    end
+      EmailProcessor.new(email).process
 
-    describe 'invoking EventMaillist once for each event in the Cc: field' do
-      before do
-        create(:membership, event: @event2, person: person)
-        params[:to] = ['myfriend@example.com']
-        params[:cc] = %W[#{event.code}@example.com #{@event2.code}@example.com]
-      end
-
-      it { expect(EventMaillist).to receive(:new).exactly(2).times }
-    end
-
-    context 'when sender is confirmed for one event in To: but not another' do
-      before { params[:to] = %W[#{event.code}@example.com #{@event2.code}@example.com] }
-
-      after { allow(EmailFromNonmemberBounceJob).to receive(:perform_later) }
-
-      it 'invokes EventMaillist once and EmailFromNonmemberBounceJob once' do
-        expect(EventMaillist).to receive(:new).exactly(1).times
-        expect(EmailFromNonmemberBounceJob).to receive(:perform_later).exactly(1).times
-      end
-    end
-
-    describe 'handling comma-separated emails in the recipient field' do
-      before do
-        params[:to] = ["#{event.code}@example.com"]
-        create(:membership, person: person, event: @event2, attendance: 'Confirmed')
-        params[:recipient] = "#{event.code}-orgs@example.com, #{@event2.code}@example.com"
-      end
-
-      after { allow(EmailFromNonmemberBounceJob).to receive(:perform_later) }
-
-      it 'works' do
-        expect(EventMaillist).to receive(:new).exactly(3).times
-        expect(EmailFromNonmemberBounceJob).not_to receive(:perform_later)
-      end
+      expect(EventMaillist).to have_received(:new).exactly(3).times
+      expect(EmailFromNonmemberBounceJob).not_to have_received(:perform_later)
     end
   end
 end
