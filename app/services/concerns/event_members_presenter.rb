@@ -22,9 +22,9 @@ module EventMembersPresenter
 
   def header(key)
     if DEFAULT_FIELDS.include?(key)
-      I18n.t("event_report.default_fields.#{key}")
+      I18n.t("event_report.default_fields.#{key}", locale: :en)
     else
-      I18n.t("event_report.optional_fields.#{key}")
+      I18n.t("event_report.optional_fields.#{key}", locale: :en)
     end
   end
 
