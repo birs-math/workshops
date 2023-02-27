@@ -100,8 +100,8 @@ Rails.application.configure do
   }
   config.action_mailer.smtp_settings = {
     address:              ENV['EMAIL_SERVER'],
-    port:                 ENV['EMAIL_PORT'],
-    enable_starttls_auto: ENV['EMAIL_STARTTLS'],
+    port:                 ENV['EMAIL_PORT'].to_i,
+    enable_starttls_auto: ENV['EMAIL_STARTTLS'] === "true",
     authentication:       :login,
     user_name:            ENV['MANDRILL_USERNAME'],
     password:             ENV['MANDRILL_API_KEY']

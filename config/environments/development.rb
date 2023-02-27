@@ -31,7 +31,17 @@ Rails.application.configure do
   config.active_storage.service = :local
 
   # Don't care if the mailer can't send.
-  config.action_mailer.raise_delivery_errors = false
+  config.action_mailer.raise_delivery_errors = true
+
+  # This should probably be disabled when not actively testing email features
+  config.action_mailer.smtp_settings = {
+    address:              ENV['EMAIL_SERVER'],
+    port:                 ENV['EMAIL_PORT'].to_i,
+    enable_starttls_auto: ENV['EMAIL_STARTTLS'] === "true",
+    authentication:       :login,
+    user_name:            ENV['SMTP_USERNAME'],
+    password:             ENV['SMTP_PASSWORD']
+  }
 
   config.action_mailer.perform_caching = false
 
