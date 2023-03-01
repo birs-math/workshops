@@ -142,4 +142,8 @@ module EventsHelper
   def observers_count(event)
     event.confirmed_count - virtual_confirmed_count(event) - onsite_confirmed_count(event)
   end
+
+  def location_options
+    GetSetting.locations || []
+  end
 end
