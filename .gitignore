@@ -72,7 +72,10 @@ app/views/shared/_debugging.erb
 .DS_Store
 doc
 public/assets/
-app/assets/images/*_logo.png
+app/._assets
+app/assets/**/._*
+app/assets/images/birs_logo.png
+app/assets.tar.gz
 public/icons/*
 .rubocop.yml
 node_modules/
