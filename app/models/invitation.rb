@@ -21,8 +21,6 @@ class Invitation < ApplicationRecord
   end
 
   def send_invite
-    return unless set_invitation_template
-
     update_and_save
     EmailInvitationJob.perform_later(id)
   end
@@ -46,9 +44,6 @@ class Invitation < ApplicationRecord
   end
 
   def send_reminder
-    return unless set_invitation_template
-
-    save # save new template
     update_reminder
     EmailInvitationJob.perform_later(id)
   end
@@ -111,6 +106,15 @@ class Invitation < ApplicationRecord
       start_time = event.start_date_in_time_zone.beginning_of_day
       self.expires = start_time - EXPIRES_BEFORE
     end
+  end
+
+  def email_template_path
+    InvitationEmailPathBuilder.build_path(
+      event_location: membership.event.location,
+      event_type: membership.event.event_type,
+      event_format: membership.event.event_format,
+      attendance: membership.attendance
+    )
   end
 
   private

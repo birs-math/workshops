@@ -229,6 +229,7 @@ GEM
       kaminari-core (= 1.2.2)
     kaminari-core (1.2.2)
     kwalify (0.7.2)
+    liquid (5.4.0)
     listen (3.7.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -356,7 +357,7 @@ GEM
     rb-fsevent (0.11.0)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
-    rbnacl (6.0.1)
+    rbnacl (7.1.1)
       ffi
     rdoc (6.3.3)
     reek (6.0.6)
@@ -524,6 +525,7 @@ DEPENDENCIES
   jbuilder
   jquery-rails
   jquery-turbolinks
+  liquid
   listen
   mailgun-ruby
   momentjs-rails
@@ -545,7 +547,7 @@ DEPENDENCIES
   rails (~> 5.2.4.5)
   rails-controller-testing
   rails-settings-cached (= 0.7.2)
-  rbnacl (~> 6.0)
+  rbnacl (~> 7.0)
   rest-client
   rollbar
   rspec-rails
