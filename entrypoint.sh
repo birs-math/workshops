@@ -33,8 +33,8 @@ echo "Yarn version:"
 yarn --version
 
 echo
-echo "Installing latest bundler..."
-/usr/local/rvm/bin/rvm-exec 2.7.7 gem install bundler
+echo "Installing bundler..."
+/usr/local/rvm/bin/rvm-exec 2.7.7 gem install bundler -v 2.4.22
 
 echo
 echo "Bundle install..."
