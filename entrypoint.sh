@@ -53,7 +53,7 @@ chown app:app -R /usr/local/rvm/gems
 
 echo
 echo "Running migrations..."
-RAILS_ENV=production /usr/local/rvm/bin/rvm-exec 2.7.7 bundle exec rails db:migrate
+/usr/local/rvm/bin/rvm-exec 2.7.7 bundle exec rails db:migrate
 
 echo
 echo "Checking for WebPacker..."
