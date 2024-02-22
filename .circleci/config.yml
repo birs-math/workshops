@@ -66,6 +66,7 @@ jobs:
             cd /home/app/workshops
             SECRET_KEY_BASE=token DB_USER=$DB_USER DB_PASS=$DB_PASS DB_HOST=$DB_HOST bin/rails db:migrate RAILS_ENV=test
             bin/rake ws:init_settings
+            bin/rake assets:precompile
       - run:
           name: Run the tests
           command: |
