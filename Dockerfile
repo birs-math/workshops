@@ -74,6 +74,8 @@ RUN chown app -R ./
 EXPOSE 3000
 ADD entrypoint.sh /sbin/
 RUN chmod 755 /sbin/entrypoint.sh
+ADD entrypoint-que.sh /sbin/
+RUN chmod 755 /sbin/entrypoint-que.sh
 RUN mkdir -p /etc/my_init.d
 RUN ln -s /sbin/entrypoint.sh /etc/my_init.d/entrypoint.sh
 RUN echo 'export PATH=$PATH:./bin:/usr/local/rvm/rubies/ruby-2.7.7/bin'>> /root/.bashrc
