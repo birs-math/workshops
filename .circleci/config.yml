@@ -56,7 +56,7 @@ jobs:
           command: |
             cd /home/app/workshops
             echo "127.0.0.1 db" >> /etc/hosts
-            gem install bundler
+            gem install bundler -v 2.4.22
             bundle install
       - run:
           name: Default Settings and migrations
