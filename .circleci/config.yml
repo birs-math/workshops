@@ -71,6 +71,7 @@ jobs:
           command: |
             chown -R app:app /home/app/workshops
             cd /home/app/workshops
+            bundle exec rails webpacker:install
             bundle exec rails assets:precompile RAILS_ENV=test
       - run:
           name: Run the tests
