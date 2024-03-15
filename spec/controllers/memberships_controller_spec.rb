@@ -179,7 +179,7 @@ RSpec.describe MembershipsController, type: :controller do
       before do
         @event = create(:event, future: true)
         @membership = create(:membership, event: @event,
-                             attendance: 'Confirmed')
+                                          attendance: 'Confirmed')
       end
 
       describe '#index' do
@@ -621,7 +621,7 @@ RSpec.describe MembershipsController, type: :controller do
             expect(updated_member.role).to eq('Participant')
           end
 
-          describe "event lock date" do
+          describe 'event lock date' do
             before do
               travel_to today
 
@@ -637,7 +637,7 @@ RSpec.describe MembershipsController, type: :controller do
             end
 
             context "when it's past Tuesday on workshop week" do
-              let(:today) { Date.today.beginning_of_week + 2.days }
+              let(:today) { Date.today.beginning_of_week + 3.days }
 
               it 'disallows changing Virtual Participant role to Participant' do
                 expect(@membership.reload.role).to eq('Virtual Participant')
@@ -919,7 +919,7 @@ RSpec.describe MembershipsController, type: :controller do
       describe '#invite' do
         before do
           @membership = create(:membership, event: @event,
-                                       attendance: 'Not Yet Invited')
+                                            attendance: 'Not Yet Invited')
         end
 
         def denies_access
@@ -949,7 +949,7 @@ RSpec.describe MembershipsController, type: :controller do
                     { "#{member.id}": '1' } }
 
           expect(flash[:success]).to be_present
-          expect(Membership.find(member.id).attendance).to eq('Invited')
+          expect(EmailInvitationJob).to have_been_enqueued.with(member.invitation.id, initial_email: true)
         end
 
         context 'as role: member' do
@@ -1051,8 +1051,7 @@ RSpec.describe MembershipsController, type: :controller do
             post :invite, params: { event_id: @event.id, invite_members_form: { "#{member.id}": '1' } }
 
             expect(flash[:success]).to be_present
-            updated_member = Membership.find(member.id)
-            expect(updated_member.attendance).to eq('Invited')
+            expect(EmailInvitationJob).to have_been_enqueued.with(member.invitation.id, initial_email: true)
           end
 
           it 'does not invite Observer if max_observers is full' do
@@ -1060,7 +1059,7 @@ RSpec.describe MembershipsController, type: :controller do
             @event.save
 
             member = create(:membership, attendance: 'Not Yet Invited',
-                                               role: 'Observer')
+                                         role: 'Observer')
             post :invite, params: { event_id: @event.id, invite_members_form:
                       { "#{member.id}": '1' } }
 
