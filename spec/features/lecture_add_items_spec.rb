@@ -6,7 +6,7 @@
 
 require 'rails_helper'
 
-describe "Adding a Lecture Item to the Schedule", type: :feature do
+describe 'Adding a Lecture Item to the Schedule', type: :feature do
   before do
     @staff_user = create(:person, firstname: 'Staff', lastname: 'User',
                                   email: 'staff_user@staff.com')
@@ -21,7 +21,7 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
     @person = create(:person)
     @membership = create(:membership, person: @person, event: @event)
     @day = @event.start_date + 3.days
-    @weekday = @day.strftime("%A")
+    @weekday = @day.strftime('%A')
 
     visit event_schedule_index_path(@event)
     click_link "Add an item on #{@weekday}"
@@ -32,14 +32,14 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
   end
 
   def add_a_lecture(title:, location:)
-    page.fill_in 'schedule_name', with: "#{title}"
-    page.fill_in 'schedule_location', with: "#{location}"
-    select @person.lname, from: "schedule[lecture_attributes][person_id]"
+    page.fill_in 'schedule_name', with: title.to_s
+    select location, from: 'schedule_location'
+    select @person.lname, from: 'schedule[lecture_attributes][person_id]'
     click_button 'Add New Schedule Item'
   end
 
   it 'adds a Lecture' do
-    add_a_lecture(title: "New test lecture", location: "Room 1")
+    add_a_lecture(title: 'New test lecture', location: 'Room 1')
 
     expect(page).to have_content 'successfully scheduled'
     expect(Lecture.last.title == 'New test lecture').to be_truthy
@@ -47,8 +47,8 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
 
   it 'saves the lecture keywords, and removes trailing whitespace' do
     page.fill_in 'schedule_name', with: 'Testing lecture keywords'
-    page.fill_in 'schedule_location', with: 'Lecture room'
-    select @person.lname, from: "schedule[lecture_attributes][person_id]"
+    select 'Room 1', from: 'schedule_location'
+    select @person.lname, from: 'schedule[lecture_attributes][person_id]'
     page.fill_in 'schedule[lecture_attributes][keywords]',
                  with: ' RSpec, Testing, Hashtags '
     click_button 'Add New Schedule Item'
@@ -59,8 +59,8 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
 
   it 'also adds a Schedule entry' do
     page.fill_in 'schedule_name', with: 'New Lecture'
-    page.fill_in 'schedule_location', with: 'Lecture room'
-    select @person.lname, from: "schedule[lecture_attributes][person_id]"
+    select 'Room 1', from: 'schedule_location'
+    select @person.lname, from: 'schedule[lecture_attributes][person_id]'
     click_button 'Add New Schedule Item'
 
     expect(page).to have_content 'successfully scheduled'
@@ -74,8 +74,8 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
     click_link "Add an item on #{@weekday}"
 
     page.fill_in 'schedule_name', with: 'New test lecture'
-    page.fill_in 'schedule_location', with: 'Lecture room'
-    select @person.lname, from: "schedule[lecture_attributes][person_id]"
+    select 'Room 1', from: 'schedule_location'
+    select @person.lname, from: 'schedule[lecture_attributes][person_id]'
     click_button 'Add New Schedule Item'
     expect(page).to have_content 'successfully scheduled'
 
@@ -86,8 +86,8 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
 
   it 'has a checkbox for indicating that recordings should not be published' do
     page.fill_in 'schedule_name', with: 'Testing Do Not Publish'
-    page.fill_in 'schedule_location', with: 'Lecture room'
-    select @person.lname, from: "schedule[lecture_attributes][person_id]"
+    select 'Room 1', from: 'schedule_location'
+    select @person.lname, from: 'schedule[lecture_attributes][person_id]'
     page.check('schedule[lecture_attributes][do_not_publish]')
     click_button 'Add New Schedule Item'
 
@@ -97,8 +97,8 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
 
   it 'sets do_not_publish to false if the checkbox is not checked' do
     page.fill_in 'schedule_name', with: 'Testing Do Not Publish 2'
-    page.fill_in 'schedule_location', with: 'Lecture room'
-    select @person.lname, from: "schedule[lecture_attributes][person_id]"
+    select 'Room 1', from: 'schedule_location'
+    select @person.lname, from: 'schedule[lecture_attributes][person_id]'
     click_button 'Add New Schedule Item'
 
     lecture = Lecture.find_by_title('Testing Do Not Publish 2')
@@ -107,7 +107,7 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
 
   it 'repopulates lecture description and title fields if validation fails' do
     page.fill_in 'schedule_name', with: 'Lecture 1'
-    page.fill_in 'schedule_location', with: 'Lecture room'
+    select 'Room 1', from: 'schedule_location'
     select @person.lname, from: 'schedule[lecture_attributes][person_id]'
     click_button 'Add New Schedule Item'
 
@@ -118,7 +118,7 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
     visit event_schedule_index_path(@event)
     click_link "Add an item on #{@weekday}"
     page.fill_in 'schedule_name', with: 'Lecture 2'
-    page.fill_in 'schedule_location', with: 'Lecture room'
+    select 'Room 1', from: 'schedule_location'
     page.fill_in 'schedule_description', with: 'Best talk ever!'
     select start_hour, from: 'schedule_start_time_4i'
     select start_min, from: 'schedule_start_time_5i'
@@ -131,8 +131,6 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
   end
 
   it 'repopulates schedule description and title fields if validation fails' do
-    page.fill_in 'schedule_name', with: 'Non-lecture'
-    page.fill_in 'schedule_location', with: 'Lecture room'
     click_button 'Add New Schedule Item'
 
     schedule = Schedule.last
@@ -142,10 +140,11 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
     visit event_schedule_index_path(@event)
     click_link "Add an item on #{@weekday}"
     page.fill_in 'schedule_name', with: 'Lecture 2'
-    page.fill_in 'schedule_location', with: ''
     page.fill_in 'schedule_description', with: 'Best talk ever!'
     select start_hour, from: 'schedule_start_time_4i'
     select start_min, from: 'schedule_start_time_5i'
+    select start_hour, from: 'schedule_end_time_4i'
+    select start_min, from: 'schedule_end_time_5i'
     click_button 'Add New Schedule Item'
 
     expect(page).to have_content 'schedule could not be saved'
@@ -154,7 +153,7 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
   end
 
   it 'disallows overlapping lectures in the same location, same event' do
-    add_a_lecture(title: "Test lecture 1", location: "Room 1")
+    add_a_lecture(title: 'Test lecture 1', location: 'Room 1')
     lecture = Lecture.last
     expect(lecture.title == 'Test lecture 1').to be_truthy
 
@@ -166,28 +165,28 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
     new_start = lecture.start_time - 5.minutes
     new_stop = lecture.start_time + 5.minutes
 
-    page.fill_in 'schedule_name', with: "Test lecture 2"
+    page.fill_in 'schedule_name', with: 'Test lecture 2'
     page.select new_start.strftime('%H'), from: 'schedule_start_time_4i'
     page.select new_start.strftime('%M'), from: 'schedule_start_time_5i'
     page.select new_stop.strftime('%H'), from: 'schedule_end_time_4i'
     page.select new_stop.strftime('%M'), from: 'schedule_end_time_5i'
-    page.fill_in 'schedule_location', with: 'Room 1'
+    select 'Room 1', from: 'schedule_location'
     select new_member.person.lname,
-        from: "schedule[lecture_attributes][person_id]"
+           from: 'schedule[lecture_attributes][person_id]'
 
     click_button 'Add New Schedule Item'
 
-    expect(Lecture.last.title).not_to eq("Test lecture 2")
-    error_string = "Lecture time cannot overlap with another lecture "
+    expect(Lecture.last.title).not_to eq('Test lecture 2')
+    error_string = 'Lecture time cannot overlap with another lecture '
     error_string << "at the same location: #{@person.name} at Room 1 during "
     error_string << "#{lecture.start_time.strftime('%H:%M')} - "
-    error_string << "#{lecture.end_time.strftime('%H:%M')}"
+    error_string << lecture.end_time.strftime('%H:%M').to_s
     expect(find('div.alert-danger').text)
-      .to include("#{error_string}")
+      .to include(error_string.to_s)
   end
 
   it 'disallows overlapping lectures in the same location, different event' do
-    add_a_lecture(title: "Test lecture 1", location: "Room 1")
+    add_a_lecture(title: 'Test lecture 1', location: 'Room 1')
     lecture = Lecture.last
 
     new_event = create(:event, start_date: @event.start_date,
@@ -199,26 +198,26 @@ describe "Adding a Lecture Item to the Schedule", type: :feature do
     new_start = lecture.start_time - 5.minutes
     new_stop = lecture.start_time + 10.minutes
 
-    page.fill_in 'schedule_name', with: "Test lecture 2"
+    page.fill_in 'schedule_name', with: 'Test lecture 2'
     page.select new_start.strftime('%H'), from: 'schedule_start_time_4i'
     page.select new_start.strftime('%M'), from: 'schedule_start_time_5i'
     page.select new_stop.strftime('%H'), from: 'schedule_end_time_4i'
     page.select new_stop.strftime('%M'), from: 'schedule_end_time_5i'
-    page.fill_in 'schedule_location', with: 'Room 1'
+    select 'Room 1', from: 'schedule_location'
     select new_member.person.lname,
-        from: "schedule[lecture_attributes][person_id]"
+           from: 'schedule[lecture_attributes][person_id]'
 
     click_button 'Add New Schedule Item'
 
     expect(page.body).not_to have_content 'successfully scheduled'
-    expect(Lecture.last.title).not_to eq("Test lecture 2")
-    error_string = "Lecture time cannot overlap with another lecture "
+    expect(Lecture.last.title).not_to eq('Test lecture 2')
+    error_string = 'Lecture time cannot overlap with another lecture '
     error_string << "at the same location: #{@person.name} at Room 1 during "
     error_string << "#{lecture.start_time.strftime('%H:%M')} - "
-    error_string << "#{lecture.end_time.strftime('%H:%M')}"
-    expect(find('div.alert-danger').text).to include("#{error_string}")
+    error_string << lecture.end_time.strftime('%H:%M').to_s
+    expect(find('div.alert-danger').text).to include(error_string.to_s)
 
     other_schedule = "See the #{@event.code} schedule for details."
-    expect(find('div.alert-danger').text).to include("#{other_schedule}")
+    expect(find('div.alert-danger').text).to include(other_schedule.to_s)
   end
 end
