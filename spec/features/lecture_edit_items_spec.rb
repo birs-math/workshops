@@ -79,9 +79,9 @@ describe 'Editing a Lecture Item', type: :feature do
   end
 
   it 'updates the room of the lecture item' do
-    page.fill_in 'schedule_location', :with => 'In the woods'
+    page.select 'Room 3', from: 'schedule_location'
     click_button 'Update Schedule'
-    expect(Lecture.find(@lecture.id).room).to eq('In the woods')
+    expect(Lecture.find(@lecture.id).room).to eq('Room 3')
   end
 
   it 'changes the do_not_publish field from false to true' do
