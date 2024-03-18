@@ -113,12 +113,13 @@ describe 'Event List', type: :feature do
     it 'shows the number of confirmed participants' do
       3.times do
         create(:membership, event: @current)
+        create(:membership, event: @past)
       end
 
       visit events_path
       confirmed_counts = page.all('table#events-list td.confirmed').map(&:text)
 
-      expect(confirmed_counts).to eq(['0', '3', '0'])
+      expect(confirmed_counts).to eq(%w[0/0/0 3/0/0 3/0/0])
     end
 
     it 'indicates whether an event is cancelled' do
@@ -153,8 +154,7 @@ describe 'Event List', type: :feature do
     it 'lists the current user\'s events' do
       person = create(:person)
       member_user = create(:user, person: person)
-      create(:membership, person: person, event: @future,
-        attendance: 'Confirmed')
+      create(:membership, person: person, event: @future, attendance: 'Confirmed')
 
       logout(@user)
       login_as member_user, scope: :user
