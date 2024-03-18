@@ -156,15 +156,14 @@ class Membership < ApplicationRecord
   end
 
   def check_max_confirmed
-    event_full = false
-    if role.include?('Virtual') || event.event_format == 'Online'
-      event_full = event.num_confirmed_virtual >= event.max_virtual
-    else
-      event_full = event.num_confirmed_in_person >= event.max_participants
-    end
+    event_full = if role.include?('Virtual') || event.event_format == 'Online'
+                   event.num_confirmed_virtual >= event.max_virtual
+                 else
+                   event.num_confirmed_in_person >= event.max_participants
+                 end
+    return unless event_full
 
-    errors.add(:role, "- the maximum number of confirmed #{role.pluralize} has
-               been reached.".squish) if event_full
+    errors.add(:role, "- the maximum number of confirmed #{role.pluralize} has been reached.".squish)
   end
 
   def check_max_virtual

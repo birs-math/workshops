@@ -21,7 +21,7 @@ describe 'EventMaillist' do
 
   subject { Griddler::Email.new(params) }
 
-  let(:event) { create(:event, max_virtual: 5) }
+  let(:event) { create(:event, max_virtual: 42, max_participants: 42) }
   let(:status) { 'Undecided' }
   let(:subgroup) { nil }
   let(:list_params) do
@@ -30,7 +30,7 @@ describe 'EventMaillist' do
       event: event,
       group: status,
       subgroup: subgroup,
-      destination: params[:to].first,
+      destination: params[:to].first
     }
   end
 
@@ -144,6 +144,7 @@ describe 'EventMaillist' do
     end
 
     describe '"in_person" subgroup' do
+      let(:event) { create(:event, max_virtual: 42, max_participants: 42) }
       let(:subgroup) { 'in_person' }
 
       before do
@@ -189,6 +190,7 @@ describe 'EventMaillist' do
 
     describe '"online" subgroup' do
       let(:subgroup) { 'online' }
+      let(:event) { create(:event, max_virtual: 42, max_participants: 42) }
 
       before do
         event.memberships.delete_all
