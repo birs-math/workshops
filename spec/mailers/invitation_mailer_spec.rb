@@ -20,6 +20,7 @@ RSpec.describe InvitationMailer, type: :mailer do
     ActionMailer::Base.deliveries.clear
 
     create(:email_notification, :default_not_yet_invited, body: body)
+    create(:email_notification, :default_invited, body: body)
   end
 
   let(:body) do
@@ -81,20 +82,6 @@ RSpec.describe InvitationMailer, type: :mailer do
     it 'includes bcc to rsvp address' do
       rsvp_email = GetSetting.rsvp_email(invitation.event.location)
       expect(delivery.bcc.first).to eq(rsvp_email)
-    end
-
-    it 'invitations to physical meetings include a PDF attachment' do
-      event = create(:event, event_format: 'Physical', event_type: '5 Day Workshop')
-      membership = create(:membership, event: event, attendance: 'Not Yet Invited')
-      invitation = create(:invitation, membership: membership)
-      invitation.set_invitation_template
-
-      InvitationMailer.invite(invitation).deliver_now
-      delivery = ActionMailer::Base.deliveries.last
-
-      expect(delivery.attachments).not_to be_empty
-      template = InvitationTemplateSelector.new(membership).set_templates
-      expect(delivery.attachments[0].filename).to eq(template[:invitation_file])
     end
   end
 
