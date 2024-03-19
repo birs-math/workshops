@@ -1055,6 +1055,8 @@ RSpec.describe MembershipsController, type: :controller do
           end
 
           it 'does not invite Observer if max_observers is full' do
+            @event.max_participants = @event.num_invited_participants
+            @event.max_virtual = @event.num_invited_virtual
             @event.max_observers = @event.num_invited_observers
             @event.save
 
