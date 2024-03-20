@@ -625,7 +625,7 @@ RSpec.describe MembershipsController, type: :controller do
             before do
               travel_to today
 
-              @membership.update(role: 'Virtual Participant')
+              @membership.update_attribute(:role, 'Virtual Participant')
               @event.update_attribute(:start_date, Date.today.beginning_of_week + 3.days)
 
               @params['membership']['role'] = 'Participant'
