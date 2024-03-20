@@ -49,7 +49,7 @@ RSpec.describe ParticipantMailer, type: :mailer do
     end
 
     it 'uses default template for physical meetings' do
-      expect(@sent_message.text_part.body.to_s).to include('attend the event')
+      expect(@sent_message.body.to_s).to include('attend the event')
     end
   end
 
@@ -93,7 +93,7 @@ RSpec.describe ParticipantMailer, type: :mailer do
       end
 
       it 'uses default template for physical meetings' do
-        expect(@sent_message.text_part.body.to_s).to include('attend the event')
+        expect(@sent_message.body.to_s).to include('attend the event')
       end
     end
 
