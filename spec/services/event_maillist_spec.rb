@@ -144,7 +144,7 @@ describe 'EventMaillist' do
     end
 
     describe '"in_person" subgroup' do
-      let(:event) { create(:event, max_virtual: 42, max_participants: 42) }
+      let(:event) { create(:event, event_format: 'Physical', max_virtual: 42, max_participants: 42) }
       let(:subgroup) { 'in_person' }
 
       before do
@@ -190,7 +190,7 @@ describe 'EventMaillist' do
 
     describe '"online" subgroup' do
       let(:subgroup) { 'online' }
-      let(:event) { create(:event, max_virtual: 42, max_participants: 42) }
+      let(:event) { create(:event, event_format: 'Online', max_virtual: 42, max_participants: 42) }
 
       before do
         event.memberships.delete_all
