@@ -9,6 +9,7 @@ require 'rails_helper'
 RSpec.describe ScheduleController, type: :controller do
   before do
     # sets @user, @person, @event, @membership
+    Setting.destroy_all
     authenticate_for_controllers
     build_schedule_template(@event.event_type)
 
