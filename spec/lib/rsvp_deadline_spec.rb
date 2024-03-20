@@ -7,7 +7,7 @@ RSpec.describe RsvpDeadline do
 
   let(:event) { create(:event, start_date: start_date, end_date: end_date, event_format: 'Hybrid') }
   let(:membership) { create(:membership) }
-  let(:invited_on) { DateTime.current }
+  let(:invited_on) { DateTime.current.end_of_day }
   let(:end_date) { start_date + 5.days }
 
   def to_rsvp_format(date)
