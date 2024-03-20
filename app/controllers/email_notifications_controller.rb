@@ -76,8 +76,8 @@ class EmailNotificationsController < ApplicationController
     @event_types = Setting.Site['event_types']
     @event_formats = Setting.Site['event_formats']
 
-    @current_location = params[:location]
-    @current_status = params[:attendance]
+    @current_location = params[:location].in?(@locations) ? params[:location] : 'default'
+    @current_status = params[:attendance].in?(@attendance) ? params[:attendance] : 'Not Yet Invited'
   end
 
   def notification_params
