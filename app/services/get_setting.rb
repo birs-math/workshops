@@ -160,6 +160,8 @@ class GetSetting
 
   # Emails set in Settings.Site
   def self.site_email(email_setting)
+    return 'test@test.ca' if Rails.env.test?
+
     email = site_setting(email_setting)
     return ENV['DEVISE_EMAIL'] if email == "#{email_setting} not set"
     email

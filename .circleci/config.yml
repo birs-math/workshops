@@ -29,7 +29,6 @@ jobs:
         environment:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-          DEVISE_EMAIL: webmaster@example.com
     steps:
       - checkout
       - run:
