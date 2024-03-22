@@ -25,11 +25,11 @@ describe 'Events Admin Dashboard', type: :feature do
   def fill_in_new_events_fields
     fill_in 'Code', with: '23w0001'
     fill_in 'Name', with: '5 Day Workshop Schedule Template'
-    fill_in "Short name", with: 'Schedule template'
+    fill_in 'Short name', with: 'Schedule template'
     fill_in 'Start date', with: Time.now + 1.days
     fill_in 'End date', with: Time.now + 3.days
     fill_in 'Event type', with: 'Summer School'
-    select 'EO', from: 'Location'
+    fill_in 'Location', with: 'EO'
     fill_in 'Description', with: 'Description for testing purposes'
     fill_in 'Max participants', with: 5
     fill_in 'Door code', with: 12
@@ -45,9 +45,9 @@ describe 'Events Admin Dashboard', type: :feature do
       visit 'admin/events'
     end
 
-    it "should redirect to root path" do
+    it 'should redirect to root path' do
       expect(page).to have_current_path(sign_in_path)
-      expect(page).to have_content("You need to sign in or sign up before continuing")
+      expect(page).to have_content('You need to sign in or sign up before continuing')
     end
   end
 
@@ -57,9 +57,9 @@ describe 'Events Admin Dashboard', type: :feature do
       visit 'admin/events'
     end
 
-    it "should redirect to root path" do
-      expect(page).to have_current_path(root_path)
-      expect(page).to have_content("Access denied")
+    it 'should redirect to root path' do
+      expect(page).to have_current_path(events_future_path)
+      expect(page).to have_content('Access denied')
     end
   end
 
@@ -69,9 +69,9 @@ describe 'Events Admin Dashboard', type: :feature do
       visit 'admin/lectures'
     end
 
-    it "should redirect to root path" do
+    it 'should redirect to root path' do
       expect(page).to have_current_path(admin_people_path)
-      expect(page).to have_content("Access denied")
+      expect(page).to have_content('Access denied')
     end
 
   end
@@ -81,11 +81,11 @@ describe 'Events Admin Dashboard', type: :feature do
       login_as @admin_user, scope: :user
       visit 'admin/events'
     end
-    it "should display admin events dashboard" do
+    it 'should display admin events dashboard' do
       expect(page).to have_current_path(admin_events_path)
     end
 
-    it "can create new event" do
+    it 'can create new event' do
       click_link('New event')
 
       fill_in_new_events_fields
@@ -102,11 +102,11 @@ describe 'Events Admin Dashboard', type: :feature do
       visit 'admin/events'
     end
 
-    it "should display admin events dashboard" do
+    it 'should display admin events dashboard' do
       expect(page).to have_current_path(admin_events_path)
     end
 
-    it "can create new event" do
+    it 'can create new event' do
       click_link('New event')
 
       fill_in_new_events_fields

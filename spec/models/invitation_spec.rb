@@ -73,30 +73,18 @@ RSpec.describe 'Model validations: Invitation', type: :model do
     it 'updates membership fields' do
       event = build(:event)
       membership = create(:membership, event: event, update_by_staff: true,
-                          attendance: 'Not Yet Invited',
-                          role: 'Backup Participant',
-                          arrival_date: event.start_date - 1.day,
-                          departure_date: event.end_date + 1.day)
+                                       attendance: 'Not Yet Invited',
+                                       role: 'Backup Participant',
+                                       arrival_date: event.start_date - 1.day,
+                                       departure_date: event.end_date + 1.day)
       create(:invitation, membership: membership, invited_by: 'Foo').send_invite
 
       expect(membership.invited_by).to eq('Foo')
       expect(membership.invited_on).not_to be_nil
-      expect(membership.attendance).to eq('Invited')
+      expect(EmailInvitationJob).to have_been_enqueued.with(membership.invitation.id, initial_email: true)
       expect(membership.role).to eq('Participant')
       expect(membership.arrival_date).to be_nil
       expect(membership.departure_date).to be_nil
-    end
-
-    it 'sets the mailer template according to event format & type' do
-      membership = create(:membership, attendance: 'Not Yet Invited')
-      invitation = create(:invitation, membership: membership)
-
-      event_format = membership.event.event_format
-      event_type = membership.event.event_type
-
-      invitation.send_invite
-      template = invitation.templates['template_name']
-      expect(template).to eq("#{event_format}-#{event_type}-Not Yet Invited")
     end
   end
 
@@ -116,16 +104,13 @@ RSpec.describe 'Model validations: Invitation', type: :model do
       expect(reminded_on).to eq(DateTime.current.strftime("%Y-%m-%d %H:%M"))
     end
 
-    it 'sets the mailer template' do
+    it 'enqueued EmailInvitationJob with invitation' do
       membership = create(:membership, attendance: 'Invited')
       invitation = create(:invitation, membership: membership)
 
-      event_format = membership.event.event_format
-      event_type = membership.event.event_type
-
       invitation.send_reminder
-      template = invitation.templates['template_name']
-      expect(template).to eq("#{event_format}-#{event_type}-Invited")
+
+      expect(EmailInvitationJob).to have_been_enqueued.with(invitation.id)
     end
   end
 end

@@ -8,6 +8,8 @@ require 'rails_helper'
 
 describe "SyncMembers" do
   before do
+    stub_const('ENV', ENV.to_hash.merge('APPLICATION_HOST' => 'localhost'))
+    Person.destroy_all
     @event = create(:event)
     @eventm = create(:event_with_members)
   end

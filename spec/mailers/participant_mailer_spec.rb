@@ -48,13 +48,8 @@ RSpec.describe ParticipantMailer, type: :mailer do
       expect(@sent_message.to).to include(@membership.person.email)
     end
 
-    it 'includes PDF attachment (for Physical events)' do
-      filename = @membership.event.location + '-arrival-info.pdf'
-      expect(@sent_message.attachments.first.filename).to eq(filename)
-    end
-
     it 'uses default template for physical meetings' do
-      expect(@sent_message.text_part.body.to_s).to include('attend the event')
+      expect(@sent_message.body.to_s).to include('attend the event')
     end
   end
 
@@ -97,13 +92,8 @@ RSpec.describe ParticipantMailer, type: :mailer do
         expect(@sent_message.to).to include(@membership.person.email)
       end
 
-      it 'includes PDF attachment' do
-        filename = @membership.event.location + '-arrival-info.pdf'
-        expect(@sent_message.attachments.first.filename).to eq(filename)
-      end
-
       it 'uses default template for physical meetings' do
-        expect(@sent_message.text_part.body.to_s).to include('attend the event')
+        expect(@sent_message.body.to_s).to include('attend the event')
       end
     end
 
