@@ -6,7 +6,7 @@ class QueJobs < ApplicationRecord; end
 
 include ActiveSupport::Testing::TimeHelpers
 
-RSpec.describe Que::ReportEventStatistics, type: :job do
+RSpec.describe Que::ReportEventStatisticsJob, type: :job do
 
   let(:event) { create(:event) }
 
