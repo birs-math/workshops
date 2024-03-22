@@ -1,4 +1,3 @@
-
 # See: https://github.com/phusion/passenger-docker
 # Latest image versions: https://github.com/phusion/passenger-docker/blob/master/CHANGELOG.md
 FROM phusion/passenger-ruby27:2.4.1
@@ -23,7 +22,6 @@ RUN apt-get update -qq && apt-get dist-upgrade --yes && \
     apt-get install --yes pkg-config apt-utils build-essential cmake automake && \
     apt-get upgrade --fix-missing --yes --allow-remove-essential \
     -o Dpkg::Options::="--force-confold"
-
 
 # Update Node
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
@@ -76,8 +74,10 @@ RUN chown app -R ./
 EXPOSE 3000
 ADD entrypoint.sh /sbin/
 RUN chmod 755 /sbin/entrypoint.sh
+ADD entrypoint-que.sh /sbin/
+RUN chmod 755 /sbin/entrypoint-que.sh
 RUN mkdir -p /etc/my_init.d
 RUN ln -s /sbin/entrypoint.sh /etc/my_init.d/entrypoint.sh
-RUN echo 'export PATH=$PATH:./bin:/usr/local/rvm/rubies/ruby-2.7.7/bin' >> /root/.bashrc
+RUN echo 'export PATH=$PATH:./bin:/usr/local/rvm/rubies/ruby-2.7.7/bin'>> /root/.bashrc
 RUN echo 'alias rspec="bundle exec rspec"' >> /root/.bashrc
 ENTRYPOINT ["/sbin/entrypoint.sh"]

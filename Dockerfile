@@ -72,8 +72,10 @@ RUN echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf
 RUN chown app -R ./
 
 EXPOSE 3000
-ADD entrypoint.sh /sbin/
+COPY entrypoint.sh /sbin/entrypoint.sh
 RUN chmod 755 /sbin/entrypoint.sh
+COPY entrypoint-que.sh /sbin/entrypoint-que.sh
+RUN chmod 755 /sbin/entrypoint-que.sh
 RUN mkdir -p /etc/my_init.d
 RUN ln -s /sbin/entrypoint.sh /etc/my_init.d/entrypoint.sh
 RUN echo 'export PATH=$PATH:./bin:/usr/local/rvm/rubies/ruby-2.7.7/bin'>> /root/.bashrc
