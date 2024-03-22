@@ -48,6 +48,13 @@ class Membership < ApplicationRecord
   ONLINE_ROLES = ['Virtual Organizer', 'Virtual Participant'].freeze
   IN_PERSON_ROLES = ['Contact Organizer', 'Organizer', 'Participant'].freeze
 
+  scope :confirmed, -> { where(attendance: 'Confirmed') }
+  scope :invited, -> { where(attendance: 'Invited') }
+  scope :undecided, -> { where(attendance: 'Undecided') }
+  scope :not_yet_invited, -> { where(attendance: 'Not Yet Invited') }
+  scope :declined, -> { where(attendance: 'Declined') }
+  scope :in_person, -> { where(role: IN_PERSON_ROLES) }
+
   include SharedDecorators
 
   def shares_email?
@@ -95,6 +102,18 @@ class Membership < ApplicationRecord
 
   def observer?
     role.include?('Observer')
+  end
+
+  def in_person?
+    IN_PERSON_ROLES.include?(role)
+  end
+
+  def confirmed?
+    attendance == 'Confirmed'
+  end
+
+  def attendance_requires_confirmation?
+    confirmed? && in_person? && event.hybrid_or_physical?
   end
 
   private

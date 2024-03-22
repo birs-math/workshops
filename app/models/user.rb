@@ -7,6 +7,8 @@
 # See the COPYRIGHT file for details and exceptions.
 
 class User < ApplicationRecord
+  include UserEmailUtils
+
   devise :registerable, :database_authenticatable,
          :recoverable, :rememberable, :trackable, :validatable,
          :lockable, :confirmable, :invitable
@@ -18,6 +20,8 @@ class User < ApplicationRecord
   belongs_to :person, inverse_of: :user
   enum role: [:member, :staff, :admin, :super_admin]
 
+  scope :admins, -> { where(role: [:admin, :super_admin]) }
+  scope :staff, -> { where(role: :staff) }
 
   def set_defaults
     self.role ||= :member
