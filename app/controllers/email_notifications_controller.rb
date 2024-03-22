@@ -20,9 +20,9 @@ class EmailNotificationsController < ApplicationController
 
   def show
     @email_notifications = if @current_location == 'default'
-                             EmailNotification.where("path like '/default/#{@current_status}'")
+                             EmailNotification.where("path like ?", "/default/#{@current_status}")
                            else
-                             EmailNotification.where("path like '/#{@current_location}/%/#{@current_status}'")
+                             EmailNotification.where("path like ?", "/#{@current_location}/%/#{@current_status}")
                            end
     @email_notifications = @email_notifications.group_by(&:group_by_value)
   end
