@@ -19,9 +19,9 @@ describe 'Schedule Index', type: :feature do
 
   def populates_empty_schedule
     @event.schedules.destroy_all
-    visit(event_schedule_index_path(@event))
 
     @event.reload
+    visit(event_schedule_index_path(@event))
     expect(@event.schedules).not_to be_empty
     @template_event.schedules.each do |item|
       expect(page.body).to have_text(item.name)
@@ -55,6 +55,7 @@ describe 'Schedule Index', type: :feature do
   context 'Admin users' do
     before do
       @user.admin!
+      @event = create(:event, future: true)
     end
 
     it 'populates an empty schedule from the template event schedule' do
