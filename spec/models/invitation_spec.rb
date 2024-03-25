@@ -33,7 +33,7 @@ RSpec.describe 'Model validations: Invitation', type: :model do
   end
 
   it 'sets expires on save' do
-    i = build(:invitation)
+    i = build(:invitation, expires: nil)
     expect(i.expires).to be_nil
     i.save
     expect(i.expires).not_to be_nil
