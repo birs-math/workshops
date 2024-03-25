@@ -73,7 +73,7 @@ class Invitation < ApplicationRecord
   def accept
     update_membership('Confirmed')
     EmailParticipantConfirmationJob.perform_later(membership_id)
-    destroy unless membership.in_person?
+    destroy
   end
 
   def confirm_attendance
