@@ -59,6 +59,8 @@ group :test do
   gem 'rails-controller-testing'
   gem 'rubocop-faker'
   gem 'rubocop'
+  gem 'simplecov'
+  gem 'simplecov-lcov'
   gem 'selenium-webdriver'
 end
 
