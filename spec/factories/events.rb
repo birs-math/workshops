@@ -48,7 +48,7 @@ FactoryBot.define do
     end
 
     after(:build) do |event, evaluator|
-      date = Date.today
+      date = Date.current
       date = date + 3.weeks if date.month == 1
       if evaluator.past
         date = date.prev_year #- 2.months

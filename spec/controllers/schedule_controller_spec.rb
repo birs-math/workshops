@@ -188,13 +188,13 @@ RSpec.describe ScheduleController, type: :controller do
     context 'with invalid params' do
       it 'assigns a newly created but unsaved schedule as @schedule' do
         post :create, params: { event_id: @event.id, day: @day,
-                      schedule: @invalid_attributes }
+                                schedule: @invalid_attributes }
         expect(assigns(:schedule)).to be_a(Schedule)
       end
 
       it "re-renders the 'new' template" do
         post :create, params: { event_id: @event.id, day: @day,
-                      schedule: @invalid_attributes }
+                                schedule: @invalid_attributes }
         expect(response).to render_template('new')
       end
     end
@@ -219,7 +219,7 @@ RSpec.describe ScheduleController, type: :controller do
 
       it 'updates the schedule' do
         put :update, params: { event_id: @event.id, id: @schedule.to_param,
-                     schedule: new_attributes }
+                               schedule: new_attributes }
 
         schedule = Schedule.find(@schedule.id)
 
@@ -230,7 +230,7 @@ RSpec.describe ScheduleController, type: :controller do
 
       it "assigns @schedule" do
         put :update, params: { event_id: @event.id, id: @schedule.to_param,
-                     schedule: @valid_attributes }
+                               schedule: @valid_attributes }
 
         expect(assigns(:schedule)).to eq(@schedule)
       end
@@ -239,7 +239,7 @@ RSpec.describe ScheduleController, type: :controller do
         session[:return_to] = event_schedule_edit_path(@event, @schedule)
 
         put :update, params: { event_id: @event.id, id: @schedule.to_param,
-                     schedule: @valid_attributes }
+                               schedule: @valid_attributes }
 
         redirect_path = event_schedule_edit_path(@event, @schedule)
         expect(response).to redirect_to(redirect_path)
@@ -249,7 +249,7 @@ RSpec.describe ScheduleController, type: :controller do
         session[:return_to] = nil
 
         put :update, params: { event_id: @event.id, id: @schedule.to_param,
-                     schedule: @valid_attributes }
+                               schedule: @valid_attributes }
 
         expect(response).to redirect_to(event_schedule_index_path(@event))
       end
@@ -260,7 +260,7 @@ RSpec.describe ScheduleController, type: :controller do
           .and_return(true)
 
         put :update, params: { event_id: @event.id, id: @schedule.to_param,
-                             schedule: @valid_attributes }
+                               schedule: @valid_attributes }
 
         expect(EmailStaffScheduleNoticeJob).to have_received(:perform_later)
       end
@@ -275,7 +275,7 @@ RSpec.describe ScheduleController, type: :controller do
                                              end_time: new_end)
 
         put :update, params: { event_id: @event.id, id: @schedule.to_param,
-                     change_similar: true, schedule: attributes }
+                               change_similar: true, schedule: attributes }
 
         other.reload
         @schedule.reload
@@ -291,14 +291,14 @@ RSpec.describe ScheduleController, type: :controller do
       it 'assigns the schedule as @schedule' do
         schedule = Schedule.create! @valid_attributes
         put :update, params: { event_id: @event.id, id: schedule.to_param,
-                     schedule: @invalid_attributes }
+                               schedule: @invalid_attributes }
         expect(assigns(:schedule)).to eq(schedule)
       end
 
       it "re-renders the 'edit' template" do
         schedule = Schedule.create! @valid_attributes
         put :update, params: { event_id: @event.id, id: schedule.to_param,
-                     schedule: @invalid_attributes }
+                               schedule: @invalid_attributes }
         expect(response).to render_template('edit')
       end
     end
@@ -308,7 +308,7 @@ RSpec.describe ScheduleController, type: :controller do
         @user.member!
         @s_event = create(:event, future: true)
         @membership = create(:membership, role: 'Organizer', event: @s_event,
-          person: @person)
+                                          person: @person)
         @s_schedule = create(:schedule, staff_item: true, event: @s_event)
         @lock_time = GetSetting.schedule_lock_time(@s_event.location)
       end
@@ -316,7 +316,7 @@ RSpec.describe ScheduleController, type: :controller do
       context 'as an organizer outside of locked time' do
         it 'updates the schedule' do
           put :update, params: { event_id: @s_event.id, id: @s_schedule.to_param,
-                       schedule: @s_schedule.attributes.merge('name' => 'Yes') }
+                                 schedule: @s_schedule.attributes.merge('name' => 'Yes') }
           @s_schedule.reload
 
           expect(@s_schedule.name).to eq('Yes')
@@ -325,7 +325,7 @@ RSpec.describe ScheduleController, type: :controller do
         it 'preserves the staff_item attribute value' do
           expect(@s_schedule.staff_item).to be(true)
           put :update, params: { event_id: @s_event.id, id: @s_schedule.to_param,
-                       schedule: @s_schedule.attributes.merge('name' => 'New') }
+                                 schedule: @s_schedule.attributes.merge('name' => 'New') }
           @s_schedule.reload
 
           expect(@s_schedule.staff_item).to be(true)
@@ -333,7 +333,7 @@ RSpec.describe ScheduleController, type: :controller do
           @s_schedule.staff_item = false
           @s_schedule.save
           put :update, params: { event_id: @s_event.id, id: @s_schedule.to_param,
-                       schedule: @s_schedule.attributes.merge('name' => 'Foo') }
+                                 schedule: @s_schedule.attributes.merge('name' => 'Foo') }
           @s_schedule.reload
 
           expect(@s_schedule.staff_item).to be(false)
@@ -350,7 +350,7 @@ RSpec.describe ScheduleController, type: :controller do
           original_name = schedule.name
 
           put :update, params: { event_id: @s_event.id, id: schedule.to_param,
-                       schedule: schedule.attributes.merge(name: 'No') }
+                                 schedule: schedule.attributes.merge(name: 'No') }
 
           schedule.reload
           expect(schedule.name).to eq(original_name)
@@ -380,7 +380,7 @@ RSpec.describe ScheduleController, type: :controller do
             @s_schedule.save
 
             put :update, params: { event_id: @s_event.id, id: @s_schedule.to_param,
-                         schedule: @s_schedule.attributes.merge(name: 'New') }
+                                   schedule: @s_schedule.attributes.merge(name: 'New') }
 
             @s_schedule.reload
             expect(@s_schedule.name).to eq('Before update')
@@ -409,7 +409,7 @@ RSpec.describe ScheduleController, type: :controller do
             schedule = create(:schedule, staff_item: true, event: @s_event)
 
             put :update, params: { event_id: @s_event.id, id: schedule.to_param,
-                         schedule: schedule.attributes.merge('name' => 'New') }
+                                   schedule: schedule.attributes.merge('name' => 'New') }
 
             expect(Schedule.find(schedule.id).name).to eq('New')
           end
@@ -418,7 +418,7 @@ RSpec.describe ScheduleController, type: :controller do
             schedule = create(:schedule, staff_item: true, event: @s_event)
 
             put :update, params: { event_id: @s_event.id, id: schedule.to_param,
-                         schedule: schedule.attributes
+                                   schedule: schedule.attributes
                            .merge('staff_item' => false) }
 
             expect(Schedule.find(schedule.id).staff_item).to eq(false)
@@ -428,7 +428,7 @@ RSpec.describe ScheduleController, type: :controller do
             schedule = create(:schedule, staff_item: false, event: @s_event)
 
             put :update, params: { event_id: @s_event.id, id: schedule.to_param,
-                         schedule: schedule.attributes
+                                   schedule: schedule.attributes
                            .merge('staff_item' => true) }
 
             expect(Schedule.find(schedule.id).staff_item).to eq(true)
@@ -452,7 +452,7 @@ RSpec.describe ScheduleController, type: :controller do
             schedule = create(:schedule, staff_item: true, event: @s_event)
 
             put :update, params: { event_id: @s_event.id, id: schedule.to_param,
-                         schedule: schedule.attributes.merge('name' => 'New') }
+                                   schedule: schedule.attributes.merge('name' => 'New') }
 
             expect(Schedule.find(schedule.id).name).to eq('New')
           end
@@ -461,7 +461,7 @@ RSpec.describe ScheduleController, type: :controller do
             schedule = create(:schedule, staff_item: false, event: @s_event)
 
             put :update, params: { event_id: @s_event.id, id: schedule.to_param,
-                         schedule: schedule.attributes
+                                   schedule: schedule.attributes
                            .merge('staff_item' => true) }
 
             expect(Schedule.find(schedule.id).staff_item).to eq(true)
@@ -490,7 +490,7 @@ RSpec.describe ScheduleController, type: :controller do
             schedule = create(:schedule, staff_item: true, event: @s_event)
 
             put :update, params: { event_id: @s_event.id, id: schedule.to_param,
-                         schedule: schedule.attributes.merge('name' => 'New') }
+                                   schedule: schedule.attributes.merge('name' => 'New') }
 
             expect(Schedule.find(schedule.id).name).to eq('New')
 
@@ -551,24 +551,24 @@ RSpec.describe ScheduleController, type: :controller do
 
     before do
       @event.schedules.destroy_all
-      @event.start_date = Date.today
-      @event.end_date = Date.today + 5.days
+      @event.start_date = Date.current
+      @event.end_date = Date.current + 5.days
       @event.save
 
       speaker = create(:membership, event: @event).person
       talk = create(:lecture, event: @event, person: speaker,
-                      title: 'Test talk', room: 'Online',
-                 start_time: DateTime.current.change({ hour:12, min:0}),
-                   end_time:  DateTime.current.change({ hour:12, min:30}))
+                              title: 'Test talk', room: 'Online',
+                              start_time: DateTime.current.change({ hour:12, min:0}),
+                              end_time: DateTime.current.change({ hour:12, min:30}))
 
       @schedule_item = create(:schedule, event: @event, lecture: talk,
-                              name: talk.title, location: talk.room,
-                        start_time: talk.start_time,
-                          end_time: talk.end_time)
+                                         name: talk.title, location: talk.room,
+                                         start_time: talk.start_time,
+                                         end_time: talk.end_time)
 
       @start_params = { "event_id": "#{@event.code}",
-                              "id": "#{@schedule_item.id}",
-                   "record_action": "start" }
+                        "id": "#{@schedule_item.id}",
+                        "record_action": "start" }
 
 
       allow(LectureRecording).to receive(:new).and_return(lecture_recording)
