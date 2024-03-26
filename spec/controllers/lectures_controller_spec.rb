@@ -46,10 +46,10 @@ RSpec.describe LecturesController, type: :controller do
 
     context 'current' do
       before do
-        start_date = Date.today
+        start_date = Date.current
         end_date = start_date + 5.days
         @event = create(:event, start_date: start_date, end_date: end_date)
-        start_time = Time.now
+        start_time = Time.current
         end_time = start_time + 40.minutes
         @lecture = create(:lecture, event: @event, start_time: start_time,
                                  end_time: end_time)
