@@ -6,23 +6,48 @@
 
 require 'rails_helper'
 
+RSpec.shared_examples 'email invitation job' do
+  it 'calls on the InvitationMailer' do
+    described_class.new.perform(membership.id)
+
+    expect(InvitationMailer).to have_received(:invite).with(invitation)
+  end
+end
+
 RSpec.describe EmailInvitationJob, type: :job do
-  describe "#perform" do
-    it "calls on the InvitationMailer" do
-      invitation = double('invitation', id: 9)
-      membership = create(:membership, attendance: 'Not Yet Invited')
+  describe '#perform' do
+    let(:invitation) { double('invitation', id: 9) }
+    let(:membership) { create(:membership, attendance: 'Not Yet Invited') }
+
+    before do
       allow(invitation).to receive(:membership).and_return(membership)
       allow(Invitation).to receive(:find_by_id).and_return(invitation)
       allow(InvitationMailer).to receive_message_chain(:invite, :deliver_now)
+    end
 
-      described_class.new.perform(membership.id)
+    context 'when called with initial_email: true' do
+      it 'updaters membership attendance to Invited' do
+        described_class.new.perform(1, initial_email: true)
 
-      expect(InvitationMailer).to have_received(:invite).with(invitation)
+        expect(membership.attendance).to eq 'Invited'
+      end
+
+      it_behaves_like 'email invitation job'
+    end
+
+    context 'when called with initial_email: false' do
+      it 'does not update membership attendance' do
+        described_class.new.perform(1, initial_email: false)
+
+        expect(membership.attendance).to eq 'Not Yet Invited'
+      end
+
+      it_behaves_like 'email invitation job'
     end
   end
 
-  describe ".perform_later" do
-    it "adds the job to the queue :urgent" do
+  describe '.perform_later' do
+    it 'adds the job to the queue :urgent' do
       allow(InvitationMailer).to receive_message_chain(:invite, :deliver_now)
 
       described_class.perform_later(1)

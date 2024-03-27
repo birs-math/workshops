@@ -40,8 +40,11 @@ class Membership < ApplicationRecord
 
   ROLES = ['Contact Organizer', 'Organizer', 'Virtual Organizer', 'Participant',
            'Virtual Participant', 'Observer', 'Backup Participant'].freeze
+
   ATTENDANCE = ['Confirmed', 'Invited', 'Undecided', 'Not Yet Invited',
                 'Declined'].freeze
+
+  INVITATION_ATTENDANCE = ['Invited', 'Undecided', 'Not Yet Invited'].freeze
   ONLINE_ROLES = ['Virtual Organizer', 'Virtual Participant'].freeze
   IN_PERSON_ROLES = ['Contact Organizer', 'Organizer', 'Participant'].freeze
 
@@ -56,10 +59,6 @@ class Membership < ApplicationRecord
 
   def shares_email?
     self.share_email
-  end
-
-  def organizer?
-    role == 'Organizer' || role == 'Contact Organizer'
   end
 
   def arrives
@@ -77,8 +76,32 @@ class Membership < ApplicationRecord
     replied_at.in_time_zone(event.time_zone).strftime('%b %-d, %Y %H:%M %Z')
   end
 
+  def organizer?
+    role.include?('Organizer')
+  end
+
+  def contact_organizer?
+    role == 'Contact Organizer'
+  end
+
+  def virtual_organizer?
+    organizer? && virtual?
+  end
+
+  def participant?
+    role.include?('Participant')
+  end
+
+  def virtual_participant?
+    participant? && virtual?
+  end
+
   def virtual?
-    role.match?('Virtual')
+    role.include?('Virtual')
+  end
+
+  def observer?
+    role.include?('Observer')
   end
 
   def in_person?
@@ -152,15 +175,14 @@ class Membership < ApplicationRecord
   end
 
   def check_max_confirmed
-    event_full = false
-    if role.include?('Virtual') || event.event_format == 'Online'
-      event_full = event.num_confirmed_virtual >= event.max_virtual
-    else
-      event_full = event.num_confirmed_in_person >= event.max_participants
-    end
+    event_full = if role.include?('Virtual') || event.event_format == 'Online'
+                   event.num_confirmed_virtual >= event.max_virtual
+                 else
+                   event.num_confirmed_in_person >= event.max_participants
+                 end
+    return unless event_full
 
-    errors.add(:role, "- the maximum number of confirmed #{role.pluralize} has
-               been reached.".squish) if event_full
+    errors.add(:role, "- the maximum number of confirmed #{role.pluralize} has been reached.".squish)
   end
 
   def check_max_virtual

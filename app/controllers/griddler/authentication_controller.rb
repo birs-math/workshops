@@ -8,11 +8,13 @@ class Griddler::AuthenticationController < Griddler::EmailsController
   # https://github.com/thoughtbot/griddler/blob/master/app/controllers/griddler/emails_controller.rb
   def incoming
     create and return if valid_incoming_format
+
     not_acceptable
   end
 
   def bounces
     process_bounce and return if valid_bounce_format
+
     not_acceptable
   end
 
@@ -39,7 +41,7 @@ class Griddler::AuthenticationController < Griddler::EmailsController
   protected
 
   def valid_incoming_format
-    params.key?("X-Mailgun-Incoming")
+    params.key?('X-Mailgun-Incoming')
   end
 
   def valid_bounce_format
@@ -57,13 +59,14 @@ class Griddler::AuthenticationController < Griddler::EmailsController
 
   def posted_signature
     return if params['signature'].nil?
-    return params['signature'] if params['signature'].class == String
+    return params['signature'] if params['signature'].instance_of?(String)
+
     params['signature']['signature']
   end
 
   def parse_params
     timestamp = token = nil
-    if params['timestamp'] && params['signature'].class == String
+    if params['timestamp'] && params['signature'].instance_of?(String)
       timestamp = params['timestamp']
       token = params['token']
     elsif params['signature'] && params['signature']['timestamp']
@@ -76,6 +79,7 @@ class Griddler::AuthenticationController < Griddler::EmailsController
   def posted_token
     timestamp, token = parse_params
     return '' unless timestamp && token
+
     timestamp + token
   end
 

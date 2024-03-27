@@ -7,14 +7,15 @@
 # Calculates whether participation limits have been exceeded
 module ParticipantLimits
   def max_participants_exceeded?(extras = 0)
-    msg = ''
-    msg = max_hybrid_msg(extras) if @event.hybrid?
+    return max_hybrid_msg(extras) if @event.hybrid?
 
-    msg = "You may not invite more than #{participant_limits}
-      participants.".squish if !@event.hybrid? && max_participants?(extras)
+    msg = if !@event.hybrid? && max_participants?(extras)
+            "You may not invite more than #{participant_limits} participants.".squish
+          else
+            ''
+          end
 
-    msg << " You may not invite more than #{@event.max_observers}
-      observers.".squish if max_observers?(extras)
+    msg << " You may not invite more than #{@event.max_observers} observers.".squish if max_observers?(extras)
 
     msg
   end
@@ -23,7 +24,7 @@ module ParticipantLimits
     msg = ''
     # @memberships is the new invitees; count the ones who are in-person
     invited_physical = @memberships.count do |m|
-        m.attendance == 'Not Yet Invited' && m.role == 'Participant'
+      m.attendance == 'Not Yet Invited' && m.role == 'Participant'
     end
 
     participant_total = @event.num_invited_in_person + invited_physical + extras
@@ -52,14 +53,24 @@ module ParticipantLimits
       m.attendance == 'Not Yet Invited' && m.role != 'Observer'
     end
 
-    @event.num_invited_participants + uninvited + extras > participant_limits
+    num_invited_participants + uninvited + extras > participant_limits
   end
 
   def max_observers?(extras = 0)
-    uninvited_observers = @memberships.count { |m| m.role == 'Observer' &&
-      m.attendance == 'Not Yet Invited' }
-    return false if uninvited_observers == 0
+    uninvited_observers = @memberships.count { |m| m.role == 'Observer' && m.attendance == 'Not Yet Invited' }
+    return false if uninvited_observers.zero?
+
     total_observers = @event.num_invited_observers + uninvited_observers + extras
     total_observers > @event.max_observers
+  end
+
+  def num_invited_participants
+    if @event.online?
+      @event.num_invited_virtual
+    elsif @event.hybrid?
+      @event.num_invited_participants
+    else
+      @event.num_invited_in_person
+    end
   end
 end

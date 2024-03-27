@@ -20,11 +20,11 @@ describe Api::V1::EventsController do
           event: @event.as_json,
           memberships: [
             {
-              "role": "Participant",
+              "role": 'Participant',
               "person": build(:person).as_json
             },
             {
-              "role": "Organizer",
+              "role": 'Organizer',
               "person": build(:person).as_json
             }
           ]
@@ -32,19 +32,19 @@ describe Api::V1::EventsController do
     end
 
     it 'authenticates with the correct api key' do
-      post "/api/v1/events.json", params: @payload.to_json
+      post '/api/v1/events.json', params: @payload.to_json
       expect(response).to be_successful
     end
 
     it 'does not authenticate with an invalid api key' do
       @payload['api_key'] = '123'
-      post "/api/v1/events.json", params: @payload.to_json
+      post '/api/v1/events.json', params: @payload.to_json
 
       expect(response).to be_unauthorized
     end
 
     it 'given appropriate keys and event data, it creates an event' do
-      post "/api/v1/events.json", params: @payload.to_json
+      post '/api/v1/events.json', params: @payload.to_json
       expect(response).to have_http_status(:created)
       expect(Event.find(@event.code)).not_to be_nil
     end
@@ -53,7 +53,7 @@ describe Api::V1::EventsController do
       event = build(:event, max_observers: nil)
       @payload['event'] = event.as_json
 
-      post "/api/v1/events.json", params: @payload.to_json
+      post '/api/v1/events.json', params: @payload.to_json
 
       event = Event.find(event.code)
       max = GetSetting.max_observers(event.location)
@@ -65,7 +65,7 @@ describe Api::V1::EventsController do
       event = build(:event, max_participants: nil)
       @payload['event'] = event.as_json
 
-      post "/api/v1/events.json", params: @payload.to_json
+      post '/api/v1/events.json', params: @payload.to_json
       event = Event.find(event.code)
       max = GetSetting.max_participants(event.location)
       expect(max).not_to be_blank
@@ -76,7 +76,7 @@ describe Api::V1::EventsController do
       event = build(:event, code: nil)
       @payload['event'] = event.as_json
 
-      post "/api/v1/events.json", params: @payload.to_json
+      post '/api/v1/events.json', params: @payload.to_json
       expect(response).to be_bad_request
     end
 
@@ -84,21 +84,21 @@ describe Api::V1::EventsController do
       existing_event = create(:event)
       @payload['event'] = existing_event.as_json
 
-      post "/api/v1/events.json", params: @payload.to_json
+      post '/api/v1/events.json', params: @payload.to_json
       expect(response).to have_http_status(:unprocessable_entity)
     end
 
     it 'given missing, invalid or empty event, it fails' do
       @payload['event'] = {}
-      post "/api/v1/events.json", params: @payload.to_json
+      post '/api/v1/events.json', params: @payload.to_json
       expect(response).to have_http_status(:bad_request)
 
       @payload['event'] = Array.new
-      post "/api/v1/events.json", params: @payload.to_json
+      post '/api/v1/events.json', params: @payload.to_json
       expect(response).to have_http_status(:bad_request)
 
       @payload.delete(:event)
-      post "/api/v1/events.json", params: @payload.to_json
+      post '/api/v1/events.json', params: @payload.to_json
       expect(response).to have_http_status(:bad_request)
     end
   end
@@ -115,7 +115,7 @@ describe Api::V1::EventsController do
 
     it 'given invalid event_id, it fails' do
       @payload['event_id'] = 'foo'
-      post "/api/v1/events/sync.json", params: @payload.to_json
+      post '/api/v1/events/sync.json', params: @payload.to_json
       expect(response).to be_bad_request
     end
   end

@@ -137,7 +137,9 @@ describe 'Invite Members', type: :feature do
     end
 
     it 'shows the "Reply-by" date' do
-      expect(page).to have_text(RsvpDeadline.new(@event).rsvp_by)
+      expected_date = RsvpDeadline.new(@event, DateTime.current, @event.memberships.last)
+                                  .calculate_deadline.strftime('%Y-%m-%d')
+      expect(page).to have_text(expected_date)
     end
 
     context 'Physical events' do
@@ -224,20 +226,20 @@ describe 'Invite Members', type: :feature do
     it 'sends invitations to selected members' do
       selected = []
       i = 1
-      @event.memberships.where(role: 'Participant')
-                        .where(attendance: 'Not Yet Invited').each do |m|
+      @event.memberships.where(role: 'Participant').where(attendance: 'Not Yet Invited').each do |m|
         if i.even?
           selected << m.id
           html_id = 'invite_members_form_' + m.id.to_s
           find(:css, "input##{html_id}").set(true)
         end
-        i+=1
+        i += 1
       end
 
       click_button('not-yet-invited-submit')
 
       selected.each do |id|
-        expect(Membership.find(id).attendance).to eq('Invited')
+        membership = Membership.find(id)
+        expect(EmailInvitationJob).to have_been_enqueued.with(membership.invitation.id, initial_email: true)
       end
     end
 
@@ -255,7 +257,7 @@ describe 'Invite Members', type: :feature do
           html_id = 'invite_members_form_' + member.id.to_s
           find(:css, "input##{html_id}").set(true)
         end
-        i+=1
+        i += 1
       end
 
       click_button('Send Reminder to Selected Invited Members')
@@ -304,7 +306,7 @@ describe 'Invite Members', type: :feature do
       end
 
       it 'invitation fails if max_virtual is exceeded' do
-        num_participants = @event.num_invited_participants
+        num_participants = @event.num_invited_virtual
         @event.max_virtual = num_participants
         @event.save!
 
@@ -428,18 +430,18 @@ describe 'Invite Members', type: :feature do
     it 'does not fail if max_participants is full, but observer is invited' do
       @event = Event.find(@event.id)
       @event.max_participants = @event.num_invited_participants
+      @event.max_virtual = @event.num_invited_virtual
       @event.max_observers = @event.num_invited_observers + 1
       @event.save!
 
-      observer = create(:membership, event: @event, role: 'Observer',
-                                attendance: 'Not Yet Invited')
+      observer = create(:membership, event: @event, role: 'Observer', attendance: 'Not Yet Invited')
       visit invite_event_memberships_path(@event)
       html_id = 'invite_members_form_' + observer.id.to_s
       find(:css, "input##{html_id}").set(true)
       click_button('not-yet-invited-submit')
 
       expect(current_path).to eq(event_memberships_path(@event))
-      expect(Membership.find(observer.id).attendance).to eq('Invited')
+      expect(EmailInvitationJob).to have_been_enqueued.with(observer.invitation.id, initial_email: true)
       expect(page).to have_text("Invitations were sent to 1 participants:
         #{observer.person.name}".squish)
     end

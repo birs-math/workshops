@@ -19,7 +19,7 @@ module Que
     end
 
     def next_run_at(event)
-      if ::Rails.env.production?
+      if ::Rails.env.production? || ::Rails.env.test?
         production_run_at(event)
       else
         development_run_at(event)

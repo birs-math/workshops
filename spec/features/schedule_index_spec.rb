@@ -19,9 +19,9 @@ describe 'Schedule Index', type: :feature do
 
   def populates_empty_schedule
     @event.schedules.destroy_all
-    visit(event_schedule_index_path(@event))
 
     @event.reload
+    visit(event_schedule_index_path(@event))
     expect(@event.schedules).not_to be_empty
     @template_event.schedules.each do |item|
       expect(page.body).to have_text(item.name)
@@ -55,6 +55,7 @@ describe 'Schedule Index', type: :feature do
   context 'Admin users' do
     before do
       @user.admin!
+      @event = create(:event, future: true)
     end
 
     it 'populates an empty schedule from the template event schedule' do
@@ -122,7 +123,8 @@ describe 'Schedule Index', type: :feature do
     context "Start/Stop Recording buttons" do
       before do
         # has to be today because buttons only appear today
-        date = Date.today
+        date = Date.current
+        travel_to date
         @event.start_date = date.beginning_of_week(:sunday)
         @event.end_date = @event.start_date + 2.weeks # in case today is Friday
         @event.save

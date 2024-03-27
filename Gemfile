@@ -20,6 +20,7 @@ gem 'jbuilder'
 gem 'jquery-rails'
 gem 'jquery-turbolinks'
 gem 'listen'
+gem 'liquid'
 gem 'mailgun-ruby'
 gem 'momentjs-rails'
 gem 'paper_trail'
@@ -58,6 +59,8 @@ group :test do
   gem 'rails-controller-testing'
   gem 'rubocop-faker'
   gem 'rubocop'
+  gem 'simplecov'
+  gem 'simplecov-lcov'
   gem 'selenium-webdriver'
 end
 
