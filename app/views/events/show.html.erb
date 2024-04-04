@@ -97,7 +97,7 @@
         <% if user_signed_in? %>
           <h2>Event Description:
             <% if policy(@event).edit? %>
-              <br><small>appears only here, for participants to see</small>
+              <small><p>appears only here, for participants to see</p></small>
             <% end %>
           </h2>
          <%= get_text(@event.description) %>
@@ -105,7 +105,7 @@
 
         <h2 id="press-release">Event Press Release:
           <% if policy(@event).edit? %>
-            <br><small>appears on the public webpage</small>
+            <small><p>appears on the public webpage</p></small>
           <% end %>
         </h2>
         <%= get_text(@event.press_release) %>
