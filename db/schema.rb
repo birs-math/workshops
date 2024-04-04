@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_03_07_095205) do
+ActiveRecord::Schema.define(version: 2024_04_03_193744) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,6 +29,16 @@ ActiveRecord::Schema.define(version: 2023_03_07_095205) do
     t.index ["replace_person_id"], name: "index_confirm_email_changes_on_replace_person_id"
     t.index ["replace_with_code"], name: "index_confirm_email_changes_on_replace_with_code"
     t.index ["replace_with_id"], name: "index_confirm_email_changes_on_replace_with_id"
+  end
+
+  create_table "custom_fields", force: :cascade do |t|
+    t.bigint "event_id"
+    t.string "title"
+    t.integer "position"
+    t.string "description"
+    t.text "value"
+    t.index ["event_id"], name: "index_custom_fields_on_event_id"
+    t.index ["position"], name: "index_custom_fields_on_position"
   end
 
   create_table "email_notifications", force: :cascade do |t|
@@ -307,6 +317,7 @@ ActiveRecord::Schema.define(version: 2023_03_07_095205) do
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
+  add_foreign_key "custom_fields", "events"
   add_foreign_key "invitations", "memberships"
   add_foreign_key "lectures", "events"
   add_foreign_key "lectures", "people"
