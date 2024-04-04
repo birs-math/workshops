@@ -64,6 +64,10 @@
   h2 small {
     font-style: italic;
     color: lighten($grey-heading, 20%);
+    p {
+      font-size: smaller;
+      margin: 0;
+    }
   }
 
   h2#press-release {

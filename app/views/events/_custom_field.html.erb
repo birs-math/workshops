@@ -1,7 +1,9 @@
-<h2 class="mt-5">
-  <%= custom_field.title %>:
-  <br><small><%= custom_field.description %></small>
-</h2>
-<div>
-  <%= custom_field.value %>
+<div class="custom-field">
+  <h2 class="mt-5">
+    <%= custom_field.title %>:
+    <small><p><%= sanitize(custom_field.description) %></p></small>
+  </h2>
+  <div>
+    <%= sanitize(custom_field.value.html_safe) %>
+  </div>
 </div>
