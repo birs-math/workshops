@@ -95,20 +95,23 @@
       <div class="row" id="event-description">
         <div class="col">
         <% if user_signed_in? %>
-        <h2>Event Description:
-          <% if policy(@event).edit? %>
-          <br><small>appears only here, for participants to see</small>
-          <% end %>
-        </h2>
+          <h2>Event Description:
+            <% if policy(@event).edit? %>
+              <br><small>appears only here, for participants to see</small>
+            <% end %>
+          </h2>
          <%= get_text(@event.description) %>
         <% end %>
 
         <h2 id="press-release">Event Press Release:
           <% if policy(@event).edit? %>
-          <br><small>appears on the public webpage</small>
+            <br><small>appears on the public webpage</small>
           <% end %>
         </h2>
         <%= get_text(@event.press_release) %>
+        <% @event.custom_fields.order(position: :asc).each do |field| %>
+          <%= render 'custom_field', custom_field: field %>
+        <% end %>
         </div>
       </div>
     </div><!--/.card-body -->
