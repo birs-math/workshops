@@ -16,6 +16,12 @@ class Event < ApplicationRecord
   has_many :lectures
   has_many :custom_fields, dependent: :destroy
 
+  enum state: {
+    imported: 0,
+    published: 1,
+    active: 2
+  }
+
   accepts_nested_attributes_for :custom_fields
 
   before_save :clean_data
@@ -155,7 +161,7 @@ class Event < ApplicationRecord
   end
 
   def clean_data
-    attributes.each_value { |v| v.strip! if v.respond_to? :strip! }
+    attributes.each_value { |v| v.strip! if v.respond_to?(:strip!) && !v.frozen? }
   end
 
   def set_max_defaults
