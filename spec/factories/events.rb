@@ -24,6 +24,7 @@ FactoryBot.define do
 
   factory :event do |f|
     f.code
+    f.state { 'active' }
     f.name { Faker::Lorem.sentence(word_count: 4) }
     f.short_name { Faker::Lorem.sentence(word_count: 1) }
     f.booking_code { 'Booking' }
