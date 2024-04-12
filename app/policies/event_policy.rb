@@ -33,7 +33,7 @@ class EventPolicy
              .not('(template = ? AND location != ?)', true, location)
              .order(:start_date)
       else
-        model.where(template: false).order(:start_date)
+        model.where(template: false).where.not(state: :imported).order(:start_date)
       end
     end
   end
@@ -69,6 +69,8 @@ class EventPolicy
   def show?
     if event.template
       staff_and_admins
+    elsif event.imported?
+      current_user.is_organizer?(event) || staff_and_admins
     else
       true
     end
@@ -82,36 +84,36 @@ class EventPolicy
     return false if current_user.nil?
     return true if staff_and_admins
     return false if Date.current > event.end_date
+
     organizers_and_staff
   end
 
   def view_attendance_status?(status)
     return true if organizers_and_staff
-    if current_user
-      ['Confirmed', 'Invited', 'Undecided'].include?(status)
-    end
+
+    %w[Confirmed Invited Undecided].include?(status) if current_user
   end
 
   def show_email_buttons?(status)
     return false if current_user.nil?
     return true if organizers_and_staff
+
     status == 'Confirmed' && current_user.is_confirmed_member?(event)
   end
 
   def send_invitations?
-    return false if current_user.nil?
-    return false if Date.current > event.end_date
+    return false if current_user.nil? || Date.current > event.end_date
+
     organizers_and_staff
   end
 
   def sync?
-    if event.end_date >= Time.zone.today && !event.template
-      organizers_and_staff unless Rails.env.test?
-    end
+    organizers_and_staff if event.end_date >= Time.zone.today && !event.template && !Rails.env.test?
   end
 
   def view_details?
     return false if current_user.nil?
+
     member_of_event? || staff_and_admins
   end
 
@@ -129,23 +131,28 @@ class EventPolicy
 
   def staff_at_location
     return false unless current_user
+
     current_user.staff? && current_user.location == event.location
   end
 
   def staff_and_admins
     return false unless current_user
+
     current_user.is_admin? || staff_at_location
   end
 
   def organizers_and_staff
     return false unless current_user
-    current_user.is_organizer?(event) || current_user.is_admin? || staff_at_location
+
+    (event.active? && current_user.is_organizer?(event)) || current_user.is_admin? || staff_at_location
   end
 
   def member_of_event?
     return false unless current_user
+
     member = Membership.where(person: current_user.person, event: @event).first
     return false if member.blank?
-    ['Confirmed', 'Invited', 'Undecided'].include?(member.attendance)
+
+    %w[Confirmed Invited Undecided].include?(member.attendance)
   end
 end
