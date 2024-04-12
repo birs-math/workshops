@@ -39,7 +39,7 @@
         <div class="col">
           <div class="form-group select">
             <%= f.label :state %>
-            <%= f.select(:state, Event.statuses.keys, {}, { class: 'form-control' }) %>
+            <%= f.select(:state, Event.states.keys, {}, { class: 'form-control' }) %>
           </div>
         </div>
       </div>
