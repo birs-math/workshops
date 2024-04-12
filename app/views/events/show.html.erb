@@ -26,6 +26,10 @@
               </tr>
           <% end %>
           <tr>
+            <td class="label">Event State:</td>
+            <td colspan="3"><%= @event.state.capitalize %></td>
+          </tr>
+          <tr>
             <td class="label">Event Type:</td>
             <td colspan="3"><%= @event.event_type %></td>
           </tr>
