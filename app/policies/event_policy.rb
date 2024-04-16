@@ -47,8 +47,9 @@ class EventPolicy
   end
 
   def may_edit
-    all_fields = event.attributes.keys.sort - %w[id updated_by created_at
-      updated_at confirmed_count publish_schedule sync_time]
+    all_fields = (event.attributes.keys.sort + %w[custom_fields_attributes]) - %w[id updated_by created_at
+                                                                                  updated_at confirmed_count
+                                                                                  publish_schedule sync_time]
     case current_user.role
     when 'admin', 'super_admin'
       all_fields

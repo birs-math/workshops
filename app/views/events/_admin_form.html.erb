@@ -134,7 +134,14 @@
         <%= f.label :press_release %>
         <%= f.text_area :press_release, rows: 10, class: 'form-control' %>
       </div>
-
+      <% @event.custom_fields.each do |custom_field| %>
+        <%= f.fields_for :custom_fields, custom_field do |cf| %>
+          <div class="form-group">
+            <%= cf.label custom_field.title %>
+            <%= cf.text_area :value, rows: 10, class: 'form-control' %>
+          </div>
+        <% end %>
+      <% end %>
       <div class="row buttons">
         <div class="form-group col-md-12">
           <%= f.submit (f.object.new_record? ? 'Add New Event' : 'Update Event'), class: 'btn btn-primary' %>

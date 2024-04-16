@@ -13,6 +13,13 @@
   <% elsif field_name == 'state' %>
     <%= form.label "#{field_name.titleize}" %>
     <%= form.select field_name, Event.states.keys, {}, {class: 'form-control'} %>
+  <% elsif field_name == 'custom_fields_attributes' %>
+    <%= form.fields_for :custom_fields do |cf| %>
+      <div class="form-group">
+        <%= cf.label cf.object.title %>
+        <%= cf.text_area :value, rows: 5, class: 'form-control' %>
+      </div>
+    <% end %>
   <% else %>
     <%= form.label "#{field_name.titleize}" %>
     <% if %w(description press_release).include?(field_name) %>
