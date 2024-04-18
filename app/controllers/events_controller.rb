@@ -207,7 +207,7 @@ class EventsController < ApplicationController
                                   :end_date, :time_zone, :event_type, :location,
                                   :description, :press_release, :door_code,
                                   :booking_code, :subjects, :cancelled,
-                                  :max_participants, :max_observers,
+                                  :max_participants, :max_observers, :state,
                                   :max_virtual, :updated_by, :event_format)
   end
 
