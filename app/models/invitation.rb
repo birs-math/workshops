@@ -14,7 +14,7 @@ class Invitation < ApplicationRecord
   validates :code, presence: true, length: { is: 50 }
 
   after_initialize :generate_code
-  before_save :update_times, on: :create
+  before_save :update_times, if: :new_record?
 
   scope :no_rsvp_from_confirmed, lambda {
     joins(:membership).where(memberships: { attendance: 'Confirmed', role: Membership::IN_PERSON_ROLES })
