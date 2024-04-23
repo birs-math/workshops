@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 class AttendanceConfirmationMailer < ApplicationMailer
-  def remind(invitation_id:)
+  def remind(invitation_id:, expiry_days: nil)
     @invitation = Invitation.find(invitation_id)
     @event = @invitation.membership.event
+    @expiry_days = expiry_days
 
     @program_coordinator = GetSetting.email(@event.location, 'program_coordinator')
 
