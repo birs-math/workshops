@@ -14,7 +14,7 @@ class Invitation < ApplicationRecord
   validates :code, presence: true, length: { is: 50 }
 
   after_initialize :generate_code
-  before_save :update_times
+  before_save :update_times, on: :create
 
   scope :no_rsvp_from_confirmed, lambda {
     joins(:membership).where(memberships: { attendance: 'Confirmed', role: Membership::IN_PERSON_ROLES })
@@ -115,12 +115,11 @@ class Invitation < ApplicationRecord
 
   def update_times
     self.invited_on = DateTime.current
-    if membership.event.online? || membership.virtual?
-      self.expires = event.end_date_in_time_zone.end_of_day
-    else
-      start_time = event.start_date_in_time_zone.beginning_of_day
-      self.expires = start_time - EXPIRES_BEFORE
-    end
+    self.expires = if membership.event.online? || membership.virtual?
+                     event.end_date_in_time_zone.end_of_day
+                   else
+                     RsvpDeadline.new(event, invited_on, membership).calculate_deadline
+                   end
   end
 
   def email_template_path

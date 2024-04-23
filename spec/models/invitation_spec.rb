@@ -39,15 +39,12 @@ RSpec.describe 'Model validations: Invitation', type: :model do
     expect(i.expires).not_to be_nil
   end
 
-  it 'derives expiry date from event.start_date - Setting.rsvp_expiry' do
+  it 'derives expiry date from rsvp deadline calculator' do
     event = build(:event, future: true, event_format: 'Physical')
     membership = build(:membership, event: event)
     i = create(:invitation, membership: membership)
 
-    duration = Invitation.duration_setting
-    start_date = event.start_date_in_time_zone.beginning_of_day
-
-    expect(i.expires).to eq(start_date - duration)
+    expect(i.expires).to eq(RsvpDeadline.new(event, i.invited_on, membership).calculate_deadline)
   end
 
   it 'for online events, sets expiry date to workshop end_date, end of day' do
