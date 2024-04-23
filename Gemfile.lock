@@ -148,6 +148,8 @@ GEM
       activemodel
     erubi (1.10.0)
     erubis (2.7.0)
+    et-orbi (1.2.11)
+      tzinfo
     execjs (2.8.1)
     factory_bot (6.2.0)
       activesupport (>= 5.0.0)
@@ -187,6 +189,9 @@ GEM
       sexp_processor (~> 4.0)
     font-awesome-rails (4.7.0.8)
       railties (>= 3.2, < 8.0)
+    fugit (1.10.1)
+      et-orbi (~> 1, >= 1.2.7)
+      raabro (~> 1.4)
     gitlab (4.18.0)
       httparty (~> 0.18)
       terminal-table (>= 1.5.1)
@@ -197,6 +202,7 @@ GEM
       rails (>= 3.2.0)
     griddler-mailgun (1.1.1)
       griddler
+    hashie (5.0.0)
     htmlentities (4.3.4)
     http-accept (1.7.0)
     http-cookie (1.0.4)
@@ -315,7 +321,13 @@ GEM
     public_suffix (4.0.6)
     pundit (2.1.1)
       activesupport (>= 3.0.0)
-    que (2.2.0)
+    que (2.2.1)
+    que-scheduler (4.4.0)
+      activesupport (>= 5.0)
+      fugit (~> 1.1, >= 1.1.8)
+      hashie (>= 3, < 6)
+      que (>= 0.14, < 3.0.0)
+    raabro (1.4.0)
     racc (1.6.0)
     rack (2.2.3)
     rack-cors (1.1.1)
@@ -551,7 +563,8 @@ DEPENDENCIES
   pronto-rubocop
   psych (~> 3.3.2)
   pundit
-  que (~> 2.2.0)
+  que (~> 2.2.1)
+  que-scheduler
   rack (>= 2.2.3)
   rack-cors
   rails (~> 5.2.4.5)

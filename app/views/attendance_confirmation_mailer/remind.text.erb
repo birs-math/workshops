@@ -1,6 +1,9 @@
 Dear <%= @invitation.membership.person.dear_name %>, please confirm your attendance to <%= @event.code %> at <%= @event.location %> (<%= @event.url %>) using provided link:
 
 <%= rsvp_confirm_attendance_url(@invitation.code) %>
+<% if @expiry_days %>
+It will be expire in <%= @expiry_days %> <%= @expiry_days == 1 ? 'day' : 'days' %>.
+<% end %>
 
 Best regards,
 
