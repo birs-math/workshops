@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_04_12_113116) do
+ActiveRecord::Schema.define(version: 2024_04_22_090508) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -210,6 +210,7 @@ ActiveRecord::Schema.define(version: 2024_04_12_113116) do
     t.jsonb "kwargs", default: {}, null: false
     t.index ["args"], name: "que_jobs_args_gin_idx", opclass: :jsonb_path_ops, using: :gin
     t.index ["data"], name: "que_jobs_data_gin_idx", opclass: :jsonb_path_ops, using: :gin
+    t.index ["job_class"], name: "que_scheduler_job_in_que_jobs_unique_index", unique: true, where: "(job_class = 'Que::Scheduler::SchedulerJob'::text)"
     t.index ["job_schema_version", "queue", "priority", "run_at", "id"], name: "que_poll_idx", where: "((finished_at IS NULL) AND (expired_at IS NULL))"
     t.index ["kwargs"], name: "que_jobs_kwargs_gin_idx", opclass: :jsonb_path_ops, using: :gin
   end
@@ -222,6 +223,23 @@ ActiveRecord::Schema.define(version: 2024_04_12_113116) do
     t.text "queues", null: false, array: true
     t.boolean "listening", null: false
     t.integer "job_schema_version", default: 1
+  end
+
+  create_table "que_scheduler_audit", primary_key: "scheduler_job_id", id: :bigint, default: nil, comment: "7", force: :cascade do |t|
+    t.datetime "executed_at", null: false
+  end
+
+  create_table "que_scheduler_audit_enqueued", id: false, force: :cascade do |t|
+    t.bigint "scheduler_job_id", null: false
+    t.string "job_class", limit: 255, null: false
+    t.string "queue", limit: 255
+    t.integer "priority"
+    t.jsonb "args", null: false
+    t.bigint "job_id"
+    t.datetime "run_at"
+    t.index ["args"], name: "que_scheduler_audit_enqueued_args"
+    t.index ["job_class"], name: "que_scheduler_audit_enqueued_job_class"
+    t.index ["job_id"], name: "que_scheduler_audit_enqueued_job_id"
   end
 
   create_table "que_values", primary_key: "key", id: :text, force: :cascade do |t|
@@ -324,5 +342,6 @@ ActiveRecord::Schema.define(version: 2024_04_12_113116) do
   add_foreign_key "lectures", "people"
   add_foreign_key "memberships", "events"
   add_foreign_key "memberships", "people"
+  add_foreign_key "que_scheduler_audit_enqueued", "que_scheduler_audit", column: "scheduler_job_id", primary_key: "scheduler_job_id", name: "que_scheduler_audit_enqueued_scheduler_job_id_fkey"
   add_foreign_key "schedules", "events"
 end
