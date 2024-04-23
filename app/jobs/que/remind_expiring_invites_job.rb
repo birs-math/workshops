@@ -10,13 +10,13 @@ module Que
     private
 
     def send_week_expiry_reminder
-      Invitation.no_rsvp_from_confirmed.where(expires: (Date.current + 1.week).all_day).find_each do |invite|
+      Invitation.where(expires: (Date.current + 1.week).all_day).find_each do |invite|
         AttendanceConfirmationMailer.remind(invitation_id: invite.id, expiry_days: 7).deliver_now
       end
     end
 
     def send_day_expiry_reminder
-      Invitation.no_rsvp_from_confirmed.where(expires: Date.current.all_day).find_each do |invite|
+      Invitation.where(expires: Date.current.all_day).find_each do |invite|
         AttendanceConfirmationMailer.remind(invitation_id: invite.id, expiry_days: 1).deliver_now
       end
     end
