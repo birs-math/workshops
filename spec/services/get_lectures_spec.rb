@@ -89,8 +89,8 @@ describe 'GetLectures' do
     it 'returns the next lecture today' do
       start_time = DateTime.current + 2.hours
       end_time = start_time + 30.minutes
-      event = create(:event, start_date: Date.today,
-                               end_date: Date.today + 5.days)
+      event = create(:event, start_date: Date.current,
+                               end_date: Date.current + 5.days)
       lecture = create(:lecture, start_time: start_time, event: event,
                        end_time: end_time, room: @room)
 

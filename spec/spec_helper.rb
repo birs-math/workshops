@@ -1,3 +1,23 @@
+# frozen_string_literal: true
+
+require 'simplecov'
+require 'simplecov-lcov'
+
+SimpleCov::Formatter::LcovFormatter.config.report_with_single_file = true
+COVERAGE_FORMATTER = SimpleCov::Formatter::MultiFormatter.new([
+                                                                SimpleCov::Formatter::HTMLFormatter,
+                                                                SimpleCov::Formatter::LcovFormatter
+                                                              ])
+SimpleCov.start 'rails' do
+  enable_coverage :branch
+  formatter COVERAGE_FORMATTER
+  add_filter '/bin/'
+  add_filter '/db/'
+  add_filter '/spec/' # for rspec
+  add_filter 'vendor'
+  add_filter 'node_modules'
+end
+
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest

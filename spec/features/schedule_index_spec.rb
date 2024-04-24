@@ -123,7 +123,8 @@ describe 'Schedule Index', type: :feature do
     context "Start/Stop Recording buttons" do
       before do
         # has to be today because buttons only appear today
-        date = Date.today
+        date = Date.current
+        travel_to date
         @event.start_date = date.beginning_of_week(:sunday)
         @event.end_date = @event.start_date + 2.weeks # in case today is Friday
         @event.save

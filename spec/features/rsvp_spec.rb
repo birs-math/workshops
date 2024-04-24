@@ -54,7 +54,6 @@ describe 'RSVP', type: :feature do
   it 'has yes, no, maybe buttons' do
     expect(page).to have_link('Yes')
     expect(page).to have_link('No')
-    expect(page).to have_link('Maybe')
   end
 
   context 'Error conditions' do
@@ -87,7 +86,6 @@ describe 'RSVP', type: :feature do
       expect(current_path).to eq(rsvp_otp_path(@invitation.code))
       expect(page).to have_link('Yes')
       expect(page).to have_link('No')
-      expect(page).to have_link('Maybe')
 
       @invitation.update_columns(expires: Date.today.next_year)
       @membership.update_columns(role: 'Participant')
@@ -260,74 +258,6 @@ describe 'RSVP', type: :feature do
 
         visit rsvp_no_path(@invitation.code)
         click_button 'Decline Attendance'
-
-        expect(SyncMembershipJob).to have_received(:perform_later)
-          .with(@membership.id)
-      end
-    end
-  end
-
-  context 'User says Maybe' do
-    before do
-      reset_database
-      visit rsvp_otp_path(@invitation.code)
-      click_link "Maybe"
-    end
-
-    it 'says thanks' do
-      expect(page).to have_text('Thanks')
-    end
-
-    it 'presents a "message to the organizer" form' do
-      organizer_name = @event.organizer.name
-      expect(page).to have_text(organizer_name)
-      expect(page).to have_field("rsvp_organizer_message")
-    end
-
-    context 'after the "Send Reply" button' do
-      before do
-        reset_database
-        @args = { 'attendance_was' => 'Invited',
-                  'attendance' => 'Undecided',
-                  'organizer_message' => '' }
-      end
-
-      it 'includes message in the organizer notice' do
-        allow(EmailOrganizerNoticeJob).to receive(:perform_later).once
-        visit rsvp_maybe_path(@invitation.code)
-        fill_in "rsvp_organizer_message", with: 'I might be there'
-        click_button "commit"
-
-        @args['organizer_message'] = 'I might be there'
-        expect(EmailOrganizerNoticeJob).to have_received(:perform_later).once
-          .with(@invitation.membership.id, @args)
-      end
-
-      it 'changes membership attendance to Undecided' do
-        visit rsvp_maybe_path(@invitation.code)
-        click_button "commit"
-        expect(Membership.find(@membership.id).attendance).to eq('Undecided')
-      end
-
-      it 'forwards to feedback form, with flash message' do
-        visit rsvp_maybe_path(@invitation.code)
-        click_button "commit"
-
-        expect(current_path).to eq(rsvp_feedback_path(@membership.id))
-        expect(page.body).to have_css('div.alert', text:
-          'Your attendance status was successfully updated. Thanks for your
-          reply!'.squish)
-      end
-
-      it 'updates legacy database' do
-        visit rsvp_maybe_path(@invitation.code)
-        click_button "commit"
-
-        allow(SyncMembershipJob).to receive(:perform_later)
-        reset_database
-
-        visit rsvp_maybe_path(@invitation.code)
-        click_button 'commit'
 
         expect(SyncMembershipJob).to have_received(:perform_later)
           .with(@membership.id)
