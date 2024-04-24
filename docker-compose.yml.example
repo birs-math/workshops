@@ -69,6 +69,20 @@ services:
         'https://www.example.com', 'http://www.example.com'"
       - MAILHOG_HOST=xxxxxxxxxxx
 
+  que:
+    build: .
+    container_name: que
+    command: /sbin/entrypoint-que.sh
+    volumes:
+      - rubygems:/usr/local/rvm/gems
+      - rubygems:/home/app/workshops/vendor/cache
+    environment: *environment
+    depends_on:
+      - web
+    networks:
+      - workshops
+      - nginx-proxy
+
 # adding labels allows pruning of unused system volumes with:
 # docker volume prune --filter 'label!=workshops_volume'"
 volumes:
