@@ -10,8 +10,6 @@ module Que
       case step.to_sym
       when :rsvp_one_month_before_event
         rsvp_one_month_before_event
-      when :rsvp_two_weeks_before_event
-        rsvp_two_weeks_before_event
       when :alert_staff
         alert_staff
       else
@@ -29,18 +27,6 @@ module Que
 
     def rsvp_one_month_before_event
       send_emails if today_in_event_tz < event.two_weeks_before_start
-
-      next_run = ::Rails.env.development? ? 10.minutes.from_now : event.two_weeks_before_start
-
-      enqueue_step(step: :rsvp_two_weeks_before_event, run_at: next_run)
-    end
-
-    def rsvp_two_weeks_before_event
-      send_emails if today_in_event_tz < event.start_date_in_time_zone
-
-      next_run = ::Rails.env.development? ? 10.minutes.from_now : event.one_week_before_start
-
-      enqueue_step(step: :alert_staff, run_at: next_run)
     end
 
     def alert_staff
