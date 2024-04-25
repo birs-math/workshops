@@ -8,7 +8,7 @@ class AttendanceConfirmationMailer < ApplicationMailer
 
     @program_coordinator = GetSetting.email(@event.location, 'program_coordinator')
 
-    subject = "[#{@event.code}] Attendance confirmation"
+    subject = "[#{@event.code} Attendance Confirmation]"
 
     mail(to: [@invitation.person.to_email_address], subject: subject)
   end
