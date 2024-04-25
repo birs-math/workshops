@@ -29,6 +29,7 @@ class Event < ApplicationRecord
   after_create :update_legacy_db
   after_create :enqueue_statistics_job
   after_create :enqueue_attendance_confirmation_job
+  before_update :send_invitations, on: :update, if: -> { state_changed_to_active? }
 
   validates :name, :start_date, :end_date, :location, :time_zone, presence: true
   validates :short_name, presence: true, if: :has_long_name
@@ -142,6 +143,10 @@ class Event < ApplicationRecord
     (start_date.beginning_of_week + 1.day).end_of_day
   end
 
+  def send_invitations
+    SendInvitationsJob.perform_later(event_id: id, invited_by: organizer.name)
+  end
+
   private
 
   def update_legacy_db
@@ -216,5 +221,9 @@ class Event < ApplicationRecord
   def event_formats
     formats = GetSetting.site_setting('event_formats')
     formats.kind_of?(Array) ? formats : ['Physical', 'Online', 'Hybrid']
+  end
+
+  def state_changed_to_active?
+    state_changed? && state == 'active'
   end
 end
