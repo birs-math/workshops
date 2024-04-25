@@ -224,6 +224,6 @@ class Event < ApplicationRecord
   end
 
   def state_changed_to_active?
-    state_changed? && state == 'active'
+    valid? && state_changed? && state == 'active'
   end
 end
