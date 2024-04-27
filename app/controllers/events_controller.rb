@@ -5,13 +5,10 @@
 # See the COPYRIGHT file for details and exceptions.
 
 class EventsController < ApplicationController
-  before_action :set_event, :set_time_zone, :set_attendance,
-                only: [:show, :edit, :update, :destroy]
-  before_action :set_params, only: [:past, :future, :year, :location, :kind]
-  before_action :authenticate_user!,
-                only: [:my_events, :org_events, :new, :edit, :create, :update,
-                  :destroy]
-  after_action :verify_policy_scoped, only: [:index, :past, :future, :kind]
+  before_action :set_event, :set_time_zone, :set_attendance, only: %i[show edit update destroy]
+  before_action :set_params, only: %i[past future year location kind]
+  before_action :authenticate_user!, only: %i[my_events org_events new edit create update destroy]
+  after_action :verify_policy_scoped, only: %i[index past future kind]
 
   include EventsHelper
 
@@ -88,11 +85,11 @@ class EventsController < ApplicationController
       end
     end
 
-    if @year.blank?
-      @events = policy_scope(Event).future.kind(kind).reverse
-    else
-      @events = policy_scope(Event).year(@year).kind(kind)
-    end
+    @events = if @year.blank?
+                policy_scope(Event).future.kind(kind).reverse
+              else
+                policy_scope(Event).year(@year).kind(kind)
+              end
 
     render :index unless performed?
   end
@@ -140,13 +137,11 @@ class EventsController < ApplicationController
 
     respond_to do |format|
       if @event.save
-        format.html { redirect_to @event,
-            notice: "Event #{@event.code} was successfully created." }
+        format.html { redirect_to @event, notice: "Event #{@event.code} was successfully created." }
         format.json { render :show, status: :created, location: @event }
       else
         format.html { render :new }
-        format.json { render json: @event.errors,
-            status: :unprocessable_entity }
+        format.json { render json: @event.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -160,19 +155,17 @@ class EventsController < ApplicationController
     @editable_fields = policy(@event).may_edit
     @edit_form = current_user.is_admin? ? 'admin_form' : 'member_form'
     update_params = event_params.to_h.assert_valid_keys(*@editable_fields)
-        .merge(updated_by: current_user.name)
+                                .merge(updated_by: current_user.name)
 
     respond_to do |format|
       if @event.update(update_params)
         notify_staff(event: original_event, params: update_params)
         flash[:notice] = @event.notice
-        format.html { redirect_to @event,
-            success: "Event #{@event.code} was successfully updated." }
+        format.html { redirect_to @event, success: "Event #{@event.code} was successfully updated." }
         format.json { render :show, status: :ok, location: @event }
       else
         format.html { render :edit }
-        format.json { render json: @event.errors,
-            status: :unprocessable_entity }
+        format.json { render json: @event.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -183,8 +176,7 @@ class EventsController < ApplicationController
     authorize @event
     @event.destroy
     respond_to do |format|
-      format.html { redirect_to events_url,
-        success: 'Event was successfully destroyed.' }
+      format.html { redirect_to events_url, success: 'Event was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -196,8 +188,7 @@ class EventsController < ApplicationController
       EmailNametagUpdateJob.perform_later(event.code, params)
     end
 
-    if params[:description] != event.description ||
-        params[:press_release] != event.press_release
+    if params[:description] != event.description || params[:press_release] != event.press_release
       EmailEventUpdateJob.perform_later(event.code, params)
     end
   end
@@ -208,7 +199,8 @@ class EventsController < ApplicationController
                                   :description, :press_release, :door_code,
                                   :booking_code, :subjects, :cancelled,
                                   :max_participants, :max_observers,
-                                  :max_virtual, :updated_by, :event_format)
+                                  :max_virtual, :updated_by, :event_format,
+                                  custom_fields_attributes: %i[id title description value])
   end
 
   def allowed_params
@@ -222,15 +214,15 @@ class EventsController < ApplicationController
   end
 
   def remove_locations
-    @events = @events.select {|e| e.location == @location} unless @location.blank?
-    @events = @events[0 ... 100]
+    @events = @events.select { |e| e.location == @location } unless @location.blank?
+    @events = @events[0...100]
   end
 
   def remove_years
-    @events = @events.select {|e| e.year == @year } unless @year.blank?
+    @events = @events.select { |e| e.year == @year } unless @year.blank?
   end
 
   def remove_kinds
-    @events = @events.select {|e| e.event_type == @kind.titleize } unless @kind.blank?
+    @events = @events.select { |e| e.event_type == @kind.titleize } unless @kind.blank?
   end
 end

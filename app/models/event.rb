@@ -14,6 +14,9 @@ class Event < ApplicationRecord
   has_many :members, through: :memberships, source: :person
   has_many :schedules, dependent: :destroy
   has_many :lectures
+  has_many :custom_fields, dependent: :destroy
+
+  accepts_nested_attributes_for :custom_fields
 
   before_save :clean_data
   before_update :update_name

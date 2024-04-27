@@ -101,6 +101,16 @@ describe Api::V1::EventsController do
       post '/api/v1/events.json', params: @payload.to_json
       expect(response).to have_http_status(:bad_request)
     end
+
+    it 'saves custom fields' do
+      event = build(:event)
+      custom_field_attributes = build(:custom_field)
+      @payload['event'] = event.attributes.merge(custom_fields_attributes: [custom_field_attributes]).as_json
+
+      post '/api/v1/events.json', params: @payload.to_json
+      event = Event.find(event.code)
+      expect(event.custom_fields.size).to eq(1)
+    end
   end
 
   context '#sync' do
