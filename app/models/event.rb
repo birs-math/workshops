@@ -29,7 +29,7 @@ class Event < ApplicationRecord
   after_create :update_legacy_db
   after_create :enqueue_statistics_job
   after_create :enqueue_attendance_confirmation_job
-  before_update :send_invitations, on: :update, if: -> { state_changed_to_active? }
+  after_update :send_invitations, if: -> { state_changed_to_active? }
 
   validates :name, :start_date, :end_date, :location, :time_zone, presence: true
   validates :short_name, presence: true, if: :has_long_name
@@ -224,6 +224,6 @@ class Event < ApplicationRecord
   end
 
   def state_changed_to_active?
-    valid? && state_changed? && state == 'active'
+    saved_change_to_state? && state == 'active'
   end
 end
