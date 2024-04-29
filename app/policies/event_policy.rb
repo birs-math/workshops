@@ -88,10 +88,8 @@ class EventPolicy
     organizers_and_staff
   end
 
-  def view_attendance_status?(status)
-    return true if organizers_and_staff
-
-    ['Confirmed', 'Invited', 'Undecided', 'Not Yet Invited'].include?(status) if current_user
+  def view_attendance_status?
+    true if current_user
   end
 
   def show_email_buttons?(status)

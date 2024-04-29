@@ -28,19 +28,6 @@ describe 'Event Membership Page', type: :feature do
     end
   end
 
-  def shows_confirmed_members
-    @event.memberships.select {|m| m.attendance == 'Confirmed'}.each do |member|
-      expect(page.body).to have_text(member.person.lname)
-    end
-  end
-
-  def hides_nonconfirmed_members
-    @event.memberships.reject { |m|
-      ['Confirmed', 'Invited', 'Undecided', 'Not Yet Invited'].include?(m.attendance) }.each do |member|
-      expect(page.body).not_to have_text(member.person.lname)
-    end
-  end
-
   def shows_all_members
     @event.memberships.each do |member|
       expect(page.body).to have_text(member.person.lname)
@@ -124,10 +111,6 @@ describe 'Event Membership Page', type: :feature do
       visit event_memberships_path(@event)
     end
 
-    it 'shows confirmed members' do
-      shows_confirmed_members
-    end
-
     it 'hides email links' do
       hides_all_maillist_links
     end
@@ -135,10 +118,6 @@ describe 'Event Membership Page', type: :feature do
     it 'hides Add & Invite Member links' do
       expect(page.body).not_to have_link('Add Members')
       expect(page.body).not_to have_link('Invite Members')
-    end
-
-    it 'does not show non-confirmed members' do
-      hides_nonconfirmed_members
     end
 
     it "has links to Confirmed participants' profiles" do
@@ -151,10 +130,6 @@ describe 'Event Membership Page', type: :feature do
     before do
       login_as @user, scope: :user
       visit event_memberships_path(@event)
-    end
-
-    it 'shows confirmed members' do
-      shows_confirmed_members
     end
 
     it 'indicates Virtual Participants' do
@@ -180,10 +155,6 @@ describe 'Event Membership Page', type: :feature do
       expect(page.body).not_to have_link('Invite Members')
     end
 
-    it 'does not show non-confirmed members' do
-      hides_nonconfirmed_members
-    end
-
     it "has links to Confirmed participants' profiles" do
       links_to_confirmed_member_profiles
     end
@@ -193,10 +164,6 @@ describe 'Event Membership Page', type: :feature do
         @member.attendance = 'Declined'
         @member.save
         visit event_memberships_path(@event)
-      end
-
-      it 'shows confirmed members' do
-        shows_confirmed_members
       end
 
       it 'hides email links' do
@@ -300,10 +267,6 @@ describe 'Event Membership Page', type: :feature do
         @non_member_user.location = 'Somewhere else'
         @non_member_user.save!
         visit event_memberships_path(@event)
-      end
-
-      it 'shows only confirmed members' do
-        hides_nonconfirmed_members
       end
 
       it 'hides email links' do
