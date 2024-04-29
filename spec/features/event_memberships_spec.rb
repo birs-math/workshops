@@ -35,9 +35,8 @@ describe 'Event Membership Page', type: :feature do
   end
 
   def hides_nonconfirmed_members
-    @event.memberships.select {|m| m.attendance != 'Confirmed' &&
-      m.attendance != 'Undecided' &&
-      m.attendance != 'Invited' }.each do |member|
+    @event.memberships.reject { |m|
+      ['Confirmed', 'Invited', 'Undecided', 'Not Yet Invited'].include?(m.attendance) }.each do |member|
       expect(page.body).not_to have_text(member.person.lname)
     end
   end
