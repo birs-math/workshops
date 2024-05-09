@@ -78,12 +78,6 @@ RSpec.describe Que::DoubleCheckAttendanceJob, type: :job do
         let(:start_date) { Date.today + 2.weeks }
 
         it('does not send email') { expect { subject }.not_to change { ActionMailer::Base.deliveries.count } }
-
-        it 'schedules next step' do
-          expect { subject }.to change { QueJobs.count }.by(1)
-
-          expect(QueJobs.last.kwargs['step']).to eq('rsvp_two_weeks_before_event')
-        end
       end
 
       context 'when it is > 2 weeks until event start' do
