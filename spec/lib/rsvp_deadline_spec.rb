@@ -5,9 +5,9 @@ require 'rails_helper'
 RSpec.describe RsvpDeadline do
   subject(:rsvp_by) { described_class.new(event, invited_on, membership).rsvp_by }
 
-  let(:event) { create(:event, start_date: start_date, end_date: end_date, event_format: 'Hybrid') }
+  let!(:event) { create(:event, start_date: start_date, end_date: end_date, event_format: 'Hybrid') }
   let(:membership) { create(:membership) }
-  let(:invited_on) { DateTime.current }
+  let(:invited_on) { DateTime.current.middle_of_day }
   let(:end_date) { start_date + 5.days }
 
   def to_rsvp_format(date)
