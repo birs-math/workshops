@@ -69,9 +69,9 @@ describe 'Event Edit Page', type: :feature do
       organizer = @event.memberships.where("role='Organizer'").first.person
       user = create(:user, email: organizer.email, person: organizer)
       login_as user, scope: :user
-      @allowed_fields = %w(short_name description press_release subjects)
-      @not_allowed_fields = %w(name code door_code booking_code max_participants
-        max_virtual max_observers start_date end_date)
+      @allowed_fields = %w[short_name description press_release subjects]
+      @not_allowed_fields = %w[name code door_code booking_code max_participants
+                               max_virtual max_observers start_date end_date]
       visit edit_event_path(@event)
     end
 
@@ -113,10 +113,9 @@ describe 'Event Edit Page', type: :feature do
     before do
       @non_member_user.staff!
       login_as @non_member_user, scope: :user
-      @allowed_fields = %w(short_name description press_release door_code
-        booking_code subjects max_participants max_virtual max_observers)
-      @not_allowed_fields = %w(name code start_date end_date time_zone
-        location template)
+      @allowed_fields = %w[short_name description press_release door_code
+                           booking_code subjects max_participants max_virtual max_observers]
+      @not_allowed_fields = %w[name code start_date end_date time_zone location template]
     end
 
     context 'whose location matches the event location' do
@@ -159,7 +158,7 @@ describe 'Event Edit Page', type: :feature do
         fill_in 'event_max_virtual', with: '100'
         fill_in 'event_cancelled', with: '1'
 
-        click_button "Update Event"
+        click_button 'Update Event'
 
         event = Event.find(@event.code)
         expect(event.short_name).to eq('New Short Name')
@@ -179,7 +178,7 @@ describe 'Event Edit Page', type: :feature do
         expect(@event.name.include?('Cancelled')).to be_falsey
         fill_in 'event_cancelled', with: '1'
 
-        click_button "Update Event"
+        click_button 'Update Event'
 
         event = Event.find(@event.code)
         expect(event.name.include?('Cancelled')).to be_truthy
@@ -192,7 +191,7 @@ describe 'Event Edit Page', type: :feature do
 
         visit edit_event_path(@event)
         fill_in 'event_cancelled', with: '0'
-        click_button "Update Event"
+        click_button 'Update Event'
 
         event = Event.find(@event.code)
         expect(event.name.include?('Cancelled')).to be_falsey
@@ -203,7 +202,7 @@ describe 'Event Edit Page', type: :feature do
         expect(Event.find(@event.code).name.include?('Online')).to be_falsey
 
         fill_in 'event_event_format', with: 'Online'
-        click_button "Update Event"
+        click_button 'Update Event'
 
         event = Event.find(@event.code)
         expect(event.name.include?('Online')).to be_truthy
@@ -216,17 +215,16 @@ describe 'Event Edit Page', type: :feature do
 
         visit edit_event_path(@event)
         fill_in 'event_event_format', with: 'Physical'
-        click_button "Update Event"
+        click_button 'Update Event'
 
         event = Event.find(@event.code)
         expect(event.name.include?('Online')).to be_falsey
       end
 
-      context "Updating the event_format" do
-
+      context 'Updating the event_format' do
         def sets_max_virtual_to_default
-          fill_in 'event_max_virtual', with: 0
-          click_button "Update Event"
+          fill_in 'event_max_virtual', with: '0'
+          click_button 'Update Event'
 
           default = GetSetting.max_virtual(@event.location)
 
@@ -239,7 +237,7 @@ describe 'Event Edit Page', type: :feature do
 
         def sets_max_participants_to_default
           fill_in 'event_max_participants', with: 0
-          click_button "Update Event"
+          click_button 'Update Event'
 
           default = GetSetting.max_participants(@event.location)
 
@@ -251,7 +249,7 @@ describe 'Event Edit Page', type: :feature do
         end
 
         def sets_max_participants_to_zero
-          click_button "Update Event"
+          click_button 'Update Event'
 
           event = Event.find(@event.code)
           expect(event.max_participants).to eq(0)
@@ -259,24 +257,28 @@ describe 'Event Edit Page', type: :feature do
 
         def sets_to_user_entered(field, value)
           fill_in "event_#{field}", with: value
-          click_button "Update Event"
+          click_button 'Update Event'
 
           event = Event.find(@event.code)
           expect(event.send(field)).to eq(value)
         end
 
-        context "from Physical to Hybrid" do
+        context 'from Physical to Hybrid' do
           before do
             @event.update_columns(event_format: 'Physical',
-                              max_participants: 50,
-                              max_virtual: 0)
+                                  max_participants: 50,
+                                  max_virtual: 0)
 
             visit edit_event_path(@event)
             fill_in 'event_event_format', with: 'Hybrid'
           end
 
+          it 'sets max_virtual to default value if 0 is submitted' do
+            sets_max_virtual_to_default
+          end
+
           it 'does not change max_participants if no change submitted' do
-            click_button "Update Event"
+            click_button 'Update Event'
             event = Event.find(@event.code)
             expect(event.max_participants).to eq(50)
           end
@@ -285,20 +287,18 @@ describe 'Event Edit Page', type: :feature do
             sets_to_user_entered('max_virtual', 100)
           end
 
-          it 'sets max_virtual to default value if 0 is submitted' do
-            sets_max_virtual_to_default
-          end
+
 
           it 'sets max_participants to default value if 0 submitted' do
             sets_max_participants_to_default
           end
         end
 
-        context "from Physical to Online" do
+        context 'from Physical to Online' do
           before do
             @event.update_columns(event_format: 'Physical',
-                              max_participants: 50,
-                              max_virtual: 0)
+                                  max_participants: 50,
+                                  max_virtual: 0)
 
             visit edit_event_path(@event)
             fill_in 'event_event_format', with: 'Online'
@@ -317,17 +317,17 @@ describe 'Event Edit Page', type: :feature do
           end
         end
 
-        context "from Online to Physical" do
+        context 'from Online to Physical' do
           before do
             @event.update_columns(event_format: 'Online',
-                              max_participants: 0,
-                              max_virtual: 100)
+                                  max_participants: 0,
+                                  max_virtual: 100)
 
             visit edit_event_path(@event)
             fill_in 'event_event_format', with: 'Physical'
           end
 
-          it "sets max_participants to default value if 0 submitted" do
+          it 'sets max_participants to default value if 0 submitted' do
             sets_max_participants_to_default
           end
 
@@ -336,24 +336,24 @@ describe 'Event Edit Page', type: :feature do
           end
 
           it 'sets max_virtual to 0' do
-            click_button "Update Event"
+            click_button 'Update Event'
             event = Event.find(@event.code)
             expect(event.max_virtual).to eq(0)
           end
         end
 
-        context "from Online to Hybrid" do
+        context 'from Online to Hybrid' do
           before do
             @event.update_columns(event_format: 'Online',
-                              max_participants: 0,
-                                   max_virtual: 100)
+                                  max_participants: 0,
+                                  max_virtual: 100)
 
             visit edit_event_path(@event)
             fill_in 'event_event_format', with: 'Hybrid'
           end
 
           it 'does not change max_virtual if no change submitted' do
-            click_button "Update Event"
+            click_button 'Update Event'
             event = Event.find(@event.code)
             expect(event.max_virtual).to eq(100)
           end
@@ -375,11 +375,11 @@ describe 'Event Edit Page', type: :feature do
           end
         end
 
-        context "from Hybrid to Online" do
+        context 'from Hybrid to Online' do
           before do
             @event.update_columns(event_format: 'Hybrid',
-                              max_participants: 40,
-                                   max_virtual: 50)
+                                  max_participants: 40,
+                                  max_virtual: 50)
 
             visit edit_event_path(@event)
             fill_in 'event_event_format', with: 'Online'
@@ -390,7 +390,7 @@ describe 'Event Edit Page', type: :feature do
           end
 
           it 'does not change max_virtual' do
-            click_button "Update Event"
+            click_button 'Update Event'
             event = Event.find(@event.code)
             expect(event.max_virtual).to eq(50)
           end
@@ -404,23 +404,23 @@ describe 'Event Edit Page', type: :feature do
           end
         end
 
-        context "from Hybrid to Physical" do
+        context 'from Hybrid to Physical' do
           before do
             @event.update_columns(event_format: 'Hybrid',
-                              max_participants: 40,
-                              max_virtual: 300)
+                                  max_participants: 40,
+                                  max_virtual: 300)
 
             visit edit_event_path(@event)
             fill_in 'event_event_format', with: 'Physical'
           end
 
           it 'does not change max_participants if no change submitted' do
-            click_button "Update Event"
+            click_button 'Update Event'
             event = Event.find(@event.code)
             expect(event.max_participants).to eq(40)
           end
 
-          it "sets max_participants to default value if 0 submitted" do
+          it 'sets max_participants to default value if 0 submitted' do
             sets_max_participants_to_default
           end
 
@@ -429,7 +429,7 @@ describe 'Event Edit Page', type: :feature do
           end
 
           it 'sets max_virtual to 0' do
-            click_button "Update Event"
+            click_button 'Update Event'
             event = Event.find(@event.code)
             expect(event.max_virtual).to eq(0)
           end
@@ -454,11 +454,11 @@ describe 'Event Edit Page', type: :feature do
     before do
       @non_member_user.admin!
       login_as @non_member_user, scope: :user
-      @allowed_fields = %w(short_name description press_release door_code
-        booking_code name code max_participants max_observers start_date
-        end_date time_zone location subjects event_format)
-      @not_allowed_fields = %w(id updated_by created_at updated_at
-        confirmed_count publish_schedule)
+      @allowed_fields = %w[short_name description press_release door_code
+                           booking_code name code max_participants max_observers start_date
+                           end_date time_zone location subjects event_format]
+      @not_allowed_fields = %w[id updated_by created_at updated_at
+                               confirmed_count publish_schedule]
       visit edit_event_path(@event)
     end
 
@@ -488,7 +488,7 @@ describe 'Event Edit Page', type: :feature do
       select 'Auckland', from: 'event[time_zone]'
       select Setting.Locations.keys.last, from: 'event[location]'
 
-      click_button "Update Event"
+      click_button 'Update Event'
 
       event = Event.find(@event.code)
       expect(event.start_date).to eq(DateTime.parse('2030-02-02'))

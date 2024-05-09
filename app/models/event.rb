@@ -16,6 +16,12 @@ class Event < ApplicationRecord
   has_many :lectures
   has_many :custom_fields, dependent: :destroy
 
+  enum state: {
+    imported: 0,
+    published: 1,
+    active: 2
+  }
+
   accepts_nested_attributes_for :custom_fields
 
   before_save :clean_data
@@ -23,6 +29,7 @@ class Event < ApplicationRecord
   after_create :update_legacy_db
   after_create :enqueue_statistics_job
   after_create :enqueue_attendance_confirmation_job
+  after_update :send_invitations, if: -> { state_changed_to_active? }
 
   validates :name, :start_date, :end_date, :location, :time_zone, presence: true
   validates :short_name, presence: true, if: :has_long_name
@@ -136,6 +143,10 @@ class Event < ApplicationRecord
     (start_date.beginning_of_week + 1.day).end_of_day
   end
 
+  def send_invitations
+    SendInvitationsJob.perform_later(event_id: id, invited_by: organizer.name)
+  end
+
   private
 
   def update_legacy_db
@@ -155,7 +166,7 @@ class Event < ApplicationRecord
   end
 
   def clean_data
-    attributes.each_value { |v| v.strip! if v.respond_to? :strip! }
+    attributes.each_value { |v| v.strip! if v.respond_to?(:strip!) && !v.frozen? }
   end
 
   def set_max_defaults
@@ -210,5 +221,9 @@ class Event < ApplicationRecord
   def event_formats
     formats = GetSetting.site_setting('event_formats')
     formats.kind_of?(Array) ? formats : ['Physical', 'Online', 'Hybrid']
+  end
+
+  def state_changed_to_active?
+    saved_change_to_state? && state == 'active'
   end
 end

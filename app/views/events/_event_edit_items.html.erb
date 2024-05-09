@@ -10,6 +10,9 @@
   <% elsif field_name == 'location' %>
     <%= form.label "#{field_name.titleize}" %>
     <%= form.select field_name, location_options, {}, {class: 'form-control'} %>
+  <% elsif field_name == 'state' %>
+    <%= form.label "#{field_name.titleize}" %>
+    <%= form.select field_name, Event.states.keys, {}, {class: 'form-control'} %>
   <% elsif field_name == 'custom_fields_attributes' %>
     <%= form.fields_for :custom_fields do |cf| %>
       <div class="form-group">
