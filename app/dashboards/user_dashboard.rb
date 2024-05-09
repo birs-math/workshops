@@ -1,4 +1,4 @@
-require "administrate/base_dashboard"
+require 'administrate/base_dashboard'
 
 class UserDashboard < Administrate::BaseDashboard
   # ATTRIBUTE_TYPES
@@ -9,21 +9,20 @@ class UserDashboard < Administrate::BaseDashboard
   # on pages throughout the dashboard.
   ATTRIBUTE_TYPES = {
     id: Field::Number,
-    invited_by: Field::BelongsTo.with_options(class_name: "User"),
+    invited_by: Field::BelongsTo.with_options(class_name: 'User'),
     person: Field::BelongsTo.with_options(
       order: 'lastname',
       searchable: true,
-      searchable_fields: ['lastname', 'email']
+      searchable_fields: %w[lastname email]
     ),
     person_id: Field::Number,
     email: Field::String,
-    encrypted_password: Field::String,
     reset_password_token: Field::String,
     reset_password_sent_at: Field::DateTime,
     remember_created_at: Field::DateTime,
     sign_in_count: Field::Number,
     current_sign_in_at: Field::DateTime,
-    last_sign_in_at: Field::DateTime.with_options(format: "%Y-%m-%d %H:%M:%S"),
+    last_sign_in_at: Field::DateTime.with_options(format: '%Y-%m-%d %H:%M:%S'),
     current_sign_in_ip: Field::String,
     last_sign_in_ip: Field::String,
     confirmation_token: Field::String,
@@ -44,7 +43,7 @@ class UserDashboard < Administrate::BaseDashboard
     invited_by_id: Field::Number,
     invitations_count: Field::Number,
     role: Field::String.with_options(searchable: false),
-    location: Field::String,
+    location: Field::String
   }.freeze
 
   # COLLECTION_ATTRIBUTES
@@ -52,57 +51,55 @@ class UserDashboard < Administrate::BaseDashboard
   #
   # By default, it's limited to four items to reduce clutter on index pages.
   # Feel free to add, remove, or rearrange items.
-  COLLECTION_ATTRIBUTES = [
-    :id,
-    :email,
-    :person,
-    :last_sign_in_at,
-    :sign_in_count
+  COLLECTION_ATTRIBUTES = %i[
+    id
+    email
+    person
+    last_sign_in_at
+    sign_in_count
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES
   # an array of attributes that will be displayed on the model's show page.
-  SHOW_PAGE_ATTRIBUTES = [
-    :id,
-    :person,
-    :email,
-    :sign_in_count,
-    :current_sign_in_at,
-    :last_sign_in_at,
-    :current_sign_in_ip,
-    :last_sign_in_ip,
-    :confirmed_at,
-    :confirmation_sent_at,
-    :unconfirmed_email,
-    :failed_attempts,
-    :locked_at,
-    :created_at,
-    :updated_at,
-    :role,
-    :location,
+  SHOW_PAGE_ATTRIBUTES = %i[
+    id
+    person
+    email
+    sign_in_count
+    current_sign_in_at
+    last_sign_in_at
+    current_sign_in_ip
+    last_sign_in_ip
+    confirmed_at
+    confirmation_sent_at
+    unconfirmed_email
+    failed_attempts
+    locked_at
+    created_at
+    updated_at
+    role
+    location
   ].freeze
 
   # FORM_ATTRIBUTES
   # an array of attributes that will be displayed
   # on the model's form (`new` and `edit`) pages.
-  FORM_ATTRIBUTES = [
-    :email,
-    :person_id,
-    :password,
-    :password_confirmation,
-    :confirmed_at,
-    :unconfirmed_email,
-    :locked_at,
-    :invitation_token,
-    :invitation_accepted_at,
-    :role,
-    :location,
+  FORM_ATTRIBUTES = %i[
+    email
+    person_id
+    confirmed_at
+    unconfirmed_email
+    locked_at
+    invitation_token
+    invitation_accepted_at
+    role
+    location
   ].freeze
 
   # Overwrite this method to customize how users are displayed
   # across all pages of the admin dashboard.
   #
   def display_resource(user)
-    "#{user.email}"
+    user.email.to_s
   end
 end
