@@ -21,8 +21,8 @@ RSpec.describe RsvpDeadline do
       it('sets deadline 4w from now') { expect(rsvp_by).to eq(to_rsvp_format(4.weeks.from_now)) }
     end
 
-    context '3m 5d from now' do
-      let(:start_date) { Date.current + 3.month + 5.days }
+    context '3m 4d from now' do
+      let(:start_date) { Date.current + 3.month + 4.days }
 
       it('sets deadline 21d from now') { expect(rsvp_by).to eq(to_rsvp_format(21.days.from_now)) }
     end
