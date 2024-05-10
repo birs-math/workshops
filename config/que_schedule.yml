@@ -1,0 +1,3 @@
+remind_expiring_invites:
+  cron: "0 0 * * *"
+  class: Que::RemindExpiringInvitesJob

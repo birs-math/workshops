@@ -1,7 +1,18 @@
-Dear <%= @invitation.membership.person.dear_name %>, please confirm your attendance to <%= @event.code %> at <%= @event.location %> (<%= @event.url %>) using provided link:
+Dear <%= @invitation.membership.person.dear_name %>,
+
+Our records indicate that you were invited to participate in the BIRS workshop
+
+<%= @event.code %>: <%= @event.name %>
+
+but we have not received your response yet.
+
+Please confirm your onsite attendance to <%= @event.code %> at <%= @event.location %> (<%= @event.url %>) using this link:
 
 <%= rsvp_confirm_attendance_url(@invitation.code) %>
+<% if @expiry_days %>
+
+It will be expire in <%= @expiry_days %> <%= @expiry_days == 1 ? 'day' : 'days' %>.
+<% end %>
 
 Best regards,
-
 <%= @program_coordinator %>
