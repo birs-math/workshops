@@ -12,14 +12,14 @@ module Que
 
     def send_week_expiry_reminder
       Invitation.where(expires: (Date.current + 1.week).all_day).find_each do |invite|
-        AttendanceConfirmationMailer.remind(invitation_id: invite.id, expiry_days: 7).deliver_now
+        #AttendanceConfirmationMailer.remind(invitation_id: invite.id, expiry_days: 7).deliver_now
         puts "Sent reminder for #{invite.id} with expiry in 7 days"
       end
     end
 
     def send_day_expiry_reminder
       Invitation.where(expires: Date.current.all_day).find_each do |invite|
-        AttendanceConfirmationMailer.remind(invitation_id: invite.id, expiry_days: 1).deliver_now
+        #AttendanceConfirmationMailer.remind(invitation_id: invite.id, expiry_days: 1).deliver_now
         puts "Sent reminder for #{invite.id} with expiry today"
       end
     end
