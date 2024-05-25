@@ -90,7 +90,7 @@ class EventPolicy
   end
 
   def view_attendance_status?(status)
-    return true if organizers_and_staff
+    return true if organizers_and_staff_readonly
 
     ['Confirmed'].include?(status) if current_user
   end
@@ -146,6 +146,12 @@ class EventPolicy
     return false unless current_user
 
     (event.active? && current_user.is_organizer?(event)) || current_user.is_admin? || staff_at_location
+  end
+
+  def organizers_and_staff_readonly
+    return false unless current_user
+
+    current_user.is_organizer?(event) || current_user.is_admin? || staff_at_location
   end
 
   def member_of_event?
