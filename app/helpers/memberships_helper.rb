@@ -139,7 +139,7 @@ module MembershipsHelper
 
   def show_reply_by_date(member)
     invited_on = last_invited(member, member.event.time_zone)
-    if member.invited_on.blank?
+    if member.invited_on.blank? or !member.invitation.present?
       DateTime.parse(rsvp_by(member.event, invited_on, member)).strftime('%Y-%m-%d')
     else
       member.invitation.expires.strftime('%Y-%m-%d')
