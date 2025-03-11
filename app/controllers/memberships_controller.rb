@@ -136,9 +136,9 @@ class MembershipsController < ApplicationController
   # POST /events/:event_id/memberships/:membership_id/reinvite
   def reinvite
     set_membership
-    authorize @membership
-
-    # Reset attendance to "Not Yet Invited"
+    authorize @membership, :admin_reinvite?  # Using a new policy method specific for admins
+    
+    # Rest of the method remains the same
     @membership.attendance = 'Not Yet Invited'
     @membership.updated_by = current_user.name
     @membership.update_remote = true
