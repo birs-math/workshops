@@ -1,5 +1,5 @@
 # ./app/controllers/memberships_controller.rb
-# Copyright (c) 2016 Banff International Research Station.
+# Copyright (c) 2025 Banff International Research Station.
 # This file is part of Workshops. Workshops is licensed under
 # the GNU Affero General Public License as published by the
 # Free Software Foundation, version 3 of the License.
@@ -9,7 +9,7 @@ class MembershipsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_event, :set_user
   before_action :set_membership, except: [:index, :new, :create, :add,
-    :process_new, :invite]
+    :process_new, :invite, :reinvite]
 
   # GET /events/:event_id/memberships
   # GET /events/:event_id/memberships.json
@@ -130,6 +130,29 @@ class MembershipsController < ApplicationController
           render json: @membership.errors, status: :unprocessable_entity
         end
       end
+    end
+  end
+
+  # POST /events/:event_id/memberships/:membership_id/reinvite
+  def reinvite
+    set_membership
+    authorize @membership
+
+    # Reset attendance to "Not Yet Invited"
+    @membership.attendance = 'Not Yet Invited'
+    @membership.updated_by = current_user.name
+    @membership.update_remote = true
+    
+    if @membership.save
+      # Create and send new invitation
+      invitation = Invitation.new(membership: @membership, invited_by: current_user.name)
+      invitation.send_invite
+      
+      redirect_to event_memberships_path(@event), 
+                  success: "#{@membership.person.name} has been re-invited."
+    else
+      redirect_to event_memberships_path(@event), 
+                  error: "Failed to re-invite #{@membership.person.name}."
     end
   end
 

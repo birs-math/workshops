@@ -1,0 +1,15 @@
+Dear <%= @person.firstname %>,
+
+Your invitation to "<%= @event.name %>" at <%= @organization %> has expired as of <%= @expiry_date.strftime("%B %-d, %Y") %>.
+
+If you're still interested in attending this event, please contact the event organizers directly. They may be able to re-invite you if space is available.
+
+Event Details:
+Code: <%= @event.code %>
+Dates: <%= @event.date_range %>
+Location: <%= @event.location %>
+
+Please contact the program coordinator at <%= @program_coordinator %> if you have any questions.
+
+Best regards,
+<%= @organization %> Staff
