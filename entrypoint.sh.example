@@ -42,17 +42,13 @@ echo "Installing bundler..."
 # when updating Rails
 # echo
 # echo "Bundle update rails..."
-# RAILS_ENV=production /usr/local/rvm/bin/rvm-exec 2.7.7 bundle update rails
+# RAILS_ENV=development su - app -c "cd /home/app/workshops && /usr/local/rvm/bin/rvm-exec 2.7.7 bundle update rails"
+# RAILS_ENV=development su - app -c "cd /home/app/workshops && /usr/local/rvm/bin/rvm-exec 2.7.7 bundle update"
 
 
 echo
 echo "Bundle install..."
 RAILS_ENV=development /usr/local/rvm/bin/rvm-exec 2.7.7 bundle install
-
-# updates gems to latest minor versions
-# echo
-# echo "Bundle update..."
-# RAILS_ENV=production /usr/local/rvm/bin/rvm-exec 2.7.7 bundle update
 
 if [ ! -d "${GEM_HOME}/gems" ]; then
   echo
@@ -65,7 +61,7 @@ echo
 echo "Changing to non-root file permissions..."
 chown app:app -R /usr/local/rvm/gems
 
-# # Default settings
+# # Default settings - 
 # echo
 # echo "Adding default Settings..."
 # rake ws:init_settings
@@ -73,14 +69,13 @@ chown app:app -R /usr/local/rvm/gems
 # echo
 # echo "Creating admins..."
 # if [ -e lib/tasks/birs.rake ]; then
-#   rake birs:create_admin RAILS_ENV=production
+#   rake birs:create_admin RAILS_ENV=development
 # else
-#   rake ws:create_admins RAILS_ENV=production
+#   rake ws:create_admins RAILS_ENV=development
 # fi
 
 echo
 echo "Running migrations..."
-#rake db:migrate RAILS_ENV=production
 RAILS_ENV=development /usr/local/rvm/bin/rvm-exec 2.7.7 bundle exec rails db:migrate
 
 # only used in dev environments
