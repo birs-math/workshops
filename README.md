@@ -117,21 +117,24 @@ The application is setup to work in a [Docker](http://www.docker.com) container.
     ```
 
 3.  Edit the lib/tasks/ws.rake file to change default user account information, to set your own credentials for logging into the
-    Workshops web interface. The default accounts are setup by the entrypoint.sh script running:
-    `rake ws:create_admins RAILS_ENV=development`.
+    Workshops web interface. The default accounts are setup by the `entrypoint.sh` script running the `ws:create_admins` rake task.
 
-4.  Edit docker-compose.yml to set your preferred usernames and passwords in the environment variables. Note the instructions
-    at the top for creating data containers, for storing database and ruby gems persistently. Also add random strings for the
-    environment variables, such as SECRET_KEY_BASE, DEVISE_SECRET_KEY, etc..
+4.  Edit docker-compose.yml to set your preferred usernames and passwords in the environment variables. The default is to use docker
+    volumes for storage - in production this should be reviewed. Set random
+    values for SECRET_KEY_BASE, DEVISE_SECRET_KEY etc. (e.g. `openssl rand -hex 64`)
 
-   The first time the database container is run, databases and database accounts will be created via the script at
+5.  Review the entrypoint script. It assumes that you want to run the
+    development environment and starting from an empty database. In particular,
+    you may want to comment out the `ws:init_settings` task.
+
+
+6.   The first time the database container is run, databases and database accounts will be created via the script at
    `./db/pg-init/init-user-db.sh`. It uses the environment variables that you set in docker-compose.yml.
 
-5.  If you want your instance to be accessible at a domain, edit nginx.conf.erb to change `server_name YOUR.HOSTNAME.COM;`.
+7.  Run `docker compose build` to build the container(s) and then
+    `docker compose up` to bring the system up.
 
-6.  Run `docker-compose up` (or possibly `docker build .` first).
-
-7.  Login to the web interface (http://localhost) with the account you setup in ws.rake, and visit /settings (click the
+8.  Login to the web interface (http://localhost) with the account you setup in ws.rake, and visit /settings (click the
     drop-down menu in the top-right and choose "Settings"). Update the Site settings with your preferences.
 
 8.  Optional: if you would like to seed the database with fake events and random data, checkout the (bottom of the) `db/seed.rb` file.
