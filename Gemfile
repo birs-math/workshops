@@ -10,7 +10,7 @@ gem 'devise'
 gem 'devise-encryptable'
 gem 'devise_invitable'
 gem 'devise-jwt'
-gem 'dry-configurable', '~> 0.9.0'
+gem "dry-configurable", "0.9.0"
 gem 'ed25519'
 gem 'email_validator', '~> 1.6.0'
 gem 'font-awesome-rails'
@@ -33,7 +33,7 @@ gem 'que', '~> 2.2.1'
 gem 'que-scheduler'
 gem 'rack', ">= 2.2.3"
 gem 'rack-cors', require: 'rack/cors'
-gem 'rails', '~> 5.2.4.5'
+gem 'rails', '6.0.6.1'
 gem 'rails-settings-cached', '0.7.2'
 gem 'rest-client'
 gem 'sassc-rails'
@@ -50,7 +50,7 @@ group :development, :test do
   gem 'factory_bot_rails'
   gem 'rspec-rails'
   gem 'spring'
-  gem 'sqlite3', '~> 1.3.6'
+  gem 'sqlite3', '~> 1.4.0'
 end
 
 group :test do
@@ -84,3 +84,4 @@ group :development do
   gem 'rubocop-rails'
   gem 'web-console'
 end
+gem "dry-container", "0.7.2"

@@ -3,7 +3,7 @@
   "private": true,
   "license": "SEE LICENSE IN GNU-AGPL-3.0",
   "dependencies": {
-    "@rails/webpacker": "5.4.3",
+    "@rails/webpacker": "5.4.4",
     "ansi-regex": "^5.0.1",
     "chokidar": "^3.4.0",
     "json-schema": "^0.4.0",

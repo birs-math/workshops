@@ -1,4 +1,3 @@
-# See: https://github.com/phusion/passenger-docker
 FROM --platform=linux/arm64 phusion/passenger-ruby27:2.4.1
 ENV HOME /root
 ENV RAILS_ENV development
@@ -56,24 +55,42 @@ COPY --chown=app:app \
  Rakefile \
  config.ru \
  ${APP_HOME}/
+
+# Install JavaScript dependencies
+RUN cd ${APP_HOME} && yarn install --check-files
+
+# Rails 6 upgrade modifications
+RUN sed -i 's/gem .rails., .~> 5.2.4.5./gem "rails", "6.0.6.1"/' ${APP_HOME}/Gemfile
+RUN sed -i 's/gem .sqlite3., .~> 1.3.6./gem "sqlite3", "~> 1.4.0"/' ${APP_HOME}/Gemfile
+RUN echo "gem 'logger'" >> ${APP_HOME}/Gemfile
+RUN sed -i 's/require .bootsnap\/setup./#require "bootsnap\/setup"/' ${APP_HOME}/config/boot.rb
+
+# Install gems without running Rails initialization
+WORKDIR ${APP_HOME}
+RUN cd ${APP_HOME} && bundle install
+
 # Create empty config file
 RUN touch ${APP_HOME}/config/app.yml && \
     chown app:app ${APP_HOME}/config/app.yml
-WORKDIR ${APP_HOME}
+
 # Set up entrypoint scripts
+# Creating a special entrypoint script for the Rails 6 upgrade
+RUN echo '#!/bin/bash' > /sbin/entrypoint-upgrade.sh && \
+    echo 'cd ${APP_HOME}' >> /sbin/entrypoint-upgrade.sh && \
+    echo 'exec "$@"' >> /sbin/entrypoint-upgrade.sh && \
+    chmod 755 /sbin/entrypoint-upgrade.sh
+
 COPY entrypoint.sh /sbin/entrypoint.sh
 RUN chmod 755 /sbin/entrypoint.sh
 COPY entrypoint-que.sh /sbin/entrypoint-que.sh
 RUN chmod 755 /sbin/entrypoint-que.sh
+
 # Add bash aliases and configure paths
 RUN echo 'export PATH=$PATH:./bin:/usr/local/rvm/rubies/ruby-2.7.7/bin'>> /root/.bashrc && \
     echo 'alias rspec="bundle exec rspec"' >> /root/.bashrc
 
-# Do NOT switch to app user, run as root (phusion requires this)
-# USER app is removed
-
 # Expose port
 EXPOSE 8000
 
-# Set entrypoint
-ENTRYPOINT ["/sbin/entrypoint.sh"]
+# Use the upgrade-specific entrypoint for this image
+ENTRYPOINT ["/sbin/entrypoint-upgrade.sh"]
