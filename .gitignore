@@ -17,6 +17,7 @@
 !/log/.keep
 /tmp
 vendor/cache/
+workshops_staging.dump
 
 # private configuration settings
 config/local_env.yml
