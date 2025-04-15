@@ -23,7 +23,10 @@ fi
 #   yarn install --check-files
 # fi
 
-# Run migrations if needed
+# Run migrations if neededRUN echo "Setting system timezone to America/Edmonton..." && \
+    export DEBIAN_FRONTEND=noninteractive && \
+    ln -fs /usr/share/zoneinfo/America/Edmonton /etc/localtime && \
+    dpkg-reconfigure --frontend noninteractive tzdata
 bundle exec rake db:migrate 2>/dev/null || bundle exec rake db:setup
 
 # Start Rails server directly (don't try to use /sbin/my_init)

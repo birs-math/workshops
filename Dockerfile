@@ -62,7 +62,6 @@ RUN cd ${APP_HOME} && yarn install --check-files
 # Rails 6 upgrade modifications
 RUN sed -i 's/gem .rails., .~> 5.2.4.5./gem "rails", "6.0.6.1"/' ${APP_HOME}/Gemfile
 RUN sed -i 's/gem .sqlite3., .~> 1.3.6./gem "sqlite3", "~> 1.4.0"/' ${APP_HOME}/Gemfile
-RUN echo "gem 'logger'" >> ${APP_HOME}/Gemfile
 RUN sed -i 's/require .bootsnap\/setup./#require "bootsnap\/setup"/' ${APP_HOME}/config/boot.rb
 
 # Install gems without running Rails initialization
@@ -75,10 +74,10 @@ RUN touch ${APP_HOME}/config/app.yml && \
 
 # Set up entrypoint scripts
 # Creating a special entrypoint script for the Rails 6 upgrade
-RUN echo '#!/bin/bash' > /sbin/entrypoint-upgrade.sh && \
-    echo 'cd ${APP_HOME}' >> /sbin/entrypoint-upgrade.sh && \
-    echo 'exec "$@"' >> /sbin/entrypoint-upgrade.sh && \
-    chmod 755 /sbin/entrypoint-upgrade.sh
+RUN echo '#!/bin/bash' > /sbin/entrypoint.sh && \
+    echo 'cd ${APP_HOME}' >> /sbin/entrypoint.sh && \
+    echo 'exec "$@"' >> /sbin/entrypoint.sh && \
+    chmod 755 /sbin/entrypoint.sh
 
 COPY entrypoint.sh /sbin/entrypoint.sh
 RUN chmod 755 /sbin/entrypoint.sh
@@ -93,4 +92,4 @@ RUN echo 'export PATH=$PATH:./bin:/usr/local/rvm/rubies/ruby-2.7.7/bin'>> /root/
 EXPOSE 8000
 
 # Use the upgrade-specific entrypoint for this image
-ENTRYPOINT ["/sbin/entrypoint-upgrade.sh"]
+ENTRYPOINT ["/sbin/entrypoint.sh"]
