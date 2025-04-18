@@ -10,7 +10,7 @@ gem 'devise'
 gem 'devise-encryptable'
 gem 'devise_invitable'
 gem 'devise-jwt'
-gem 'dry-configurable', '~> 0.9.0'
+gem "dry-configurable", "0.9.0"
 gem 'ed25519'
 gem 'email_validator', '~> 1.6.0'
 gem 'font-awesome-rails'
@@ -23,9 +23,10 @@ gem 'liquid'
 gem 'listen'
 gem 'mailgun-ruby'
 gem 'momentjs-rails'
+gem 'nokogiri', '~> 1.13'
 gem 'paper_trail'
 gem 'passenger'
-gem 'pg', '1.1.3'
+gem 'pg', '>= 1.4.6'
 gem 'popper_js', '~> 1.16.0'
 gem 'psych', '~> 3.3.2'
 gem 'pundit'
@@ -33,9 +34,10 @@ gem 'que', '~> 2.2.1'
 gem 'que-scheduler'
 gem 'rack', ">= 2.2.3"
 gem 'rack-cors', require: 'rack/cors'
-gem 'rails', '~> 5.2.4.5'
+gem 'rails', '6.0.6.1'
 gem 'rails-settings-cached', '0.7.2'
 gem 'rest-client'
+gem 'rugged', '>= 1.3.0'
 gem 'sassc-rails'
 gem 'sdoc', group: :doc
 gem 'sucker_punch'
@@ -50,7 +52,7 @@ group :development, :test do
   gem 'factory_bot_rails'
   gem 'rspec-rails'
   gem 'spring'
-  gem 'sqlite3', '~> 1.3.6'
+  gem 'sqlite3', '~> 1.4.0'
 end
 
 group :test do
@@ -77,10 +79,12 @@ group :development do
   gem 'pronto'
   gem 'pronto-brakeman'
   gem 'pronto-flay'
-  gem 'pronto-poper'
+  # gem 'pronto-poper' # Removed due to rugged incompatibility
   gem 'pronto-reek'
   gem 'pronto-rubocop'
   gem 'rbnacl', '~> 7.0'
   gem 'rubocop-rails'
   gem 'web-console'
 end
+gem "dry-container", "0.7.2"
+
