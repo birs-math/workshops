@@ -1,34 +1,29 @@
-#!/bin/sh
-set -e
+#!/bin/bash
+cd ${APP_HOME}
 
-# Remove a potentially pre-existing server.pid for Rails.
-rm -f /home/app/workshops/tmp/pids/server.pid
-
-# Wait for database to be ready
-until nc -z -v -w30 db 5432
-do
-  echo "Waiting for database connection..."
-  # wait for 5 seconds before check again
-  sleep 5
+echo "Checking database connection..."
+while ! nc -z db 5432; do
+  sleep 1
 done
+echo "Connection to db 5432 port [tcp/*] succeeded!"
 
-# We're already running as the app user (from Dockerfile)
-# Run bundle if needed
-if [ -f Gemfile ] && [ ! -d vendor/bundle ]; then
-  bundle check || bundle install --jobs 4
+bundle check || bundle install
+
+# Fix Rails logger issue by patching the problematic file
+LOGGER_FILE=$(find vendor/bundle -path "*/active_support/logger_thread_safe_level.rb")
+if [ -f "$LOGGER_FILE" ]; then
+  echo "Patching Rails logger file at $LOGGER_FILE"
+  # Add 'require "logger"' at the top of the file if not already there
+  grep -q "require \"logger\"" "$LOGGER_FILE" || sed -i '1i require "logger"' "$LOGGER_FILE"
+  # Add 'Logger = ::Logger' inside the module
+  sed -i 's/module LoggerThreadSafeLevel/module LoggerThreadSafeLevel\n    Logger = ::Logger unless defined?(Logger)/g' "$LOGGER_FILE"
+  echo "Rails logger file patched successfully"
 fi
 
-# Skip Yarn - it's causing permission issues
-# if [ -f yarn.lock ]; then
-#   yarn install --check-files
-# fi
-
-# Run migrations if neededRUN echo "Setting system timezone to America/Edmonton..." && \
-    export DEBIAN_FRONTEND=noninteractive && \
-    ln -fs /usr/share/zoneinfo/America/Edmonton /etc/localtime && \
-    dpkg-reconfigure --frontend noninteractive tzdata
-bundle exec rake db:migrate 2>/dev/null || bundle exec rake db:setup
-
-# Start Rails server directly (don't try to use /sbin/my_init)
-echo "Starting Rails server on port 8000..."
-exec bundle exec rails server -b 0.0.0.0 -p 8000
+if [ "$#" -eq 0 ]; then
+  echo "Starting Rails server..."
+  rm -f ${APP_HOME}/tmp/pids/server.pid
+  bundle exec rails server -b 0.0.0.0 -p 8000
+else
+  exec "$@"
+fi
