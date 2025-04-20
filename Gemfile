@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 # Rails and core dependencies
-gem 'rails', '6.0.6.1'  # Keep your current Rails version for now
+gem 'rails', '6.0.6.1'  # Updated from 5.2.x
 gem 'pg', '1.1.3'
 gem 'rack', ">= 2.2.3"
 gem 'rack-cors', require: 'rack/cors'
@@ -27,7 +27,7 @@ gem 'popper_js', '~> 1.16.0'
 gem 'sassc-rails'
 gem 'turbolinks'
 gem 'uglifier'
-gem 'webpacker', '~> 5.x'
+gem 'webpacker', '~> 5.4'  # Updated to 5.4 for Rails 6
 
 # Admin dashboard
 gem "administrate", ">= 0.13.0"
@@ -65,14 +65,16 @@ gem 'ed25519'
 # Documentation
 gem 'sdoc', group: :doc
 
-# Needed for Ruby 3.0 compatibility
+# Rails 6 and Ruby 3.0 compatibility gems
 gem 'psych', '~> 3.3.2'
 gem "dry-configurable", "0.9.0"
 gem "dry-container", "0.7.2"
 gem 'faraday-retry'
-gem 'net-smtp', require: false  # Add for Ruby 3.0 compatibility
-gem 'net-imap', require: false  # Add for Ruby 3.0 compatibility
-gem 'net-pop', require: false   # Add for Ruby 3.0 compatibility
+gem 'net-smtp', require: false
+gem 'net-imap', require: false
+gem 'net-pop', require: false
+gem 'rails-html-sanitizer', '~> 1.4.4'
+gem 'rubyzip', '~> 2.3.0'
 
 # Server
 gem 'passenger'
@@ -83,7 +85,7 @@ group :development, :test do
   gem 'factory_bot_rails'
   gem 'rspec-rails'
   gem 'spring'
-  gem 'sqlite3', '~> 1.4.0'
+  gem 'sqlite3', '~> 1.4.0'  # Updated from 1.3.x
 end
 
 # Test-specific gems

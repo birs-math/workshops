@@ -80,15 +80,6 @@ COPY --chown=app:app \
  config.ru \
  ${APP_HOME}/
 
-# Rails 6 upgrade modifications and pinning key gems to compatible versions
-RUN sed -i 's/gem .rails., .~> 5.2.4.5./gem "rails", "6.0.6.1"/' ${APP_HOME}/Gemfile && \
-    sed -i 's/gem .sqlite3., .~> 1.3.6./gem "sqlite3", "~> 1.4.0"/' ${APP_HOME}/Gemfile && \
-    sed -i 's/gem .nokogiri., .~> 1.13./gem "nokogiri", force_ruby_platform: true/' ${APP_HOME}/Gemfile && \
-    echo 'gem "rails-html-sanitizer", "~> 1.4.4"' >> ${APP_HOME}/Gemfile && \
-    echo 'gem "rubyzip", "~> 2.3.0"' >> ${APP_HOME}/Gemfile && \
-    sed -i 's/gem .webpacker., .~> 5.x./gem "webpacker", "~> 5.4"/' ${APP_HOME}/Gemfile || true && \
-    sed -i 's/require .bootsnap\/setup./#require "bootsnap\/setup"/' ${APP_HOME}/config/boot.rb
-
 # Create empty config file
 RUN touch ${APP_HOME}/config/app.yml && \
     chown app:app ${APP_HOME}/config/app.yml
@@ -98,6 +89,14 @@ RUN sed -i 's/endgem/end\ngem/g' ${APP_HOME}/Gemfile
 
 # Configure bundler to use ruby platform for nokogiri
 RUN bundle config set force_ruby_platform true
+
+# Create and set permissions for Yarn cache directories
+RUN mkdir -p /home/app/.cache/yarn && \
+    mkdir -p /tmp/.yarn-cache-999 && \
+    mkdir -p /tmp/.yarn-cache && \
+    chmod -R 777 /home/app/.cache/yarn && \
+    chmod -R 777 /tmp/.yarn-cache-999 && \
+    chmod -R 777 /tmp/.yarn-cache
 
 # Install JavaScript dependencies as app user
 WORKDIR ${APP_HOME}
