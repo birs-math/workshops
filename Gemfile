@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 # Rails and core dependencies upgrade
-gem 'rails', '6.1.0'  # Updated from '6.0.6.1'
+gem 'rails', '~> 6.1.7'  # Updated from '6.1'
 gem 'pg', '1.1.3'
 gem 'rack', ">= 2.2.3"
 gem 'rack-cors', require: 'rack/cors'
