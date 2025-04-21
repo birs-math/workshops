@@ -109,52 +109,22 @@ RUN cd ${APP_HOME} && \
     bundle config set --local path 'vendor/bundle' && \
     rm -f Gemfile.lock && \
     bundle install
-
+# Switch to root to create patch and modify boot.rb
 USER root
 
-# Create the Ruby 3.0 logger patch
+# Create and copy the Ruby 3.0 logger patch file
 RUN mkdir -p ${APP_HOME}/lib/patches
-RUN echo '# lib/patches/logger_patch.rb' > ${APP_HOME}/lib/patches/logger_patch.rb && \
-    echo 'require "logger"' >> ${APP_HOME}/lib/patches/logger_patch.rb && \
-    echo '' >> ${APP_HOME}/lib/patches/logger_patch.rb && \
-    echo '# Add this before Rails loads' >> ${APP_HOME}/lib/patches/logger_patch.rb && \
-    echo 'module ActiveSupport' >> ${APP_HOME}/lib/patches/logger_patch.rb && \
-    echo '  module LoggerThreadSafeLevel' >> ${APP_HOME}/lib/patches/logger_patch.rb && \
-    echo '    # Explicitly define Logger' >> ${APP_HOME}/lib/patches/logger_patch.rb && \
-    echo '    Logger = ::Logger unless defined?(Logger)' >> ${APP_HOME}/lib/patches/logger_patch.rb && \
-    echo '  end' >> ${APP_HOME}/lib/patches/logger_patch.rb && \
-    echo 'end' >> ${APP_HOME}/lib/patches/logger_patch.rb && \
-    chown app:app ${APP_HOME}/lib/patches/logger_patch.rb
+COPY logger_patch.rb ${APP_HOME}/lib/patches/
+RUN chown app:app ${APP_HOME}/lib/patches/logger_patch.rb
 
 # Modify boot.rb to load the logger patch early
-RUN sed -i '2a require "logger"\nrequire_relative "../lib/patches/logger_patch"' ${APP_HOME}/config/boot.rb
+RUN sed -i \
+    '2a require "logger"\nrequire_relative "../lib/patches/logger_patch"' \
+    ${APP_HOME}/config/boot.rb
 
-# Setup entrypoint with Rails compatibility fix
-RUN echo '#!/bin/bash' > /usr/local/bin/entrypoint.sh && \
-    echo 'cd ${APP_HOME}' >> /usr/local/bin/entrypoint.sh && \
-    echo 'echo "Checking database connection..."' >> /usr/local/bin/entrypoint.sh && \
-    echo 'while ! nc -z db 5432; do' >> /usr/local/bin/entrypoint.sh && \
-    echo '  sleep 1' >> /usr/local/bin/entrypoint.sh && \
-    echo 'done' >> /usr/local/bin/entrypoint.sh && \
-    echo 'echo "Connection to db 5432 port [tcp/*] succeeded!"' >> /usr/local/bin/entrypoint.sh && \
-    echo 'bundle check || bundle install' >> /usr/local/bin/entrypoint.sh && \
-    echo '' >> /usr/local/bin/entrypoint.sh && \
-    echo '# Fix Rails 6 compatibility with Ruby 3' >> /usr/local/bin/entrypoint.sh && \
-    echo 'LOGGER_FILE=$(find vendor/bundle -path "*/active_support/logger_thread_safe_level.rb")' >> /usr/local/bin/entrypoint.sh && \
-    echo 'if [ -f "$LOGGER_FILE" ]; then' >> /usr/local/bin/entrypoint.sh && \
-    echo '  echo "Patching Rails logger file for Ruby 3 compatibility"' >> /usr/local/bin/entrypoint.sh && \
-    echo '  grep -q "require \"logger\"" "$LOGGER_FILE" || sed -i '"'"'1i require "logger"'"'"' "$LOGGER_FILE"' >> /usr/local/bin/entrypoint.sh && \
-    echo '  grep -q "Logger = ::Logger" "$LOGGER_FILE" || sed -i '"'"'s/module LoggerThreadSafeLevel/module LoggerThreadSafeLevel\\n    Logger = ::Logger unless defined?(Logger)/g'"'"' "$LOGGER_FILE"' >> /usr/local/bin/entrypoint.sh && \
-    echo 'fi' >> /usr/local/bin/entrypoint.sh && \
-    echo '' >> /usr/local/bin/entrypoint.sh && \
-    echo 'if [ "$#" -eq 0 ]; then' >> /usr/local/bin/entrypoint.sh && \
-    echo '  echo "Starting Rails server..."' >> /usr/local/bin/entrypoint.sh && \
-    echo '  rm -f ${APP_HOME}/tmp/pids/server.pid' >> /usr/local/bin/entrypoint.sh && \
-    echo '  bundle exec rails server -b 0.0.0.0 -p 8000' >> /usr/local/bin/entrypoint.sh && \
-    echo 'else' >> /usr/local/bin/entrypoint.sh && \
-    echo '  exec "$@"' >> /usr/local/bin/entrypoint.sh && \
-    echo 'fi' >> /usr/local/bin/entrypoint.sh && \
-    chmod 755 /usr/local/bin/entrypoint.sh
+# Copy entrypoint script
+COPY entrypoint.sh /usr/local/bin/
+RUN chmod 755 /usr/local/bin/entrypoint.sh
 
 # Add bash aliases
 RUN echo 'alias rspec="bundle exec rspec"' >> /root/.bashrc
