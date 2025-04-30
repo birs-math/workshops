@@ -122,12 +122,21 @@ RUN sed -i \
     '2a require "logger"\nrequire_relative "../lib/patches/logger_patch"' \
     ${APP_HOME}/config/boot.rb
 
-# Copy entrypoint script
+# Copy entrypoint script to both required locations
 COPY entrypoint.sh /usr/local/bin/
-RUN chmod 755 /usr/local/bin/entrypoint.sh
+COPY entrypoint.sh /sbin/
+RUN chmod 755 /usr/local/bin/entrypoint.sh /sbin/entrypoint.sh
+
+# Create and add the que entrypoint script
+COPY entrypoint-que.sh /sbin/
+RUN chmod 755 /sbin/entrypoint-que.sh
 
 # Add bash aliases
 RUN echo 'alias rspec="bundle exec rspec"' >> /root/.bashrc
+
+# Ensure tmp directory has correct permissions
+RUN mkdir -p ${APP_HOME}/tmp/pids && \
+    chmod -R 777 ${APP_HOME}/tmp
 
 # Expose port
 EXPOSE 8000

@@ -37,6 +37,7 @@ gem 'email_validator', '~> 1.6.0'
 gem 'griddler'
 gem 'griddler-mailgun'
 gem 'mailgun-ruby'
+gem 'terser', '~> 1.1.0'
 # PDF generation
 gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'
@@ -49,6 +50,9 @@ gem 'paper_trail'
 gem 'rails-settings-cached', '0.7.2'
 # API and external services
 gem 'rest-client'
+# Add explicit Faraday dependency
+gem 'faraday', '~> 2.7.10'  # Specify an older, stable version
+gem 'faraday-retry'
 # SSH and security
 gem 'ed25519'
 # Documentation
@@ -57,7 +61,6 @@ gem 'sdoc', '~> 2.0.0'  # Only change - pinned to work with psych 3.3.2
 gem 'psych', '~> 3.3.2'
 gem "dry-configurable", "0.9.0"
 gem "dry-container", "0.7.2"
-gem 'faraday-retry'
 gem 'net-smtp', require: false
 gem 'net-imap', require: false
 gem 'net-pop', require: false

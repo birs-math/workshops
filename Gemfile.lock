@@ -170,7 +170,7 @@ GEM
       railties (>= 5.0.0)
     faker (3.4.2)
       i18n (>= 1.8.11, < 2)
-    faraday (2.8.1)
+    faraday (2.7.12)
       base64
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
@@ -448,6 +448,8 @@ GEM
       ostruct
     sucker_punch (3.2.0)
       concurrent-ruby (~> 1.0)
+    terser (1.1.20)
+      execjs (>= 0.3.0, < 3)
     thor (1.3.2)
     tilt (2.6.0)
     timeout (0.4.3)
@@ -517,6 +519,7 @@ DEPENDENCIES
   email_validator (~> 1.6.0)
   factory_bot_rails
   faker
+  faraday (~> 2.7.10)
   faraday-retry
   font-awesome-rails
   griddler
@@ -562,6 +565,7 @@ DEPENDENCIES
   spring
   sqlite3 (~> 1.4.0)
   sucker_punch
+  terser (~> 1.1.0)
   turbolinks
   uglifier
   web-console

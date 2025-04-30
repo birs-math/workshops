@@ -2,8 +2,8 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# This file is the source Rails uses to define your schema when running `rails
-# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
 # be faster and is potentially less error prone than running all of your
 # migrations from scratch. Old migrations may fail to apply correctly if those
 # migrations use external dependencies or application code.
@@ -92,6 +92,7 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "templates"
+    t.integer "invited_by_id"
     t.index ["membership_id"], name: "index_invitations_on_membership_id"
   end
 
@@ -194,7 +195,7 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
     t.index ["email"], name: "index_people_on_email", unique: true
   end
 
-  create_table "que_jobs", comment: "7", force: :cascade do |t|
+  create_table "que_jobs", force: :cascade do |t|
     t.integer "priority", limit: 2, default: 100, null: false
     t.datetime "run_at", default: -> { "now()" }, null: false
     t.text "job_class", null: false
@@ -213,6 +214,11 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
     t.index ["job_class"], name: "que_scheduler_job_in_que_jobs_unique_index", unique: true, where: "(job_class = 'Que::Scheduler::SchedulerJob'::text)"
     t.index ["job_schema_version", "queue", "priority", "run_at", "id"], name: "que_poll_idx", where: "((finished_at IS NULL) AND (expired_at IS NULL))"
     t.index ["kwargs"], name: "que_jobs_kwargs_gin_idx", opclass: :jsonb_path_ops, using: :gin
+    t.check_constraint "(char_length(last_error_message) <= 500) AND (char_length(last_error_backtrace) <= 10000)", name: "error_length"
+    t.check_constraint "(jsonb_typeof(data) = 'object'::text) AND ((NOT (data ? 'tags'::text)) OR ((jsonb_typeof((data -> 'tags'::text)) = 'array'::text) AND (jsonb_array_length((data -> 'tags'::text)) <= 5) AND que_validate_tags((data -> 'tags'::text))))", name: "valid_data"
+    t.check_constraint "char_length(queue) <= 100", name: "queue_length"
+    t.check_constraint "jsonb_typeof(args) = 'array'::text", name: "valid_args"
+    t.check_constraint nil, name: "job_class_length"
   end
 
   create_table "que_lockers", primary_key: "pid", id: :integer, default: nil, force: :cascade do |t|
@@ -223,9 +229,11 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
     t.text "queues", null: false, array: true
     t.boolean "listening", null: false
     t.integer "job_schema_version", default: 1
+    t.check_constraint "(array_ndims(queues) = 1) AND (array_length(queues, 1) IS NOT NULL)", name: "valid_queues"
+    t.check_constraint "(array_ndims(worker_priorities) = 1) AND (array_length(worker_priorities, 1) IS NOT NULL)", name: "valid_worker_priorities"
   end
 
-  create_table "que_scheduler_audit", primary_key: "scheduler_job_id", id: :bigint, default: nil, comment: "7", force: :cascade do |t|
+  create_table "que_scheduler_audit", primary_key: "scheduler_job_id", id: :bigint, default: nil, force: :cascade do |t|
     t.datetime "executed_at", null: false
   end
 
@@ -244,6 +252,7 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
 
   create_table "que_values", primary_key: "key", id: :text, force: :cascade do |t|
     t.jsonb "value", default: {}, null: false
+    t.check_constraint "jsonb_typeof(value) = 'object'::text", name: "valid_value"
   end
 
   create_table "schedules", id: :serial, force: :cascade do |t|
@@ -338,6 +347,7 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
 
   add_foreign_key "custom_fields", "events"
   add_foreign_key "invitations", "memberships"
+  add_foreign_key "invitations", "people", column: "invited_by_id"
   add_foreign_key "lectures", "events"
   add_foreign_key "lectures", "people"
   add_foreign_key "memberships", "events"

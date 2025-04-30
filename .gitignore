@@ -42,6 +42,8 @@ app/views/invitation_mailer/EO/
 app/views/invitation_mailer/IASM/
 app/views/invitation_mailer/IMAG/
 app/views/invitation_mailer/UBCO/
+app/views/invitation_mailer/CMI/
+app/views/participant_mailer/rsvp/CMI/
 lib/assets
 
 # Deployment files
