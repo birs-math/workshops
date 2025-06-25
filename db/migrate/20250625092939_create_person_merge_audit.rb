@@ -1,8 +1,8 @@
 class CreatePersonMergeAudit < ActiveRecord::Migration[5.2]
   def change
     create_table :person_merge_audits do |t|
-      t.references :source_person, null: false, comment: "Person being replaced"
-      t.references :target_person, null: false, comment: "Person being merged into"
+      t.references :source_person, null: false, comment: "Person being replaced", index: true
+      t.references :target_person, null: false, comment: "Person being merged into", index: true
       t.string :source_email
       t.string :target_email
       t.json :affected_memberships, comment: "IDs of memberships moved/deleted"
@@ -15,8 +15,6 @@ class CreatePersonMergeAudit < ActiveRecord::Migration[5.2]
       t.timestamps
     end
     
-    add_index :person_merge_audits, :source_person_id
-    add_index :person_merge_audits, :target_person_id
     add_index :person_merge_audits, :created_at
   end
 end

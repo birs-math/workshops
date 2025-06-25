@@ -215,6 +215,24 @@ ActiveRecord::Schema.define(version: 2025_06_25_152951) do
     t.index ["email"], name: "index_people_on_email", unique: true
   end
 
+  create_table "person_merge_audits", force: :cascade do |t|
+    t.bigint "source_person_id", null: false, comment: "Person being replaced"
+    t.bigint "target_person_id", null: false, comment: "Person being merged into"
+    t.string "source_email"
+    t.string "target_email"
+    t.json "affected_memberships", comment: "IDs of memberships moved/deleted"
+    t.json "affected_invitations", comment: "IDs of invitations moved"
+    t.text "merge_reason"
+    t.string "initiated_by"
+    t.boolean "completed", default: false
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_person_merge_audits_on_created_at"
+    t.index ["source_person_id"], name: "index_person_merge_audits_on_source_person_id"
+    t.index ["target_person_id"], name: "index_person_merge_audits_on_target_person_id"
+  end
+
   create_table "que_jobs", comment: "7", force: :cascade do |t|
     t.integer "priority", limit: 2, default: 100, null: false
     t.datetime "run_at", default: -> { "now()" }, null: false
