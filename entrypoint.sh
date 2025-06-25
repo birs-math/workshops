@@ -38,6 +38,8 @@ echo "Installing bundler..."
 
 echo
 echo "Bundle install..."
+su - app -c "cd /home/app/workshops; /usr/local/rvm/bin/rvm-exec 2.7.7 bundle config set --local disable_checksum_validation true"
+su - app -c "cd /home/app/workshops; /usr/local/rvm/bin/rvm-exec 2.7.7 bundle config set force_ruby_platform true"
 su - app -c "cd /home/app/workshops; /usr/local/rvm/bin/rvm-exec 2.7.7 bundle install"
 
 if [ ! -d "${GEM_HOME}/gems" ]; then

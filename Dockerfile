@@ -29,7 +29,7 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
 
 RUN apt-get install --yes tzdata udev locales curl git gnupg ca-certificates \
     libpq-dev wget libxrender1 libxext6 libsodium23 libsodium-dev yarn \
-    gcc make zlib1g-dev sqlite3 libgmp-dev libc6-dev gcc-multilib g++-multilib \
+    gcc make zlib1g-dev sqlite3 libgmp-dev libc6-dev \
     shared-mime-info && \
     apt-get clean && apt-get autoremove --yes && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
