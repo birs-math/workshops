@@ -4,8 +4,8 @@
   <h1 class="main__page-title">
     <%= content_for(:title) %>
     <span class="count-badge">
-      <%= pluralize(@resources.count, 'conflict') %> 
-      <span class="pending-count">(<%= @resources.where(confirmed: false).count %> pending)</span>
+      <%= pluralize(@total_stats[:total], 'conflict') %> 
+      <span class="pending-count">(<%= @total_stats[:pending] %> pending)</span>
     </span>
   </h1>
   
@@ -30,21 +30,22 @@
 <section class="main__content">
   <% if @resources.any? %>
     <div class="conflicts-summary">
+      <p class="summary-note">System-wide statistics (all conflicts)</p>
       <div class="summary-stats">
         <div class="stat-card stat-card--pending">
-          <span class="stat-number"><%= @resources.where(confirmed: false).count %></span>
+          <span class="stat-number"><%= @total_stats[:pending] %></span>
           <span class="stat-label">Pending</span>
         </div>
         <div class="stat-card stat-card--high-priority">
-          <span class="stat-number"><%= @resources.where(priority: 'high').count %></span>
+          <span class="stat-number"><%= @total_stats[:high_priority] %></span>
           <span class="stat-label">High Priority</span>
         </div>
         <div class="stat-card stat-card--recent-invitations">
-          <span class="stat-number"><%= @resources.where(has_recent_invitations: true).count %></span>
+          <span class="stat-number"><%= @total_stats[:recent_invitations] %></span>
           <span class="stat-label">Recent Invitations</span>
         </div>
         <div class="stat-card stat-card--resolved">
-          <span class="stat-number"><%= @resources.where(confirmed: true).count %></span>
+          <span class="stat-number"><%= @total_stats[:resolved] %></span>
           <span class="stat-label">Resolved</span>
         </div>
       </div>
@@ -175,6 +176,14 @@
 
 .conflicts-summary {
   margin-bottom: 2rem;
+}
+
+.summary-note {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
 }
 
 .summary-stats {

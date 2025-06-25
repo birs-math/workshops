@@ -38,6 +38,15 @@ module Admin
                    else
                      resources.limit(per_page).offset((page - 1) * per_page)
                    end
+      
+      # System-wide totals (not filtered/paginated)
+      @total_stats = {
+        pending: ConfirmEmailChange.where(confirmed: false).count,
+        resolved: ConfirmEmailChange.where(confirmed: true).count,
+        high_priority: ConfirmEmailChange.where(priority: 'high').count,
+        recent_invitations: ConfirmEmailChange.where(has_recent_invitations: true).count,
+        total: ConfirmEmailChange.count
+      }
     end
     
     def show
