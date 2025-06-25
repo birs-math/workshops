@@ -111,3 +111,6 @@ yarn-debug.log*
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 /coverage/
+
+# Database dump files
+db-*.sql.gz
