@@ -7,6 +7,12 @@
 # Ignore bundler config.
 /.bundle
 
+# Ignore local Docker development files
+docker-compose.yml
+Passengerfile.json
+nginx.conf.erb
+entrypoint*.sh
+
 # Ignore the default SQLite database.
 /db/*.sqlite3
 /db/*.sqlite3-journal
