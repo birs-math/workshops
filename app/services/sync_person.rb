@@ -41,8 +41,52 @@ class SyncPerson
   end
 
   def names_match(n1, n2)
-    I18n.transliterate(n1.downcase) == I18n.transliterate(n2.downcase)
+    return false if n1.blank? || n2.blank?
+    
+    # Normalize names for comparison
+    norm1 = normalize_name(n1)
+    norm2 = normalize_name(n2)
+    
+    # Exact match after normalization
+    return true if norm1 == norm2
+    
+    # Check if names are similar enough (accounting for middle names, initials, etc.)
+    similarity_match?(norm1, norm2)
   end
+
+  private
+
+  def normalize_name(name)
+    I18n.transliterate(name.downcase.strip)
+      .gsub(/[^\w\s]/, '') # Remove punctuation
+      .squeeze(' ')        # Collapse multiple spaces
+  end
+
+  def similarity_match?(name1, name2)
+    # Split names into parts
+    parts1 = name1.split
+    parts2 = name2.split
+    
+    # If either name has only one part, require exact match
+    return false if parts1.length == 1 || parts2.length == 1
+    
+    # Check if first and last names match (allowing for middle name differences)
+    first_match = parts1.first == parts2.first
+    last_match = parts1.last == parts2.last
+    
+    # Require both first and last name to match for similarity
+    first_match && last_match
+  end
+
+  def has_recent_invitations?(person)
+    return false unless person.persisted?
+    
+    # Check for invitations created in the last 24 hours
+    recent_threshold = 24.hours.ago
+    person.memberships.joins(:invitations).where('invitations.created_at > ?', recent_threshold).exists?
+  end
+
+  public
 
   def find_other_person
     Person.where(email: @new_email).where.not(id: @person.id).first
@@ -70,10 +114,17 @@ class SyncPerson
     end
 
     if names_match(other_person.name, @person.name)
-      merge_person_records(@person, other_person)
-      p = Person.find_by_id(@person.id) || Person.find_by_id(other_person.id)
-      p.email = @new_email
-      @person = p
+      # Check if either person has recent invitations (within 24 hours)
+      if has_recent_invitations?(@person) || has_recent_invitations?(other_person)
+        Rails.logger.warn "MERGE BLOCKED: Person #{@person.name} or #{other_person.name} has recent invitations - requiring manual confirmation"
+        create_change_confirmation(@person, other_person)
+      else
+        Rails.logger.info "Auto-merging persons with matching names: #{@person.name} (#{@person.id}) and #{other_person.name} (#{other_person.id})"
+        merge_person_records(@person, other_person)
+        p = Person.find_by_id(@person.id) || Person.find_by_id(other_person.id)
+        p.email = @new_email
+        @person = p
+      end
     else
       create_change_confirmation(@person, other_person)
     end

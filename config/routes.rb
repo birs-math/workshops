@@ -138,6 +138,7 @@ Rails.application.routes.draw do
     resources :lectures
     resources :schedules
     resources :users
+    resources :confirm_email_changes
     root to: "people#index"
   end
 

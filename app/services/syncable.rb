@@ -240,31 +240,52 @@ module Syncable
   end
 
   def replace_person(replace: other_person, replace_with: person)
-    replace.memberships.each do |m|
-      replace_with_membership = Membership.where(event: m.event,
-                                                person: replace_with).first
-      m.sync_memberships = true
-      if replace_with_membership.blank?
-        m.update(person: replace_with)
-      else
-        Invitation.where(membership: m).each do |i|
-          i.update(membership: replace_with_membership)
+    ActiveRecord::Base.transaction do
+      Rails.logger.info "Person merge starting: replacing #{replace.email} (ID: #{replace.id}) with #{replace_with.email} (ID: #{replace_with.id})"
+      
+      replace.memberships.each do |m|
+        replace_with_membership = Membership.where(event: m.event,
+                                                  person: replace_with).first
+        m.sync_memberships = true
+        if replace_with_membership.blank?
+          Rails.logger.info "Moving membership #{m.id} from person #{replace.id} to person #{replace_with.id} for event #{m.event.code}"
+          m.update(person: replace_with)
+        else
+          Rails.logger.warn "MEMBERSHIP DELETION: About to delete membership #{m.id} for person #{replace.email} in event #{m.event.code} due to duplicate with membership #{replace_with_membership.id}"
+          
+          invitation_count = Invitation.where(membership: m).count
+          Rails.logger.warn "This will affect #{invitation_count} invitation(s) - moving to existing membership #{replace_with_membership.id}"
+          
+          Invitation.where(membership: m).each do |i|
+            Rails.logger.info "Moving invitation #{i.id} from membership #{m.id} to membership #{replace_with_membership.id}"
+            i.update(membership: replace_with_membership)
+          end
+          
+          Rails.logger.warn "HARD DELETE: Deleting membership #{m.id} for person #{replace.email} (#{replace.id}) in event #{m.event.code}"
+          m.delete
         end
-        m.delete
       end
+
+      Lecture.where(person_id: replace.id).each do |l|
+        Rails.logger.info "Moving lecture #{l.id} from person #{replace.id} to person #{replace_with.id}"
+        l.update(person: replace_with)
+      end
+
+      update_user_account(replace, replace_with)
+
+      # Update legacy database
+      replace_remote(replace, replace_with)
+
+      # there can be only one!
+      Rails.logger.warn "HARD DELETE: Deleting person record #{replace.id} (#{replace.email}) - replaced with #{replace_with.id} (#{replace_with.email})"
+      replace.delete
+      
+      Rails.logger.info "Person merge completed successfully"
     end
-
-    Lecture.where(person_id: replace.id).each do |l|
-      l.update(person: replace_with)
-    end
-
-    update_user_account(replace, replace_with)
-
-    # Update legacy database
-    replace_remote(replace, replace_with)
-
-    # there can be only one!
-    replace.delete
+  rescue => e
+    Rails.logger.error "Person merge failed: #{e.message}"
+    Rails.logger.error "Rollback performed - no data was lost"
+    raise e
   end
 
   def update_user_account(person, replace_with)
