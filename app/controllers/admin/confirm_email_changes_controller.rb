@@ -125,11 +125,44 @@ module Admin
       person1_info = @conflict.replace_person&.name || "Person #{@conflict.replace_person_id} (missing)"
       person2_info = @conflict.replace_with&.name || "Person #{@conflict.replace_with_id} (missing)"
       conflict_email = @conflict.replace_email
+      conflict_id = @conflict.id
+      
+      # Log the deletion for audit trail
+      Rails.logger.info "🗑️  CONFLICT DELETION - ID: #{conflict_id}, User: #{current_user.email}, Person1: #{person1_info}, Person2: #{person2_info}, Email: #{conflict_email}, Time: #{Time.current}"
+      
+      # Create audit record before destroying
+      begin
+        PersonMergeAudit.create!(
+          source_person_id: @conflict.replace_person_id,
+          target_person_id: @conflict.replace_with_id,
+          source_email: @conflict.replace_email,
+          target_email: @conflict.replace_with_email,
+          merge_reason: "CONFLICT RECORD DELETED - #{person1_info} ↔ #{person2_info}",
+          initiated_by: current_user.email,
+          completed: true,
+          affected_memberships: [],
+          affected_invitations: []
+        )
+      rescue => e
+        Rails.logger.warn "Failed to create deletion audit: #{e.message}"
+      end
       
       @conflict.destroy
       
-      redirect_to admin_confirm_email_changes_path,
-                 notice: "Deleted conflict record: #{person1_info} ↔ #{person2_info} (#{conflict_email})"
+      # Create clear messaging based on what type of cleanup this is
+      if person1_info.include?("missing") || person2_info.include?("missing")
+        # Orphaned conflict cleanup
+        existing_person = person1_info.include?("missing") ? person2_info : person1_info
+        missing_person = person1_info.include?("missing") ? person1_info : person2_info
+        missing_id = missing_person.match(/Person (\d+)/)[1] rescue "unknown"
+        
+        message = "Cleaned up orphaned conflict record ##{conflict_id}: Person #{missing_id} no longer exists, was linked to #{existing_person} (#{conflict_email})"
+      else
+        # Normal conflict deletion
+        message = "Deleted conflict record ##{conflict_id}: #{person1_info} and #{person2_info} (#{conflict_email})"
+      end
+      
+      redirect_to admin_confirm_email_changes_path, notice: message
     end
     
     private
