@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_04_22_090508) do
+ActiveRecord::Schema.define(version: 2025_06_25_152951) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -25,6 +25,14 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
     t.boolean "confirmed", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "priority", default: "normal"
+    t.boolean "has_recent_invitations", default: false
+    t.text "auto_merge_blocked_reason"
+    t.string "reviewed_by"
+    t.datetime "reviewed_at"
+    t.index ["created_at"], name: "index_confirm_email_changes_on_created_at"
+    t.index ["has_recent_invitations"], name: "index_confirm_email_changes_on_has_recent_invitations"
+    t.index ["priority"], name: "index_confirm_email_changes_on_priority"
     t.index ["replace_code"], name: "index_confirm_email_changes_on_replace_code"
     t.index ["replace_person_id"], name: "index_confirm_email_changes_on_replace_person_id"
     t.index ["replace_with_code"], name: "index_confirm_email_changes_on_replace_with_code"
@@ -76,8 +84,9 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
     t.string "subjects"
     t.integer "max_observers", default: 0, null: false
     t.boolean "cancelled", default: false
-    t.integer "max_virtual", default: 0, null: false
+    t.boolean "online", default: false
     t.text "event_format"
+    t.integer "max_virtual", default: 0, null: false
     t.integer "state", default: 0, null: false
     t.index ["code"], name: "index_events_on_code", unique: true
   end
@@ -92,6 +101,10 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "templates"
+    t.datetime "deleted_at"
+    t.string "deleted_by"
+    t.text "deletion_reason"
+    t.index ["deleted_at"], name: "index_invitations_on_deleted_at"
     t.index ["membership_id"], name: "index_invitations_on_membership_id"
   end
 
@@ -156,6 +169,10 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
     t.string "room_notes"
     t.string "invite_reminders"
     t.integer "num_guests", default: 0, null: false
+    t.datetime "deleted_at"
+    t.string "deleted_by"
+    t.text "deletion_reason"
+    t.index ["deleted_at"], name: "index_memberships_on_deleted_at"
     t.index ["event_id"], name: "index_memberships_on_event_id"
     t.index ["person_id"], name: "index_memberships_on_person_id"
   end
@@ -191,6 +208,10 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "grants"
+    t.datetime "deleted_at"
+    t.bigint "confirm_email_change_id"
+    t.index ["confirm_email_change_id"], name: "index_people_on_confirm_email_change_id"
+    t.index ["deleted_at"], name: "index_people_on_deleted_at"
     t.index ["email"], name: "index_people_on_email", unique: true
   end
 
@@ -290,7 +311,9 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
     t.string "thing_type", limit: 30
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["id"], name: "settings_id_key", unique: true
     t.index ["thing_type", "thing_id", "var"], name: "index_settings_on_thing_type_and_thing_id_and_var", unique: true
+    t.index ["var"], name: "settings_var_key", unique: true
   end
 
   create_table "users", id: :serial, force: :cascade do |t|
@@ -319,8 +342,8 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
     t.datetime "invitation_sent_at"
     t.datetime "invitation_accepted_at"
     t.integer "invitation_limit"
-    t.string "invited_by_type"
     t.integer "invited_by_id"
+    t.string "invited_by_type"
     t.integer "invitations_count", default: 0
     t.integer "role", default: 0
     t.string "location"
@@ -342,6 +365,7 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
   add_foreign_key "lectures", "people"
   add_foreign_key "memberships", "events"
   add_foreign_key "memberships", "people"
+  add_foreign_key "people", "confirm_email_changes"
   add_foreign_key "que_scheduler_audit_enqueued", "que_scheduler_audit", column: "scheduler_job_id", primary_key: "scheduler_job_id", name: "que_scheduler_audit_enqueued_scheduler_job_id_fkey"
   add_foreign_key "schedules", "events"
 end

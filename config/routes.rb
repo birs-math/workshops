@@ -138,7 +138,14 @@ Rails.application.routes.draw do
     resources :lectures
     resources :schedules
     resources :users
-    resources :confirm_email_changes
+    resources :confirm_email_changes do
+      member do
+        get :compare
+        patch :merge
+        patch :merge_opposite
+        patch :reject
+      end
+    end
     root to: "people#index"
   end
 

@@ -23,8 +23,10 @@
 # this will send confirmation links to both addresses to confirm ownership
 # before one person record is replaced with the other
 class ConfirmEmailChange < ApplicationRecord
-  attr_accessor :replace_person, :replace_with
+  attr_accessor :replace_person_obj, :replace_with_obj
   has_many :people
+  belongs_to :replace_person, class_name: 'Person', optional: true
+  belongs_to :replace_with, class_name: 'Person', optional: true
   validates :replace_person, presence: true
   validates :replace_with, presence: true
   # validate :already_exists?, on: :create
@@ -50,10 +52,14 @@ class ConfirmEmailChange < ApplicationRecord
   end
 
   def set_values
-    self.replace_person_id ||= replace_person.id
-    self.replace_email ||= replace_person.email
-    self.replace_with_id ||= replace_with.id
-    self.replace_with_email ||= replace_with.email
+    if replace_person_obj
+      self.replace_person_id ||= replace_person_obj.id
+      self.replace_email ||= replace_person_obj.email
+    end
+    if replace_with_obj
+      self.replace_with_id ||= replace_with_obj.id
+      self.replace_with_email ||= replace_with_obj.email
+    end
   end
 
   def send_email

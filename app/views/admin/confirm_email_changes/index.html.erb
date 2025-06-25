@@ -1,0 +1,505 @@
+<% content_for(:title) { "Duplicate Person Conflicts" } %>
+
+<header class="main__header">
+  <h1 class="main__page-title">
+    <%= content_for(:title) %>
+    <span class="count-badge">
+      <%= pluralize(@resources.count, 'conflict') %> 
+      <span class="pending-count">(<%= @resources.where(confirmed: false).count %> pending)</span>
+    </span>
+  </h1>
+  
+  <div class="main__actions">
+    <%= form_with url: admin_confirm_email_changes_path, method: :get, local: true, class: "search-form" do |f| %>
+      <%= f.text_field :search, placeholder: "Search conflicts...", value: params[:search], class: "search-input" %>
+      <%= f.select :status, 
+          options_for_select([
+            ['All conflicts', ''],
+            ['Pending only', 'pending'],
+            ['Resolved only', 'resolved'],
+            ['High priority', 'high_priority'],
+            ['Recent invitations', 'recent_invitations']
+          ], params[:status]), 
+          {}, { class: "filter-select" } %>
+      <%= f.submit "Search", class: "btn btn--secondary" %>
+    <% end %>
+    <%= link_to "New Conflict", new_admin_confirm_email_change_path, class: "btn btn--primary" %>
+  </div>
+</header>
+
+<section class="main__content">
+  <% if @resources.any? %>
+    <div class="conflicts-summary">
+      <div class="summary-stats">
+        <div class="stat-card stat-card--pending">
+          <span class="stat-number"><%= @resources.where(confirmed: false).count %></span>
+          <span class="stat-label">Pending</span>
+        </div>
+        <div class="stat-card stat-card--high-priority">
+          <span class="stat-number"><%= @resources.where(priority: 'high').count %></span>
+          <span class="stat-label">High Priority</span>
+        </div>
+        <div class="stat-card stat-card--recent-invitations">
+          <span class="stat-number"><%= @resources.where(has_recent_invitations: true).count %></span>
+          <span class="stat-label">Recent Invitations</span>
+        </div>
+        <div class="stat-card stat-card--resolved">
+          <span class="stat-number"><%= @resources.where(confirmed: true).count %></span>
+          <span class="stat-label">Resolved</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="conflicts-table-container">
+      <table class="conflicts-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Status</th>
+            <th>Person 1</th>
+            <th>Person 2</th>
+            <th>Shared Email</th>
+            <th>Priority</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @resources.each do |conflict| %>
+            <tr class="conflict-row <%= 'conflict-row--resolved' if conflict.confirmed? %> <%= 'conflict-row--high-priority' if conflict.priority == 'high' %>">
+              <td class="conflict-id">
+                <%= link_to "##{conflict.id}", admin_confirm_email_change_path(conflict), 
+                    class: "conflict-link" %>
+              </td>
+              
+              <td class="conflict-status">
+                <% if conflict.confirmed? %>
+                  <span class="status-badge status-badge--resolved">✓ Resolved</span>
+                <% else %>
+                  <span class="status-badge status-badge--pending">⏳ Pending</span>
+                <% end %>
+                
+                <% if conflict.has_recent_invitations? %>
+                  <span class="warning-flag" title="Has recent invitations">⚠</span>
+                <% end %>
+              </td>
+              
+              <td class="person-info">
+                <% if conflict.replace_person %>
+                  <div class="person-name"><%= conflict.replace_person.name %></div>
+                  <div class="person-details">
+                    ID: <%= conflict.replace_person.id %><br>
+                    <%= conflict.replace_person.affiliation %>
+                  </div>
+                <% else %>
+                  <div class="person-missing">⚠ Person <%= conflict.replace_person_id %> (missing)</div>
+                <% end %>
+              </td>
+              
+              <td class="person-info">
+                <% if conflict.replace_with %>
+                  <div class="person-name"><%= conflict.replace_with.name %></div>
+                  <div class="person-details">
+                    ID: <%= conflict.replace_with.id %><br>
+                    <%= conflict.replace_with.affiliation %>
+                  </div>
+                <% else %>
+                  <div class="person-missing">⚠ Person <%= conflict.replace_with_id %> (missing)</div>
+                <% end %>
+              </td>
+              
+              <td class="shared-email">
+                <%= conflict.replace_email %>
+              </td>
+              
+              <td class="priority">
+                <% if conflict.priority == 'high' %>
+                  <span class="priority-badge priority-badge--high">🔴 High</span>
+                <% else %>
+                  <span class="priority-badge priority-badge--normal">Normal</span>
+                <% end %>
+              </td>
+              
+              <td class="created-date">
+                <%= time_ago_in_words(conflict.created_at) %> ago
+              </td>
+              
+              <td class="actions">
+                <% if conflict.replace_person && conflict.replace_with %>
+                  <%= link_to "View", admin_confirm_email_change_path(conflict), 
+                      class: "btn btn--sm btn--secondary" %>
+                  <%= link_to "Compare", compare_admin_confirm_email_change_path(conflict), 
+                      class: "btn btn--sm btn--primary" %>
+                  <% unless conflict.confirmed? %>
+                    <%= link_to "Edit", edit_admin_confirm_email_change_path(conflict), 
+                        class: "btn btn--sm btn--tertiary" %>
+                  <% end %>
+                <% else %>
+                  <span class="text-muted">Missing person data</span>
+                  <%= link_to "Delete", admin_confirm_email_change_path(conflict), 
+                      method: :delete, 
+                      class: "btn btn--sm btn--danger",
+                      data: { confirm: "Delete this broken conflict record?" } %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if @resources.respond_to?(:current_page) %>
+      <div class="pagination-wrapper">
+        <%= paginate @resources %>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="no-conflicts">
+      <h3>🎉 No duplicate person conflicts found!</h3>
+      <p>All person records have unique email addresses.</p>
+    </div>
+  <% end %>
+</section>
+
+<style>
+.count-badge {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-weight: normal;
+}
+
+.pending-count {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.conflicts-summary {
+  margin-bottom: 2rem;
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.stat-card {
+  background: white;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.stat-card--pending { border-color: #ffc107; }
+.stat-card--high-priority { border-color: #dc3545; }
+.stat-card--recent-invitations { border-color: #fd7e14; }
+.stat-card--resolved { border-color: #28a745; }
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.stat-card--pending .stat-number { color: #ffc107; }
+.stat-card--high-priority .stat-number { color: #dc3545; }
+.stat-card--recent-invitations .stat-number { color: #fd7e14; }
+.stat-card--resolved .stat-number { color: #28a745; }
+
+.stat-label {
+  display: block;
+  font-size: 0.875rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+
+.conflicts-table-container {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.conflicts-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.conflicts-table th {
+  background: #f8f9fa;
+  padding: 1rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.conflicts-table td {
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid #dee2e6;
+  vertical-align: top;
+}
+
+.conflict-row:hover {
+  background-color: #f8f9fa;
+}
+
+.conflict-row--resolved {
+  opacity: 0.7;
+}
+
+.conflict-row--high-priority {
+  border-left: 4px solid #dc3545;
+}
+
+.conflict-id {
+  font-weight: bold;
+}
+
+.conflict-link {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.conflict-link:hover {
+  text-decoration: underline;
+}
+
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.status-badge--pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.status-badge--resolved {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.warning-flag {
+  margin-left: 0.5rem;
+  color: #fd7e14;
+  font-size: 1rem;
+}
+
+.person-info {
+  max-width: 200px;
+}
+
+.person-name {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.25rem;
+}
+
+.person-details {
+  font-size: 0.875rem;
+  color: #6c757d;
+  line-height: 1.2;
+}
+
+.person-missing {
+  color: #dc3545;
+  font-style: italic;
+}
+
+.shared-email {
+  font-family: monospace;
+  font-size: 0.875rem;
+  background: #f8f9fa;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.priority-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.priority-badge--high {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.priority-badge--normal {
+  background-color: #e2e3e5;
+  color: #495057;
+}
+
+.created-date {
+  font-size: 0.875rem;
+  color: #6c757d;
+  white-space: nowrap;
+}
+
+.actions {
+  white-space: nowrap;
+}
+
+.btn--sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  margin-right: 0.25rem;
+  text-decoration: none;
+  border-radius: 4px;
+  display: inline-block;
+  cursor: pointer;
+  border: 1px solid;
+}
+
+.btn--secondary {
+  background-color: #6c757d;
+  color: white;
+  border-color: #6c757d;
+}
+
+.btn--secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+  color: white;
+  text-decoration: none;
+}
+
+.btn--primary {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.btn--primary:hover {
+  background-color: #0056b3;
+  border-color: #004085;
+  color: white;
+  text-decoration: none;
+}
+
+.btn--tertiary {
+  background-color: #6c757d;
+  color: white;
+  border: 1px solid #6c757d;
+  text-decoration: none;
+  border-radius: 4px;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.btn--tertiary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+  color: white;
+  text-decoration: none;
+}
+
+.btn--danger {
+  background-color: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+.btn--danger:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+  color: white;
+  text-decoration: none;
+}
+
+.text-muted {
+  color: #6c757d !important;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.no-conflicts {
+  text-align: center;
+  padding: 3rem;
+  color: #6c757d;
+}
+
+.no-conflicts h3 {
+  color: #28a745;
+  margin-bottom: 1rem;
+}
+
+.search-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.search-input {
+  padding: 0.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  min-width: 200px;
+}
+
+.filter-select {
+  padding: 0.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background-color: white;
+  min-width: 180px;
+  font-weight: 500;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.pagination-wrapper {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+@media (max-width: 1200px) {
+  .conflicts-table-container {
+    overflow-x: auto;
+  }
+  
+  .conflicts-table {
+    min-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  .summary-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .conflicts-table th,
+  .conflicts-table td {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.875rem;
+  }
+  
+  .person-info {
+    max-width: 150px;
+  }
+  
+  .search-form {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .search-input {
+    width: 100%;
+  }
+}
+</style>

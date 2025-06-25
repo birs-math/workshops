@@ -10,6 +10,8 @@ class ConfirmEmailChangeDashboard < Administrate::BaseDashboard
   ATTRIBUTE_TYPES = {
     people: Field::HasMany,
     id: Field::Number,
+    replace_person: Field::BelongsTo.with_options(class_name: "Person"),
+    replace_with: Field::BelongsTo.with_options(class_name: "Person"),
     replace_person_id: Field::Number,
     replace_with_id: Field::Number,
     replace_email: Field::String,
@@ -17,6 +19,11 @@ class ConfirmEmailChangeDashboard < Administrate::BaseDashboard
     replace_code: Field::String,
     replace_with_code: Field::String,
     confirmed: Field::Boolean,
+    priority: Field::String,
+    has_recent_invitations: Field::Boolean,
+    auto_merge_blocked_reason: Field::Text,
+    reviewed_by: Field::String,
+    reviewed_at: Field::DateTime,
     created_at: Field::DateTime,
     updated_at: Field::DateTime,
   }.freeze
@@ -27,24 +34,29 @@ class ConfirmEmailChangeDashboard < Administrate::BaseDashboard
   # By default, it's limited to four items to reduce clutter on index pages.
   # Feel free to add, remove, or rearrange items.
   COLLECTION_ATTRIBUTES = [
-    :people,
     :id,
-    :replace_person_id,
-    :replace_with_id,
+    :replace_person,
+    :replace_with,
+    :priority,
+    :has_recent_invitations,
+    :confirmed,
+    :created_at,
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES
   # an array of attributes that will be displayed on the model's show page.
   SHOW_PAGE_ATTRIBUTES = [
-    :people,
     :id,
-    :replace_person_id,
-    :replace_with_id,
+    :replace_person,
+    :replace_with,
     :replace_email,
     :replace_with_email,
-    :replace_code,
-    :replace_with_code,
+    :priority,
+    :has_recent_invitations,
+    :auto_merge_blocked_reason,
     :confirmed,
+    :reviewed_by,
+    :reviewed_at,
     :created_at,
     :updated_at,
   ].freeze
@@ -66,7 +78,11 @@ class ConfirmEmailChangeDashboard < Administrate::BaseDashboard
   # Overwrite this method to customize how confirm email changes are displayed
   # across all pages of the admin dashboard.
   #
-  # def display_resource(confirm_email_change)
-  #   "ConfirmEmailChange ##{confirm_email_change.id}"
-  # end
+  def display_resource(confirm_email_change)
+    person1_name = confirm_email_change.replace_person&.name || "Person #{confirm_email_change.replace_person_id}"
+    person2_name = confirm_email_change.replace_with&.name || "Person #{confirm_email_change.replace_with_id}"
+    status = confirm_email_change.confirmed? ? "[RESOLVED]" : "[PENDING]"
+    priority_flag = confirm_email_change.priority == 'high' ? "🔴" : ""
+    "#{priority_flag}#{status} #{person1_name} ↔ #{person2_name}"
+  end
 end
