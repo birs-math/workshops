@@ -17,8 +17,6 @@
   </h1>
   
   <div class="main__actions">
-    <%= link_to "Compare Details", compare_admin_confirm_email_change_path(@resource), 
-        class: "btn btn--primary" %>
     <%= link_to "Back to List", admin_confirm_email_changes_path, 
         class: "btn btn--secondary" %>
   </div>
@@ -51,7 +49,9 @@
     <div class="comparison-grid">
       <div class="person-card <%= @recommendation && @recommendation[:keep] == @comparison[:person1][:record] ? 'person-card--recommended' : '' %>">
         <div class="person-card__header">
-          <h3>Person 1: <%= @comparison[:person1][:record].name %></h3>
+          <h3>Person 1: <%= @comparison[:person1][:record].name %> 
+            <span class="person-id-badge">ID: <%= @comparison[:person1][:record].id %></span>
+          </h3>
           <div class="person-card__meta">
             <span class="data-score">Score: <%= @comparison[:person1][:data_score] %></span>
             <span class="completeness">Complete: <%= @comparison[:person1][:completeness] %>%</span>
@@ -98,7 +98,9 @@
 
       <div class="person-card <%= @recommendation && @recommendation[:keep] == @comparison[:person2][:record] ? 'person-card--recommended' : '' %>">
         <div class="person-card__header">
-          <h3>Person 2: <%= @comparison[:person2][:record].name %></h3>
+          <h3>Person 2: <%= @comparison[:person2][:record].name %> 
+            <span class="person-id-badge">ID: <%= @comparison[:person2][:record].id %></span>
+          </h3>
           <div class="person-card__meta">
             <span class="data-score">Score: <%= @comparison[:person2][:data_score] %></span>
             <span class="completeness">Complete: <%= @comparison[:person2][:completeness] %>%</span>
@@ -149,14 +151,14 @@
         <%= form_with url: merge_admin_confirm_email_change_path(@resource), method: :patch, 
             local: true, class: "action-form", 
             data: { confirm: "Are you sure you want to merge #{@recommendation[:replace].name} into #{@recommendation[:keep].name}? This cannot be undone." } do |f| %>
-          <%= f.submit "✓ Merge (Keep #{@recommendation[:keep].name})", 
+          <%= f.submit "✓ Keep Person #{@recommendation[:keep] == @comparison[:person1][:record] ? '1' : '2'} (ID: #{@recommendation[:keep].id})", 
               class: "btn btn--success btn--large" %>
         <% end %>
 
         <%= form_with url: merge_opposite_admin_confirm_email_change_path(@resource), method: :patch, 
             local: true, class: "action-form",
             data: { confirm: "Are you sure you want to merge #{@recommendation[:keep].name} into #{@recommendation[:replace].name}? This goes against the recommendation." } do |f| %>
-          <%= f.submit "↔ Merge Opposite (Keep #{@recommendation[:replace].name})", 
+          <%= f.submit "↔ Keep Person #{@recommendation[:replace] == @comparison[:person1][:record] ? '1' : '2'} (ID: #{@recommendation[:replace].id})", 
               class: "btn btn--warning btn--large" %>
         <% end %>
 
@@ -250,6 +252,16 @@
   border-bottom: 1px solid #dee2e6;
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
+}
+
+.person-id-badge {
+  background: #007bff;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-left: 0.5rem;
 }
 
 .person-card__meta {
