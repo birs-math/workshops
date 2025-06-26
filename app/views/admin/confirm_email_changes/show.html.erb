@@ -34,13 +34,13 @@
       <h2>Person Comparison</h2>
       <% if @recommendation %>
         <div class="recommendation-box recommendation--<%= @recommendation[:confidence] %>">
-          <h3>System Recommendation: 
+          <h3>System Recommendation: Keep Person 1
             <span class="confidence confidence--<%= @recommendation[:confidence] %>">
               <%= @recommendation[:confidence].to_s.titleize %> Confidence
             </span>
           </h3>
-          <p><strong>Keep:</strong> <%= @recommendation[:keep].name %> (ID: <%= @recommendation[:keep].id %>)</p>
-          <p><strong>Replace:</strong> <%= @recommendation[:replace].name %> (ID: <%= @recommendation[:replace].id %>)</p>
+          <p><strong>Person 1 (Recommended):</strong> <%= @comparison[:person1][:record].name %> (ID: <%= @comparison[:person1][:record].id %>) - Score: <%= @comparison[:person1][:data_score] %></p>
+          <p><strong>Person 2 (Alternative):</strong> <%= @comparison[:person2][:record].name %> (ID: <%= @comparison[:person2][:record].id %>) - Score: <%= @comparison[:person2][:data_score] %></p>
           <p><strong>Reason:</strong> <%= @recommendation[:reason] %></p>
         </div>
       <% end %>
@@ -55,6 +55,9 @@
           <div class="person-card__meta">
             <span class="data-score">Score: <%= @comparison[:person1][:data_score] %></span>
             <span class="completeness">Complete: <%= @comparison[:person1][:completeness] %>%</span>
+            <% if @comparison[:person1][:is_recommended] %>
+              <span class="recommendation-indicator">✓ Recommended</span>
+            <% end %>
             <%= link_to "Edit Person", edit_admin_person_path(@comparison[:person1][:record]), 
                 class: "btn btn--sm btn--tertiary", target: "_blank", 
                 title: "Edit this person's details in a new tab" %>
@@ -104,6 +107,9 @@
           <div class="person-card__meta">
             <span class="data-score">Score: <%= @comparison[:person2][:data_score] %></span>
             <span class="completeness">Complete: <%= @comparison[:person2][:completeness] %>%</span>
+            <% if @comparison[:person2][:is_recommended] %>
+              <span class="recommendation-indicator">✓ Recommended</span>
+            <% end %>
             <%= link_to "Edit Person", edit_admin_person_path(@comparison[:person2][:record]), 
                 class: "btn btn--sm btn--tertiary", target: "_blank", 
                 title: "Edit this person's details in a new tab" %>
@@ -150,15 +156,15 @@
       <% unless @resource.confirmed? %>
         <%= form_with url: merge_admin_confirm_email_change_path(@resource), method: :patch, 
             local: true, class: "action-form", 
-            data: { confirm: "Are you sure you want to merge #{@recommendation[:replace].name} into #{@recommendation[:keep].name}? This cannot be undone." } do |f| %>
-          <%= f.submit "✓ Keep Person #{@recommendation[:keep] == @comparison[:person1][:record] ? '1' : '2'} (ID: #{@recommendation[:keep].id})", 
+            data: { confirm: "Keep Person 1 (#{@comparison[:person1][:record].name}, ID: #{@comparison[:person1][:record].id})? Person 2 data will be merged in. This cannot be undone." } do |f| %>
+          <%= f.submit "✓ Keep Person 1 (ID: #{@comparison[:person1][:record].id}) - Recommended", 
               class: "btn btn--success btn--large" %>
         <% end %>
 
         <%= form_with url: merge_opposite_admin_confirm_email_change_path(@resource), method: :patch, 
             local: true, class: "action-form",
-            data: { confirm: "Are you sure you want to merge #{@recommendation[:keep].name} into #{@recommendation[:replace].name}? This goes against the recommendation." } do |f| %>
-          <%= f.submit "↔ Keep Person #{@recommendation[:replace] == @comparison[:person1][:record] ? '1' : '2'} (ID: #{@recommendation[:replace].id})", 
+            data: { confirm: "Keep Person 2 (#{@comparison[:person2][:record].name}, ID: #{@comparison[:person2][:record].id})? This overrides the recommendation. Person 1 data will be merged in. This cannot be undone." } do |f| %>
+          <%= f.submit "Keep Person 2 (ID: #{@comparison[:person2][:record].id}) - Override", 
               class: "btn btn--warning btn--large" %>
         <% end %>
 
@@ -256,6 +262,16 @@
 
 .person-id-badge {
   background: #007bff;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-left: 0.5rem;
+}
+
+.recommendation-indicator {
+  background: #28a745;
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;

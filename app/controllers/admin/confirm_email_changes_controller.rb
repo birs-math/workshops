@@ -65,17 +65,20 @@ module Admin
       render 'show' # Use the same view for now
     end
     
-    # Action to merge persons (keep recommended)
+    # Action to merge persons (keep Person 1 - recommended)
     def merge
       @comparison = prepare_comparison
-      target_person = @comparison[:recommendation][:keep]
-      source_person = @comparison[:recommendation][:replace]
+      return if @comparison.nil?
+      
+      # Person 1 = recommended (target), Person 2 = alternative (source)
+      target_person = @comparison[:person1][:record]  # Keep this one
+      source_person = @comparison[:person2][:record]  # Merge this one into target
       
       begin
         result = merge_persons(target_person, source_person)
         if result[:success]
           redirect_to admin_confirm_email_changes_path, 
-                     notice: "Successfully merged #{source_person.name} into #{target_person.name}. #{result[:details]}"
+                     notice: "Successfully kept Person 1 (#{target_person.name}, ID: #{target_person.id}). Merged Person 2 data. #{result[:details]}"
         else
           redirect_to admin_confirm_email_change_path(@conflict),
                      alert: "Merge failed: #{result[:error]}"
@@ -86,17 +89,20 @@ module Admin
       end
     end
     
-    # Action to merge persons (keep opposite of recommendation)
+    # Action to merge persons (keep Person 2 - override recommendation)
     def merge_opposite
       @comparison = prepare_comparison
-      target_person = @comparison[:recommendation][:replace]
-      source_person = @comparison[:recommendation][:keep]
+      return if @comparison.nil?
+      
+      # Person 2 = alternative (target), Person 1 = recommended (source)
+      target_person = @comparison[:person2][:record]  # Keep this one (override)
+      source_person = @comparison[:person1][:record]  # Merge this one into target
       
       begin
         result = merge_persons(target_person, source_person)
         if result[:success]
           redirect_to admin_confirm_email_changes_path,
-                     notice: "Successfully merged #{source_person.name} into #{target_person.name}. #{result[:details]}"
+                     notice: "Successfully kept Person 2 (#{target_person.name}, ID: #{target_person.id}). Merged Person 1 data (override). #{result[:details]}"
         else
           redirect_to admin_confirm_email_change_path(@conflict),
                      alert: "Merge failed: #{result[:error]}"
@@ -172,54 +178,61 @@ module Admin
     end
     
     def prepare_comparison
-      person1 = Person.find_by(id: @conflict.replace_person_id)
-      person2 = Person.find_by(id: @conflict.replace_with_id)
+      replace_person = Person.find_by(id: @conflict.replace_person_id)
+      replace_with = Person.find_by(id: @conflict.replace_with_id)
       
       # Handle missing persons
-      if person1.nil? || person2.nil?
+      if replace_person.nil? || replace_with.nil?
         missing_ids = []
-        missing_ids << @conflict.replace_person_id if person1.nil?
-        missing_ids << @conflict.replace_with_id if person2.nil?
+        missing_ids << @conflict.replace_person_id if replace_person.nil?
+        missing_ids << @conflict.replace_with_id if replace_with.nil?
         
         redirect_to admin_confirm_email_changes_path, 
                    alert: "Cannot compare: Person(s) with ID(s) #{missing_ids.join(', ')} no longer exist. Consider deleting this conflict record."
         return nil
       end
       
-      comparison_service = ComparePersons.new(person1, person2)
+      comparison_service = ComparePersons.new(replace_person, replace_with)
       better_record = comparison_service.better_record
+      worse_record = better_record == replace_person ? replace_with : replace_person
+      
+      # LOGICAL POSITIONING: Person 1 = Recommended (better), Person 2 = Alternative (worse)
+      recommended_person = better_record
+      alternative_person = worse_record
       
       {
-        person1: {
-          record: person1,
-          data_score: comparison_service.data_score(person1),
-          membership_count: person1.memberships.count,
-          lecture_count: person1.lectures.count,
-          has_user_account: !person1.user.nil?,
-          last_activity: person1.updated_at,
-          completeness: calculate_completeness(person1)
-        },
-        person2: {
-          record: person2,
-          data_score: comparison_service.data_score(person2),
-          membership_count: person2.memberships.count,
-          lecture_count: person2.lectures.count,
-          has_user_account: !person2.user.nil?,
-          last_activity: person2.updated_at,
-          completeness: calculate_completeness(person2)
-        },
+        person1: build_person_data(recommended_person, comparison_service, true),
+        person2: build_person_data(alternative_person, comparison_service, false),
         recommendation: {
-          keep: better_record,
-          replace: better_record == person1 ? person2 : person1,
-          reason: recommendation_reason(comparison_service, person1, person2),
-          confidence: calculate_confidence(comparison_service, person1, person2)
+          keep: recommended_person,
+          replace: alternative_person,
+          reason: recommendation_reason(comparison_service, replace_person, replace_with),
+          confidence: calculate_confidence(comparison_service, replace_person, replace_with)
         },
         conflict_info: {
           created_at: @conflict.created_at,
           priority: @conflict.priority,
           has_recent_invitations: @conflict.has_recent_invitations,
           blocked_reason: @conflict.auto_merge_blocked_reason
+        },
+        # Track original conflict mapping for merge operations
+        original_mapping: {
+          replace_person: replace_person,
+          replace_with: replace_with
         }
+      }
+    end
+    
+    def build_person_data(person, comparison_service, is_recommended = false)
+      {
+        record: person,
+        data_score: comparison_service.data_score(person),
+        membership_count: person.memberships.count,
+        lecture_count: person.lectures.count,
+        has_user_account: !person.user.nil?,
+        last_activity: person.updated_at,
+        completeness: calculate_completeness(person),
+        is_recommended: is_recommended
       }
     end
     
