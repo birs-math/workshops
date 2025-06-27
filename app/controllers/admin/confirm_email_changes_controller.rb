@@ -178,8 +178,8 @@ module Admin
     end
     
     def prepare_comparison
-      replace_person = Person.find_by(id: @conflict.replace_person_id)
-      replace_with = Person.find_by(id: @conflict.replace_with_id)
+      replace_person = Person.with_deleted.find_by(id: @conflict.replace_person_id)
+      replace_with = Person.with_deleted.find_by(id: @conflict.replace_with_id)
       
       # Handle missing persons
       if replace_person.nil? || replace_with.nil?
@@ -348,10 +348,11 @@ module Admin
           ) if source_person.user.respond_to?(:deleted_at)
         end
         
-        # Soft delete source person
-        if source_person.respond_to?(:deleted_at)
-          source_person.update!(deleted_at: Time.current)
-        end
+        # Soft delete source person with proper audit trail
+        source_person.soft_delete!(
+          user: current_user,
+          reason: "Merged into #{target_person.name} (ID: #{target_person.id})"
+        )
         
         # Mark conflict as resolved
         @conflict.update!(

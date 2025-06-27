@@ -83,6 +83,12 @@
                 <% if conflict.has_recent_invitations? %>
                   <span class="warning-flag" title="Has recent invitations">⚠</span>
                 <% end %>
+                
+                <% if conflict.conflict_group_size > 1 %>
+                  <span class="multi-conflict-badge" title="Part of <%= conflict.conflict_group_size %>-person conflict group">
+                    🔗 <%= conflict.conflict_group_size %>
+                  </span>
+                <% end %>
               </td>
               
               <td class="person-info">
@@ -127,14 +133,8 @@
               
               <td class="actions">
                 <% if conflict.replace_person && conflict.replace_with %>
-                  <%= link_to "View", admin_confirm_email_change_path(conflict), 
-                      class: "btn btn--sm btn--secondary" %>
                   <%= link_to "Compare", compare_admin_confirm_email_change_path(conflict), 
                       class: "btn btn--sm btn--primary" %>
-                  <% unless conflict.confirmed? %>
-                    <%= link_to "Edit", edit_admin_confirm_email_change_path(conflict), 
-                        class: "btn btn--sm btn--tertiary" %>
-                  <% end %>
                 <% else %>
                   <span class="text-muted">Missing person data</span>
                   <%= link_to "Delete", admin_confirm_email_change_path(conflict), 
@@ -302,6 +302,16 @@
   margin-left: 0.5rem;
   color: #fd7e14;
   font-size: 1rem;
+}
+
+.multi-conflict-badge {
+  margin-left: 0.5rem;
+  background-color: #6f42c1;
+  color: white;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: bold;
 }
 
 .person-info {

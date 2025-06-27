@@ -62,8 +62,17 @@ module Syncable
   end
 
   def get_local_person(remote_person)
-    Person.find_by(legacy_id: remote_person['legacy_id'].to_i) ||
-      Person.find_by(email: remote_person['email'].downcase.strip)
+    # Check both active AND deleted persons to prevent recreation
+    person = Person.with_deleted.find_by(legacy_id: remote_person['legacy_id'].to_i) ||
+             Person.with_deleted.find_by(email: remote_person['email'].downcase.strip)
+    
+    # If person is deleted, log and return nil (skip sync)
+    if person&.deleted?
+      Rails.logger.info "⏭️  Skipping sync for deleted person: #{person.name} (ID: #{person.id}, deleted: #{person.deleted_at})"
+      return nil
+    end
+    
+    person
   end
 
   def find_and_update_person(remote_person)

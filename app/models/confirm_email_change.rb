@@ -65,4 +65,18 @@ class ConfirmEmailChange < ApplicationRecord
   def send_email
     ConfirmEmailReplacementJob.perform_later(self.id)
   end
+
+  def related_conflicts
+    # Find all conflicts involving the same email addresses
+    email_addresses = [replace_email, replace_with_email].compact.uniq
+    
+    ConfirmEmailChange.where(
+      "(replace_email IN (?) OR replace_with_email IN (?)) AND id != ?",
+      email_addresses, email_addresses, id
+    ).where(confirmed: false)
+  end
+
+  def conflict_group_size
+    related_conflicts.count + 1
+  end
 end

@@ -10,8 +10,12 @@ class Person < ApplicationRecord
   # app/models/concerns/person_decorators.rb
   include PersonDecorators
   include SharedDecorators
+  include SoftDeletable
 
   include UserEmailUtils
+
+  # Default scope to exclude soft-deleted records
+  default_scope { not_deleted }
 
   attr_accessor :is_rsvp, :is_online_rsvp, :member_import, :is_organizer_rsvp, :region_required
 

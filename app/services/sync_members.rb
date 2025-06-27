@@ -54,6 +54,13 @@ class SyncMembers
     fixed_remote_members = []
     remote_members.each do |rm|
       remote_member = fix_remote_fields(rm)
+      
+      # Skip if this person is deleted to prevent recreation
+      if should_skip_deleted_person?(remote_member)
+        Rails.logger.info "⏭️  Skipping membership sync for deleted person"
+        next
+      end
+      
       fixed_remote_members << remote_member
       local_member = find_local_membership(remote_member)
 
@@ -65,6 +72,21 @@ class SyncMembers
     end
     @remote_members = fixed_remote_members
     prune_members
+  end
+
+  def should_skip_deleted_person?(remote_member)
+    return false if remote_member['Person'].blank?
+    
+    remote_person = remote_member['Person']
+    local_person = Person.with_deleted.find_by(legacy_id: remote_person['legacy_id'].to_i) ||
+                   Person.with_deleted.find_by(email: remote_person['email'].downcase.strip)
+    
+    if local_person&.deleted?
+      Rails.logger.info "⏭️  Skipping deleted person: #{local_person.name} (ID: #{local_person.id})"
+      return true
+    end
+    
+    false
   end
 
   def update_records(local_member, remote_member)
@@ -82,6 +104,13 @@ class SyncMembers
 
     Event.find(@event.id).memberships.includes(:person).each do |m|
       m.sync_memberships = true
+      
+      # Don't destroy memberships of deleted persons - they're already handled
+      if m.person.deleted?
+        Rails.logger.info "⏭️  Preserving membership for deleted person: #{m.person.name} (ID: #{m.person.id})"
+        next
+      end
+      
       m.destroy unless remote_ids.include?(m.person.legacy_id) ||
         remote_emails.include?(m.person.email)
     end
