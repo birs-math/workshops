@@ -240,7 +240,7 @@ class MembershipPolicy
   end
 
   def confirmed_or_invited_member
-    %w(Confirmed Undecided Invited).include?(@membership.attendance)
+    @current_user.is_member?(@event)
   end
 
   def self_organizer_staff
