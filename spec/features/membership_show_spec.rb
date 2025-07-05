@@ -47,6 +47,17 @@ describe 'Membership#show', type: :feature do
                                   text: member.person.biography)
   end
 
+  def hides_basic_info(member)
+    expect(page.body).not_to have_css('h2#profile-name', text: member.person.name)
+    expect(page.body).not_to have_css('div#profile-affil',
+                                  text: member.person.affil_with_title)
+    expect(page.body).not_to have_css('div#profile-url', text: member.person.uri)
+    expect(page.body).not_to have_css('div#profile-research',
+                                  text: member.person.research_areas)
+    expect(page.body).not_to have_css('div#profile-bio',
+                                  text: member.person.biography)
+  end
+
   def hides_email(member)
     expect(page.body).not_to have_text(member.person.email)
   end
@@ -281,7 +292,7 @@ describe 'Membership#show', type: :feature do
     end
 
     it 'does not show basic personal info' do
-      denies_access(@participant)
+      hides_basic_info(@participant)
     end
 
     it 'excludes email' do
@@ -621,7 +632,7 @@ describe 'Membership#show', type: :feature do
     end
 
     it 'does not show basic personal info' do
-      denies_access(@participant)
+      hides_basic_info(@participant)
     end
 
     it 'excludes email' do
