@@ -280,8 +280,8 @@ describe 'Membership#show', type: :feature do
       visit event_membership_path(@event, @participant)
     end
 
-    it 'shows basic personal info' do
-      shows_basic_info(@participant)
+    it 'does not show basic personal info' do
+      denies_access(@participant)
     end
 
     it 'excludes email' do
@@ -325,10 +325,9 @@ describe 'Membership#show', type: :feature do
       access_denied(nonconfirmed)
     end
 
-    it 'shows other memberships' do
+    it "doesn't show other memberships" do
       visit event_membership_path(@event, @participant)
-      expect(page.body).to have_css('div#other-memberships')
-      expect(page.body).to have_text(@other_membership.event.name)
+      expect(page.body).not_to have_text(@other_membership.event.name)
     end
 
     it 'hides unconfirmed other memberships' do
@@ -621,8 +620,8 @@ describe 'Membership#show', type: :feature do
       visit event_membership_path(@event, @participant)
     end
 
-    it 'shows basic personal info' do
-      shows_basic_info(@participant)
+    it 'does not show basic personal info' do
+      denies_access(@participant)
     end
 
     it 'excludes email' do
@@ -666,10 +665,9 @@ describe 'Membership#show', type: :feature do
       access_denied(nonconfirmed)
     end
 
-    it 'shows other memberships' do
+    it "doesn't show other memberships" do
       visit event_membership_path(@event, @participant)
-      expect(page.body).to have_css('div#other-memberships')
-      expect(page.body).to have_text(@other_membership.event.name)
+      expect(page.body).not_to have_text(@other_membership.event.name)
     end
 
     it 'hides unconfirmed other memberships' do
