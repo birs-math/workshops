@@ -92,7 +92,7 @@ class EventPolicy
   def view_attendance_status?(status)
     return true if organizers_and_staff_readonly
 
-    ['Confirmed'].include?(status) if current_user
+    status == 'Confirmed' && current_user.is_member?(event)
   end
 
   def show_email_buttons?(status)

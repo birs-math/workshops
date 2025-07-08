@@ -120,8 +120,8 @@ describe 'Event Membership Page', type: :feature do
       expect(page.body).not_to have_link('Invite Members')
     end
 
-    it "has links to Confirmed participants' profiles" do
-      links_to_confirmed_member_profiles
+    it "does not list any members" do
+      does_not_list_members
     end
   end
 
@@ -170,8 +170,8 @@ describe 'Event Membership Page', type: :feature do
         hides_all_maillist_links
       end
 
-      it "has links to Confirmed participants' profiles" do
-        links_to_confirmed_member_profiles
+      it "does not list any members" do
+        does_not_list_members
       end
     end
   end
@@ -279,8 +279,8 @@ describe 'Event Membership Page', type: :feature do
         expect(page.body).not_to have_link('Invite Members')
       end
 
-      it "has links to Confirmed participants' profiles" do
-        links_to_confirmed_member_profiles
+      it "does not list any members" do
+        does_not_list_members
       end
     end
   end
