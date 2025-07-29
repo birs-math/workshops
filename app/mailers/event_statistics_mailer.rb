@@ -7,6 +7,11 @@ class EventStatisticsMailer < ApplicationMailer
     @confirmed_count = Membership.in_person.confirmed.where(event: @event).count
     @invited_count = Membership.in_person.invited.where(event: @event).count
     @undecided_count = Membership.in_person.undecided.where(event: @event).count
+    
+    # Don't send annoying emails when there's no membership activity yet
+    total_members = @confirmed_count + @invited_count + @undecided_count
+    return if total_members.zero?
+    
     @physical_spots = @event.max_participants - @confirmed_count - @invited_count - @undecided_count
 
     return if @physical_spots.zero?
@@ -27,8 +32,13 @@ class EventStatisticsMailer < ApplicationMailer
 
     cc = GetSetting.email(@event.location, 'event_statistics_cc')
 
+    if Rails.env.development? || ENV['APPLICATION_HOST'].include?('staging')
+      recipients = [GetSetting.site_email('webmaster_email')]
+      cc = ''
+    end
+
     subject = I18n.t('email.event_statistics.subject', location: @event.location, event_code: @event.code)
 
-    mail(to: recipients, cc: cc, subject: subject)
+    mail(to: recipients, cc: cc, subject: subject, from: 'birs@birs.ca')
   end
 end
