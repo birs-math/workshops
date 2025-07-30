@@ -1,4 +1,4 @@
-# Copyright (c) 2020 Banff International Research Station.
+# Copyright (c) 2025 Banff International Research Station.
 # This file is part of Workshops. Workshops is licensed under
 # the GNU Affero General Public License as published by the
 # Free Software Foundation, version 3 of the License.
@@ -6,7 +6,7 @@
 
 module SharedDecorators
   extend ActiveSupport::Concern
-
+  
   def is_usa?(country)
     return if country.blank?
     c = country.downcase

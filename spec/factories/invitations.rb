@@ -1,12 +1,21 @@
-require 'factory_bot_rails'
-
+# spec/factories/invitations.rb
 FactoryBot.define do
   factory :invitation do
-    association :membership, factory: :membership
-    invited_by { 'FactoryBot' }
+    association :membership
+    invited_by { association :person }
     code { SecureRandom.urlsafe_base64(37) }
-    expires { 1.day.from_now }
-    invited_on { Date.today }
-    used_on { nil }
+    
+    # Add default values for required relationships
+    before(:create) do |invitation|
+      # Ensure membership and event exist
+      if invitation.membership.nil?
+        invitation.membership = create(:membership)
+      end
+      
+      # Ensure invited_by is a Person object
+      if invitation.invited_by.nil? || !invitation.invited_by.is_a?(Person)
+        invitation.invited_by = create(:person)
+      end
+    end
   end
 end

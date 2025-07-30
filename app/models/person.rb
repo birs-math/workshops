@@ -1,6 +1,4 @@
-# app/models/person.rb
-#
-# Copyright (c) 2018 Banff International Research Station.
+# Copyright (c) 2025 Banff International Research Station.
 # This file is part of Workshops. Workshops is licensed under
 # the GNU Affero General Public License as published by the
 # Free Software Foundation, version 3 of the License.
@@ -10,7 +8,6 @@ class Person < ApplicationRecord
   # app/models/concerns/person_decorators.rb
   include PersonDecorators
   include SharedDecorators
-
   include UserEmailUtils
 
   attr_accessor :is_rsvp, :is_online_rsvp, :member_import, :is_organizer_rsvp, :region_required
@@ -27,11 +24,11 @@ class Person < ApplicationRecord
 
   before_validation :downcase_email
   before_save :clean_data, :set_usa, :grants_to_array
+
   serialize :grants
 
   validates :email, presence: true,
-                    case_sensitive: false,
-                    uniqueness: true,
+                    uniqueness: { case_sensitive: false },
                     email: true
   validates :firstname, :lastname, :updated_by, presence: true
   validates :gender, :country, presence: true, if: :is_rsvp

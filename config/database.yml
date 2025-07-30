@@ -7,15 +7,21 @@ default: &default
   port: 5432
   username: <%= ENV['DB_USER'] %>
   password: <%= ENV['DB_PASS'] %>
-
 production:
   <<: *default
   database: workshops_production
-
 development:
   <<: *default
   database: workshops_development
-
 test:
   <<: *default
   database: workshops_test
+  # Skip dropping the database which requires ownership
+  maintenance_work_mem: 128MB
+  template: template0
+  schema_search_path: public
+  # Important options to avoid requiring database ownership
+  prepared_statements: false
+  # These are critical for the permission issue
+  skip_drop: true
+  clean_strategy: truncation

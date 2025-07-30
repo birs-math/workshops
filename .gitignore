@@ -6,6 +6,7 @@
 
 # Ignore bundler config.
 /.bundle
+vendor/bundle/
 
 # Ignore the default SQLite database.
 /db/*.sqlite3
@@ -17,6 +18,7 @@
 !/log/.keep
 /tmp
 vendor/cache/
+workshops_staging.dump
 
 # private configuration settings
 config/local_env.yml
@@ -40,6 +42,8 @@ app/views/invitation_mailer/EO/
 app/views/invitation_mailer/IASM/
 app/views/invitation_mailer/IMAG/
 app/views/invitation_mailer/UBCO/
+app/views/invitation_mailer/CMI/
+app/views/participant_mailer/rsvp/CMI/
 lib/assets
 
 # Deployment files

@@ -1,4 +1,4 @@
-# Copyright (c) 2016 Banff International Research Station
+# Copyright (c) 2025 Banff International Research Station
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -51,7 +51,16 @@ class StaffMailer < ApplicationMailer
                 "[#{event.code}] (#{event.location}) error"
               end
 
-    @message = error.pretty_inspect
+    # Convert error to string safely depending on its type
+    @message = case error
+               when String
+                 error
+               when Hash, Array
+                 error.to_json
+               else
+                 error.to_s
+               end
+    
     mail(to: to_email, subject: subject, template_name: 'notify_sysadmin')
   end
 

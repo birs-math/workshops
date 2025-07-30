@@ -1,4 +1,4 @@
-# Copyright (c) 2016 Banff International Research Station.
+# Copyright (c) 2025 Banff International Research Station.
 # This file is part of Workshops. Workshops is licensed under
 # the GNU Affero General Public License as published by the
 # Free Software Foundation, version 3 of the License.
@@ -115,20 +115,36 @@ module MembershipsHelper
 
   def rsvp_by(event, invited_on, membership = nil)
     rsvp_by = RsvpDeadline.new(event, invited_on, membership).rsvp_by
+    return nil if rsvp_by.nil?
     DateTime.parse(rsvp_by).strftime('%b. %e, %Y')
+  rescue
+    nil
   end
 
   def parse_reminders(member)
-    text = '<ul>'
-    member.invite_reminders.each do |k,v|
-      text << "<li><b>On #{k.strftime('%Y-%m-%d %H:%M %Z')}</b><br>by #{v}.</li>"
+    return '' if member.invite_reminders.blank?
+    
+    if member.invite_reminders.is_a?(Hash)
+      text = '<ul>'
+      
+      member.invite_reminders.each do |k,v|
+        # Convert string timestamp to Time object if it's a string
+        timestamp = k.is_a?(String) ? Time.zone.parse(k) : k
+        
+        # Format the timestamp
+        formatted_time = timestamp.strftime('%Y-%m-%d %H:%M %Z') rescue k
+        
+        text << "<li><b>On #{formatted_time}</b><br>by #{v}.</li>"
+      end
+      text << '</ul>'
     end
-    text << '</ul>'
   end
 
   def last_invited(member, tz)
     unless member.invite_reminders.blank?
-      return member.invite_reminders.keys.last.in_time_zone(tz)
+      reminder_key = member.invite_reminders.keys.last
+      timestamp = reminder_key.is_a?(String) ? Time.zone.parse(reminder_key) : reminder_key
+      return timestamp.in_time_zone(tz)
     end
     if member.invited_on.blank?
       DateTime.current.in_time_zone(tz)
@@ -139,11 +155,17 @@ module MembershipsHelper
 
   def show_reply_by_date(member)
     invited_on = last_invited(member, member.event.time_zone)
-    if member.invited_on.blank? or !member.invitation.present?
-      DateTime.parse(rsvp_by(member.event, invited_on, member)).strftime('%Y-%m-%d')
-    else
+    if member.invited_on.blank? || !member.invitation.present?
+      rsvp_date = rsvp_by(member.event, invited_on, member)
+      return "No date set" if rsvp_date.nil?
+      DateTime.parse(rsvp_date).strftime('%Y-%m-%d')
+    elsif member.invitation.expires.present?
       member.invitation.expires.strftime('%Y-%m-%d')
+    else
+      "No date set"
     end
+  rescue
+    "No date set"
   end
 
   def show_invited_on_date(member, no_td = false)
@@ -153,12 +175,14 @@ module MembershipsHelper
       column << '(not set)'
     else
       invited_on = member.invited_on.in_time_zone(member.event.time_zone)
+      rsvp_date = rsvp_by(member.event, invited_on, member)
+      rsvp_info = rsvp_date.present? ? "<br><b>Reply-by date:</b> #{rsvp_date}" : "<br><b>Reply-by date:</b> not set"
+      
       column << '<a class="invitation-dates" tabindex="0" title="Invitation Sent"
         role="button" data-toggle="popover" data-placement="top" data-html="true"
         data-target="#invitations-' + member.id.to_s + '"
         data-trigger="hover focus" data-content="By ' +
-        format_invited_by(member) + '<br><b>Reply-by date:</b> ' +
-        rsvp_by(member.event, invited_on, member) +
+        format_invited_by(member) + rsvp_info +
         '" >'+ member.invited_on.strftime('%Y-%m-%d') +'</a>'
     end
     unless member.invite_reminders.blank?
@@ -177,12 +201,17 @@ module MembershipsHelper
     tz = member.event.time_zone
 
     if member.invite_reminders.blank?
+      return nil if member.invited_on.nil?
       rsvp_by_date = member.invited_on.in_time_zone(tz)
     else
-      rsvp_by_date = member.invite_reminders.keys.last.in_time_zone(tz)
+      reminder_key = member.invite_reminders.keys.last
+      timestamp = reminder_key.is_a?(String) ? Time.zone.parse(reminder_key) : reminder_key
+      rsvp_by_date = timestamp.in_time_zone(tz)
     end
 
     RsvpDeadline.new(member.event, rsvp_by_date).rsvp_by
+  rescue
+    nil
   end
 
   def reply_due?(member)
@@ -190,7 +219,11 @@ module MembershipsHelper
     return '' if member.invited_on.blank?
 
     rsvp_by = latest_request_date(member)
+    return '' if rsvp_by.nil?
+    
     return 'reply-due' if DateTime.current > DateTime.parse(rsvp_by)
+  rescue
+    ''
   end
 
   def old_add_email_buttons(status)

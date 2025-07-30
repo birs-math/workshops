@@ -1,94 +1,92 @@
-# Note: data containers are used here mainly for developing with
-# MacOS. Docker performance is too slow to run rails when the gems
-# and/or database is stored on host-mounted volumes.
-#
-# Create data volumes like this:
-# docker run -v /var/lib/postgresql/data --name pgdata postgres:11.2 echo 'Postgres data'
-# docker run -v /usr/local/rvm/gems -v /home/app/workshops/vendor/cache \
-#    --name rubygems "phusion/passenger-ruby26:1.0.10" echo 'Ruby gems'
-#
-# Be sure to update all of the example passwords and keys with secure ones!
-# Generate secure strings using:
-# < /dev/urandom LC_CTYPE=C tr -dc _A-Z-a-z-0-9 | head -c${1:-64};echo
-
-
-version: '3.8'
 services:
   db:
-    image: postgres:9.6.5
+    image: postgres:12.1-alpine
+    platform: linux/arm64
     container_name: wsdb
     volumes:
       - ./db/pg-init:/docker-entrypoint-initdb.d
-    volumes:
       - pgdata:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=zzzzzzzzzzzzzzzz
+      - POSTGRES_PASSWORD=postgres
       - PSQL_TRUST_LOCALNET=true
-      - DB_PORT=5433
       - DB_NAME=workshops_production,workshops_development,workshops_test
       - DB_USER=wsuser
-      - DB_PASS=yyyyyyyyyyyyyyy
-
-  web:
-    build: .
-    container_name: ws
-    command: /sbin/entrypoint.sh
+      - DB_PASS=wspass
     ports:
-      - '80:80'
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    platform: linux/arm64
+    container_name: workshops
+    ports:
+      - '8000:8000'
     volumes:
-      - ./:/home/app/workshops
-      - ./entrypoint.sh:/sbin/entrypoint.sh
-      - /Users/brent/rails/ssh-keys:/root/.ssh
+      - .:/home/app/workshops
       - rubygems:/usr/local/rvm/gems
-      - rubygems:/home/app/workshops/vendor/cache
-    links:
+      - node_modules:/home/app/workshops/node_modules
+    depends_on:
       - db
-    environment:
+    environment: &environment
       - DB_USER=wsuser
-      - DB_PASS=yyyyyyyyyyyyyyy
+      - DB_PASS=wspass
       - DB_HOST=db
       - RAILS_ENV=development
       - YARN_ENV=development
       - RAILS_SERVE_STATIC_FILES=true
-      - SECRET_KEY_BASE=xxxxxxxxxxx
-      - SECRET_TOKEN=xxxxxxxxxxx
-      - DEVISE_SECRET_KEY=xxxxxxxxxxx
-      - DEVISE_JWT_SECRET_KEY=xxxxxxxxxxx
-      - DEVISE_PEPPER=xxxxxxxxxxx
+      - SECRET_KEY_BASE=development_secret_key_base
+      - DEVISE_SECRET_KEY=development_devise_secret_key
+      - DEVISE_JWT_SECRET_KEY=development_devise_jwt_secret_key
+      - DEVISE_PEPPER=development_devise_pepper
       - DEVISE_EMAIL=webmaster@example.com
-      - LECTURES_API_KEY=xxxxxxxxxxx
-      - APPLICATION_HOST=localhost
+      - LECTURES_API_KEY=development_api_key
+      - EVENTS_API_KEY=development_api_key
+      - APPLICATION_HOST=localhost:8000
       - APPLICATION_PROTOCOL=http
-      - EMAIL_SERVER=mail.example.com
-      - EMAIL_PORT=587
-      - EMAIL_STARTTLS=true
-      - MAILGUN_API_KEY=xxxxxxxxxxx
-      - MAILGUN_EMAIL_DOMAIN=staging.example.com
-      - CORS_HOSTS="'https://locomotive.works', 'http://locomotive.works',
-        'https://www.example.com', 'http://www.example.com'"
-      - MAILHOG_HOST=xxxxxxxxxxx
-
+      - EMAIL_SERVER=mailhog
+      - EMAIL_PORT=1025
+      - EMAIL_STARTTLS=false
+      - MAILHOG_HOST=mailhog
+    restart: unless-stopped
   que:
-    build: .
-    container_name: que
+    build: 
+      context: .
+      dockerfile: Dockerfile.fix
+    platform: linux/arm64
+    container_name: workshops-que
     command: /sbin/entrypoint-que.sh
     volumes:
+      - .:/home/app/workshops
       - rubygems:/usr/local/rvm/gems
-      - rubygems:/home/app/workshops/vendor/cache
+      - node_modules:/home/app/workshops/node_modules
     environment: *environment
     depends_on:
+      - db
       - web
-    networks:
-      - workshops
-      - nginx-proxy
-
-# adding labels allows pruning of unused system volumes with:
-# docker volume prune --filter 'label!=workshops_volume'"
+    restart: unless-stopped
+  mailhog:
+    image: mailhog/mailhog:latest
+    platform: linux/amd64
+    container_name: workshops-mailhog
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    restart: unless-stopped
 volumes:
   pgdata:
     labels:
-      workshops_volume: ""
+      workshops_volume: "pgdata"
   rubygems:
     labels:
-      workshops_volume: ""
+      workshops_volume: "rubygems"
+  node_modules:
+    labels:
+      workshops_volume: "node_modules"
