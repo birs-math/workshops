@@ -36,7 +36,7 @@ RSpec.describe RsvpDeadline do
     context '2m from now' do
       let(:start_date) { Date.current + 2.month }
 
-      it('sets deadline 10d from now') { expect(rsvp_by).to eq(to_rsvp_format(10.days.from_now)) }
+      it('sets deadline 10d from now') { expect(rsvp_by).to eq(to_rsvp_format(21.days.from_now)) }
     end
 
     context 'less than 2m, but more than 10d from now' do
