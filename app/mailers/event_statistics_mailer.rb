@@ -26,19 +26,10 @@ class EventStatisticsMailer < ApplicationMailer
       recipients << to_email_address(organizer)
     end
 
-    @event.staff_at_location.each do |staff|
-      recipients << staff.to_email_address
-    end
-
     cc = GetSetting.email(@event.location, 'event_statistics_cc')
-
-    if Rails.env.development? || ENV['APPLICATION_HOST'].include?('staging')
-      recipients = [GetSetting.site_email('webmaster_email')]
-      cc = ''
-    end
 
     subject = I18n.t('email.event_statistics.subject', location: @event.location, event_code: @event.code)
 
-    mail(to: recipients, cc: cc, subject: subject, from: 'birs@birs.ca')
+    mail(to: recipients, cc: cc, subject: subject, reply_to: @program_coordinator)
   end
 end
