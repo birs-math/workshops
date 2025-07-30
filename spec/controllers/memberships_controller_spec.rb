@@ -625,6 +625,9 @@ RSpec.describe MembershipsController, type: :controller do
             before do
               travel_to today
 
+              @event.update_columns(
+                max_virtual: @event.num_invited_virtual + 1
+              )
               @membership.update_attribute(:role, 'Virtual Participant')
               @event.update_attribute(:start_date, Date.today.beginning_of_week + 3.days)
 
@@ -640,9 +643,6 @@ RSpec.describe MembershipsController, type: :controller do
               let(:today) { Date.today.beginning_of_week + 3.days }
 
               it 'disallows changing Virtual Participant role to Participant' do
-                @event.update_columns(
-                  max_virtual: @event.num_invited_virtual + 1
-                )
                 expect(@membership.reload.role).to eq('Virtual Participant')
               end
 
