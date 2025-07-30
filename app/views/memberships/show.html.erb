@@ -123,6 +123,9 @@
         <div class="row" id="profile-attendance">
           <strong>Attendance:</strong> &nbsp;
           <%= @membership.attendance %>
+          <% if @membership.attendance == 'Declined' && @membership.replied_at && @membership.updated_by.to_s.include?('System: Invitation Expired') %>
+            <span class="badge badge-warning ml-2">Auto-expired on <%= @membership.replied_at.strftime('%b %-d, %Y') %></span>
+          <% end %>
         </div>
 
         <%= show_invited_by? %>
@@ -233,6 +236,11 @@
     <% elsif policy(@membership).edit_membership? %>
       <%= link_to "Edit Membership", edit_event_membership_path(@event, @membership),
             class: 'btn btn-primary p-2' %> &nbsp; &nbsp;
+    <% end %>
+    <% if @membership.attendance == 'Declined' && @current_user && @current_user.is_staff? %>
+      <%= link_to "Re-invite", reinvite_event_membership_path(@event, @membership),
+            method: :post, class: 'btn btn-success p-2',
+            data: { confirm: "Are you sure you want to re-invite #{@person.name}?" } %> &nbsp; &nbsp;
     <% end %>
     <% if policy(@membership).delete_membership? %>
       <%= link_to 'Delete Membership', event_membership_path(@event, @membership),
