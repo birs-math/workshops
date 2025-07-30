@@ -61,9 +61,10 @@ RSpec.describe Que::ReportEventStatisticsJob, type: :job do
     let(:event) { create(:event, event_format: 'Hybrid', max_participants: max_participants, max_virtual: 10) }
 
     context 'when there are participants spots' do
-      let(:max_participants) { 2 }
+      let(:max_participants) { 3 }
 
       before do
+        create(:membership, attendance: 'Confirmed', role: 'Contact Organizer', event: event)
         create(:membership, attendance: 'Confirmed', role: 'Participant', event: event)
         # Does not count towards spots left
         create(:membership, attendance: 'Not Yet Invited', role: 'Participant', event: event)
