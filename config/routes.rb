@@ -60,6 +60,7 @@ Rails.application.routes.draw do
     post 'report' => 'reports#export', as: :generate_report
     resources :schedule
     resources :memberships do
+      post 'reinvite' => 'memberships#reinvite', as: :reinvite
       match 'email_change' => 'memberships#email_change', as: :email_change, via: [:get, :post]
       get 'cancel_email_change' =>  'memberships#cancel_email_change', as: :email_cancel
       collection do

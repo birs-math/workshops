@@ -1,4 +1,4 @@
-# Copyright (c) 2016 Banff International Research Station.
+# Copyright (c) 2025 Banff International Research Station.
 # This file is part of Workshops. Workshops is licensed under
 # the GNU Affero General Public License as published by the
 # Free Software Foundation, version 3 of the License.
@@ -232,6 +232,11 @@ class MembershipPolicy
     @membership.person == @current_user.person
   end
 
+  def admin_reinvite?
+    # Only allow staff or admins to reinvite
+    user.is_staff? || user.is_admin?
+  end
+  
   private
 
   def confirmed_member
@@ -265,4 +270,6 @@ class MembershipPolicy
     return false if @current_user.nil? || @event.nil?
     @current_user.staff? && @current_user.location == @event.location
   end
+
+
 end
