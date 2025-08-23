@@ -12,7 +12,7 @@ echo
 psql -U "$POSTGRES_USER" -c "CREATE USER $DB_USER WITH ENCRYPTED PASSWORD '$DB_PASS';"
 echo
 
-for db in workshops_test workshops_development workshops_production
+for db in workshops_test workshops_development workshops_production que_jobs
 do
   echo
   echo "Setting up $db database..."
