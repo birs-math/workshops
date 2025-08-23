@@ -1,4 +1,4 @@
-# Copyright (c) 2016 Banff International Research Station.
+# Copyright (c) 2025 Banff International Research Station.
 # This file is part of Workshops. Workshops is licensed under
 # the GNU Affero General Public License as published by the
 # Free Software Foundation, version 3 of the License.
@@ -7,14 +7,14 @@
 class SessionsController < Devise::SessionsController
   respond_to :html
   layout "devise"
-
   # POST /sign_in
   def create
     self.resource = warden.authenticate!(auth_options)
     resource.validate
-
     if self.resource.person_id.nil?
-      StaffMailer.notify_sysadmin(nil, { error: 'User has no associated person record', user: resource.inspect })
+      # Convert the hash to a string representation to avoid logger issues
+      error_data = { error: 'User has no associated person record', user: resource.inspect }.to_json
+      StaffMailer.notify_sysadmin(nil, error_data)
       self.destroy
       set_flash_message(:error, :has_no_person_record)
     elsif self.resource.role == 'member' && inactive_participant(resource)
@@ -27,9 +27,7 @@ class SessionsController < Devise::SessionsController
       respond_with resource, location: after_sign_in_path_for(resource)
     end
   end
-
   private
-
   def inactive_participant(resource)
     # any memberships where either an organizer or NOT not-invited?
     resource.person.memberships.where("role LIKE '%Organizer%' OR (attendance != 'Not Yet Invited')").blank?
