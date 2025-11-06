@@ -62,17 +62,8 @@ module Syncable
   end
 
   def get_local_person(remote_person)
-    # Check both active AND deleted persons to prevent recreation
-    person = Person.with_deleted.find_by(legacy_id: remote_person['legacy_id'].to_i) ||
-             Person.with_deleted.find_by(email: remote_person['email'].downcase.strip)
-    
-    # If person is deleted, log and return nil (skip sync)
-    if person&.deleted?
-      Rails.logger.info "⏭️  Skipping sync for deleted person: #{person.name} (ID: #{person.id}, deleted: #{person.deleted_at})"
-      return nil
-    end
-    
-    person
+    Person.find_by(legacy_id: remote_person['legacy_id'].to_i) ||
+      Person.find_by(email: remote_person['email'].downcase.strip)
   end
 
   def find_and_update_person(remote_person)
@@ -249,52 +240,31 @@ module Syncable
   end
 
   def replace_person(replace: other_person, replace_with: person)
-    ActiveRecord::Base.transaction do
-      Rails.logger.info "Person merge starting: replacing #{replace.email} (ID: #{replace.id}) with #{replace_with.email} (ID: #{replace_with.id})"
-      
-      replace.memberships.each do |m|
-        replace_with_membership = Membership.where(event: m.event,
-                                                  person: replace_with).first
-        m.sync_memberships = true
-        if replace_with_membership.blank?
-          Rails.logger.info "Moving membership #{m.id} from person #{replace.id} to person #{replace_with.id} for event #{m.event.code}"
-          m.update(person: replace_with)
-        else
-          Rails.logger.warn "MEMBERSHIP DELETION: About to delete membership #{m.id} for person #{replace.email} in event #{m.event.code} due to duplicate with membership #{replace_with_membership.id}"
-          
-          invitation_count = Invitation.where(membership: m).count
-          Rails.logger.warn "This will affect #{invitation_count} invitation(s) - moving to existing membership #{replace_with_membership.id}"
-          
-          Invitation.where(membership: m).each do |i|
-            Rails.logger.info "Moving invitation #{i.id} from membership #{m.id} to membership #{replace_with_membership.id}"
-            i.update(membership: replace_with_membership)
-          end
-          
-          Rails.logger.warn "HARD DELETE: Deleting membership #{m.id} for person #{replace.email} (#{replace.id}) in event #{m.event.code}"
-          m.delete
+    replace.memberships.each do |m|
+      replace_with_membership = Membership.where(event: m.event,
+                                                person: replace_with).first
+      m.sync_memberships = true
+      if replace_with_membership.blank?
+        m.update(person: replace_with)
+      else
+        Invitation.where(membership: m).each do |i|
+          i.update(membership: replace_with_membership)
         end
+        m.delete
       end
-
-      Lecture.where(person_id: replace.id).each do |l|
-        Rails.logger.info "Moving lecture #{l.id} from person #{replace.id} to person #{replace_with.id}"
-        l.update(person: replace_with)
-      end
-
-      update_user_account(replace, replace_with)
-
-      # Update legacy database
-      replace_remote(replace, replace_with)
-
-      # there can be only one!
-      Rails.logger.warn "HARD DELETE: Deleting person record #{replace.id} (#{replace.email}) - replaced with #{replace_with.id} (#{replace_with.email})"
-      replace.delete
-      
-      Rails.logger.info "Person merge completed successfully"
     end
-  rescue => e
-    Rails.logger.error "Person merge failed: #{e.message}"
-    Rails.logger.error "Rollback performed - no data was lost"
-    raise e
+
+    Lecture.where(person_id: replace.id).each do |l|
+      l.update(person: replace_with)
+    end
+
+    update_user_account(replace, replace_with)
+
+    # Update legacy database
+    replace_remote(replace, replace_with)
+
+    # there can be only one!
+    replace.delete
   end
 
   def update_user_account(person, replace_with)
@@ -376,5 +346,76 @@ module Syncable
 
   def blank_time?(val)
     val.blank? || val == '0000-00-00 00:00:00'
+  end
+
+  # Name matching helpers for duplicate detection
+  def names_match(n1, n2)
+    return false if n1.blank? || n2.blank?
+
+    # Normalize names for comparison
+    norm1 = normalize_name(n1)
+    norm2 = normalize_name(n2)
+
+    # Exact match after normalization
+    return true if norm1 == norm2
+
+    # Check if names are similar enough (accounting for middle names, initials, etc.)
+    similarity_match?(norm1, norm2)
+  end
+
+  def normalize_name(name)
+    I18n.transliterate(name.downcase.strip)
+      .gsub(/[^\w\s]/, '') # Remove punctuation
+      .squeeze(' ')        # Collapse multiple spaces
+  end
+
+  def similarity_match?(name1, name2)
+    # Split names into parts
+    parts1 = name1.split
+    parts2 = name2.split
+
+    # If either name has only one part, require exact match
+    return false if parts1.length == 1 || parts2.length == 1
+
+    # Check if first and last names match (allowing for middle name differences)
+    first_match = parts1.first == parts2.first
+    last_match = parts1.last == parts2.last
+
+    # Require both first and last name to match for similarity
+    first_match && last_match
+  end
+
+  # Create duplicate record for manual resolution
+  def create_change_confirmation(person, replace_with, reverse_emails: false)
+    # Check if duplicate already exists to prevent redundant records
+    existing_conflict = ConfirmEmailChange.where(
+      replace_person: person,
+      replace_with: replace_with,
+      confirmed: false
+    ).first
+
+    if existing_conflict
+      Rails.logger.info "Duplicate already being managed: #{person.name} (#{person.id}) and #{replace_with.name} (#{replace_with.id})"
+      return existing_conflict
+    end
+
+    begin
+      params = {
+        replace_person: person,
+        replace_with: replace_with,
+        replace_email: person.email,
+        replace_with_email: replace_with.email
+      }
+      if reverse_emails
+        params.merge!(replace_email: replace_with.email,
+                     replace_with_email: person.email)
+      end
+      confirmation = ConfirmEmailChange.create!(params)
+      Rails.logger.info "Managing duplicate persons: #{person.name} (#{person.email}) <-> #{replace_with.name} (#{replace_with.email})"
+      confirmation
+    rescue ActiveRecord::RecordInvalid => e
+      Rails.logger.error "Failed to create ConfirmEmailChange: #{e.message}"
+      nil
+    end
   end
 end

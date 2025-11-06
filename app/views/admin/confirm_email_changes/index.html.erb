@@ -1,36 +1,36 @@
-<% content_for(:title) { "Duplicate Person Conflicts" } %>
+<% content_for(:title) { "Manage Duplicates" } %>
 
 <header class="main__header">
   <h1 class="main__page-title">
     <%= content_for(:title) %>
     <span class="count-badge">
-      <%= pluralize(@total_stats[:total], 'conflict') %> 
+      <%= pluralize(@total_stats[:total], 'duplicate') %>
       <span class="pending-count">(<%= @total_stats[:pending] %> pending)</span>
     </span>
   </h1>
-  
+
   <div class="main__actions">
     <%= form_with url: admin_confirm_email_changes_path, method: :get, local: true, class: "search-form" do |f| %>
-      <%= f.text_field :search, placeholder: "Search conflicts...", value: params[:search], class: "search-input" %>
-      <%= f.select :status, 
+      <%= f.text_field :search, placeholder: "Search duplicates...", value: params[:search], class: "search-input" %>
+      <%= f.select :status,
           options_for_select([
-            ['All conflicts', ''],
+            ['All duplicates', ''],
             ['Pending only', 'pending'],
             ['Resolved only', 'resolved'],
             ['High priority', 'high_priority'],
             ['Recent invitations', 'recent_invitations']
-          ], params[:status]), 
+          ], params[:status]),
           {}, { class: "filter-select" } %>
       <%= f.submit "Search", class: "btn btn--secondary" %>
     <% end %>
-    <%= link_to "New Conflict", new_admin_confirm_email_change_path, class: "btn btn--primary" %>
+    <%= link_to "New Duplicate", new_admin_confirm_email_change_path, class: "btn btn--primary" %>
   </div>
 </header>
 
 <section class="main__content">
   <% if @resources.any? %>
     <div class="conflicts-summary">
-      <p class="summary-note">System-wide statistics (all conflicts)</p>
+      <p class="summary-note">System-wide statistics (all duplicates)</p>
       <div class="summary-stats">
         <div class="stat-card stat-card--pending">
           <span class="stat-number"><%= @total_stats[:pending] %></span>
@@ -85,7 +85,7 @@
                 <% end %>
                 
                 <% if conflict.conflict_group_size > 1 %>
-                  <span class="multi-conflict-badge" title="Part of <%= conflict.conflict_group_size %>-person conflict group">
+                  <span class="multi-conflict-badge" title="Part of <%= conflict.conflict_group_size %>-person duplicate group">
                     🔗 <%= conflict.conflict_group_size %>
                   </span>
                 <% end %>
@@ -140,7 +140,7 @@
                   <%= link_to "Delete", admin_confirm_email_change_path(conflict), 
                       method: :delete, 
                       class: "btn btn--sm btn--danger",
-                      data: { confirm: "Delete this broken conflict record?" } %>
+                      data: { confirm: "Delete this broken duplicate record?" } %>
                 <% end %>
               </td>
             </tr>
@@ -156,8 +156,8 @@
     <% end %>
   <% else %>
     <div class="no-conflicts">
-      <h3>🎉 No duplicate person conflicts found!</h3>
-      <p>All person records have unique email addresses.</p>
+      <h3>🎉 No duplicates found!</h3>
+      <p>All person records are unique.</p>
     </div>
   <% end %>
 </section>

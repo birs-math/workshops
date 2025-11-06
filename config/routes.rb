@@ -146,6 +146,10 @@ Rails.application.routes.draw do
         patch :reject
       end
     end
+    
+    # Friendly alias for manage duplicates page
+    get 'duplicates', to: redirect('/admin/confirm_email_changes')
+    get 'duplicates/:id', to: redirect('/admin/confirm_email_changes/%{id}')
     root to: "people#index"
   end
 

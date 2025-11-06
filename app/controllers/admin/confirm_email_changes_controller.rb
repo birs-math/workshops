@@ -336,6 +336,19 @@ module Admin
         # Move invitations
         invitations_moved = source_person.invitations.count
         source_person.invitations.update_all(invited_by: target_person.id)
+
+        # Update target person's email to source person's current email
+        # This ensures the OLD record (with history) gets the NEW email address
+        old_email = target_person.email
+        new_email = source_person.email
+        if old_email != new_email
+          target_person.update!(
+            email: new_email,
+            updated_by: current_user.email,
+            updated_at: Time.current  # Important for sync - marks as locally updated
+          )
+          Rails.logger.info "Updated email during merge: #{old_email} → #{new_email} for person ID #{target_person.id}"
+        end
         
         # Handle user account
         if source_person.user && !target_person.user
