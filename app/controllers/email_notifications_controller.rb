@@ -20,9 +20,12 @@ class EmailNotificationsController < ApplicationController
 
   def show
     @email_notifications = if @current_location == 'default'
-                             EmailNotification.where("path like ?", "/default/#{@current_status}")
+                             sanitized_status = ActiveRecord::Base.sanitize_sql_like(@current_status)
+                             EmailNotification.where("path LIKE ?", "/default/#{sanitized_status}")
                            else
-                             EmailNotification.where("path like ?", "/#{@current_location}/%/#{@current_status}")
+                             sanitized_location = ActiveRecord::Base.sanitize_sql_like(@current_location)
+                             sanitized_status = ActiveRecord::Base.sanitize_sql_like(@current_status)
+                             EmailNotification.where("path LIKE ?", "/#{sanitized_location}/%/#{sanitized_status}")
                            end
     @email_notifications = @email_notifications.group_by(&:group_by_value)
   end

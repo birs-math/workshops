@@ -37,18 +37,22 @@ class User < ApplicationRecord
   end
 
   def is_organizer?(event)
-    person.memberships.where("event_id=#{event.id} AND role LIKE '%Org%'")
-          .count > 0
+    person.memberships.where("event_id = ? AND role LIKE ?", event.id, "%Org%")
+          .exists?
   end
 
   def is_member?(event)
-    person.memberships.where("event_id=#{event.id} AND attendance != 'Declined'
-      AND attendance != 'Not Yet Invited'").count > 0
+    person.memberships.where(
+      "event_id = ? AND attendance NOT IN (?, ?)",
+      event.id,
+      'Declined',
+      'Not Yet Invited'
+    ).exists?
   end
 
   def is_confirmed_member?(event)
-    person.memberships.where("event_id=#{event.id}
-      AND attendance = 'Confirmed'").count > 0
+    person.memberships.where(event_id: event.id, attendance: 'Confirmed')
+          .exists?
   end
 
   def name
