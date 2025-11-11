@@ -72,9 +72,12 @@ module EventDecorators
 
   def attendance(status = 'Confirmed', order = 'lastname')
     direction = 'ASC'
+    # Whitelist allowed columns to prevent SQL injection
+    allowed_columns = %w[lastname firstname affiliation created_at updated_at]
+    safe_order = allowed_columns.include?(order) ? order : 'lastname'
 
     # We want the order to be the same as the order of Membership::ROLES
-    all_members = memberships.joins(:person).where('attendance = ?', status).order("#{order} #{direction}")
+    all_members = memberships.joins(:person).where(attendance: status).order("#{safe_order} #{direction}")
     sorted_members = []
     Membership::ROLES.each do |role|
       sorted_members.concat(all_members.select { |member| member.role == role })
@@ -152,7 +155,7 @@ module EventDecorators
   end
 
   def organizers
-    memberships.where("role LIKE '%Organizer%'").map {|m| m.person }
+    memberships.where("role LIKE ?", "%Organizer%").map(&:person)
   end
 
   def contact_organizers
@@ -174,9 +177,9 @@ module EventDecorators
   end
 
   def staff
-    staff = User.where(role: :staff, location: self.location).map {|s| s.person }
-    admins = User.where('role > 1').map {|a| a.person }
-    staff + admins
+    staff_users = User.where(role: :staff, location: self.location).map(&:person)
+    admin_users = User.where(role: [:admin, :super_admin]).map(&:person)
+    staff_users + admin_users
   end
 
   def schedule_on(day)
