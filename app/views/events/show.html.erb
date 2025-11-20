@@ -113,8 +113,10 @@
           <% end %>
         </h2>
         <%= get_text(@event.press_release) %>
-        <% @event.custom_fields.order(position: :asc).each do |field| %>
-          <%= render 'custom_field', custom_field: field %>
+        <% if user_signed_in? && (policy(@event).event_staff? || current_user.is_organizer?(@event)) %>
+          <% @event.custom_fields.order(position: :asc).each do |field| %>
+            <%= render 'custom_field', custom_field: field %>
+          <% end %>
         <% end %>
         </div>
       </div>
