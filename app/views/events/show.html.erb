@@ -98,7 +98,7 @@
     <div class="card-body">
       <div class="row" id="event-description">
         <div class="col">
-        <% if user_signed_in? %>
+        <% if policy(@event).view_details? %>
           <h2>Event Description:
             <% if policy(@event).edit? %>
               <small><p>appears only here, for participants to see</p></small>
