@@ -101,7 +101,7 @@
          <% if policy(@event).view_details? %>        
           <h2>Event Description:
             <% if policy(@event).edit? %>
-              <small><p>appears only here, for participants to see</p></small>
+              <small><p>Appears on this site, visible to all participants of this event.</p></small>
             <% end %>
           </h2>
          <%= get_text(@event.description) %>
@@ -109,7 +109,7 @@
 
         <h2 id="press-release">Event Press Release:
           <% if policy(@event).edit? %>
-            <small><p>appears on the public webpage</p></small>
+            <small><p>Appears on the public webpage of this workshop.</p></small>
           <% end %>
         </h2>
         <%= get_text(@event.press_release) %>
