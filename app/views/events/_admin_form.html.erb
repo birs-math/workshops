@@ -128,10 +128,12 @@
       </div>
       <div class="form-group">
         <%= f.label :description %>
+        <small><p><em>Appears on this site, visible to all participants of this event.</em></p></small>
         <%= f.text_area :description, rows: 20, class: 'form-control' %>
       </div>
       <div class="form-group">
         <%= f.label :press_release %>
+        <small><p><em>Appears on the public webpage of this workshop.<em></p></small>
         <%= f.text_area :press_release, rows: 10, class: 'form-control' %>
       </div>
       <% @event.custom_fields.each do |custom_field| %>
