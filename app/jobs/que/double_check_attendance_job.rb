@@ -3,7 +3,10 @@
 module Que
   class DoubleCheckAttendanceJob < Job
     def run(event_id:, step: :rsvp_one_month_before_event)
-      @event = Event.find(event_id)
+      return if job_disabled?
+
+      @event = Event.find_by(id: event_id)
+      return if @event.nil? # Event was deleted, nothing to do
 
       return unless @event.hybrid_or_physical?
 
@@ -61,6 +64,11 @@ module Que
 
     def today_in_event_tz
       Date.today.in_time_zone(event.time_zone)
+    end
+
+    def job_disabled?
+      site_settings = Setting.find_by(var: 'Site')&.value || {}
+      site_settings['disable_double_check_attendance_job'] == true
     end
   end
 end

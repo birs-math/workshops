@@ -3,7 +3,10 @@
 module Que
   class ReportEventStatisticsJob < Job
     def run(event_id:)
-      event = Event.find(event_id)
+      return if job_disabled?
+
+      event = Event.find_by(id: event_id)
+      return if event.nil? # Event was deleted, nothing to do
 
       EventStatisticsMailer.notify(event_id: event_id).deliver_now
 
@@ -32,6 +35,11 @@ module Que
 
     def development_run_at(event)
       1.hour.from_now(DateTime.now.in_time_zone(event.time_zone))
+    end
+
+    def job_disabled?
+      site_settings = Setting.find_by(var: 'Site')&.value || {}
+      site_settings['disable_report_event_statistics_job'] == true
     end
   end
 end

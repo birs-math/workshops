@@ -16,8 +16,10 @@ class Invitation < ApplicationRecord
   after_initialize :generate_code
   before_save :update_times, if: :new_record?
 
+  # Find invitations for in-person participants who haven't responded yet
+  # These are people who were invited but haven't confirmed, declined, or marked undecided
   scope :no_rsvp_from_confirmed, lambda {
-    joins(:membership).where(memberships: { attendance: 'Confirmed', role: Membership::IN_PERSON_ROLES })
+    joins(:membership).where(memberships: { attendance: 'Invited', role: Membership::IN_PERSON_ROLES })
   }
   scope :with_event, ->(event_id:) { joins(:membership).where(memberships: { event_id: event_id }) }
 
