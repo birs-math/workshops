@@ -8,8 +8,8 @@ module Que
       return unless @event.hybrid_or_physical?
 
       case step.to_sym
-      when :rsvp_one_month_before_event
-        rsvp_one_month_before_event
+      #when :rsvp_one_month_before_event
+      #  rsvp_one_month_before_event
       when :alert_staff
         alert_staff
       else
