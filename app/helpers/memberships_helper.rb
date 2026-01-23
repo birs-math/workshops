@@ -7,8 +7,11 @@
 # Helpers for memberships
 module MembershipsHelper
 
+  # FIXED: Don't show pending invitation for already-confirmed members
   def pending_invitation?
-    @current_user.person == @membership.person && !@membership.invitation.nil?
+    @current_user.person == @membership.person &&
+      !@membership.invitation.nil? &&
+      @membership.attendance != 'Confirmed'
   end
 
   def event_membership_name(m)
