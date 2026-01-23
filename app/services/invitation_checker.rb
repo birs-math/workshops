@@ -1,4 +1,4 @@
-# app/forms/invitation_checker.rb
+# app/services/invitation_checker.rb
 #
 # Copyright (c) 2018 Banff International Research Station.
 # This file is part of Workshops. Workshops is licensed under
@@ -121,8 +121,14 @@ class InvitationChecker
     end
   end
 
+  # FIXED: Added 'Confirmed' case to prevent invitation loop
   def check_attendance(invitation)
     case invitation.membership.attendance
+    when 'Confirmed'
+      @errors.add(:Membership, "You have already confirmed your attendance
+            to this event. If you need to update your information, please
+            sign in to your account.")
+
     when 'Declined'
       @errors.add(:Membership, "You have already declined an invitation
             to this event. Please contact the event's organizers to ask if it
