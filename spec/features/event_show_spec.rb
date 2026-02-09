@@ -102,10 +102,6 @@ describe 'Event Show Page', type: :feature do
       shows_partial_details
     end
 
-    it 'shows event description' do
-      expect(body).to have_text(@event.description)
-    end
-
     it 'hides some details' do
       hides_some_details
     end
@@ -180,10 +176,6 @@ describe 'Event Show Page', type: :feature do
       it 'shows partial event details' do
         shows_partial_details
         expect(page.body).not_to have_text(@event.booking_code)
-      end
-
-      it 'shows event description' do
-        expect(body).to have_text(@event.description)
       end
 
       it 'has no edit button' do

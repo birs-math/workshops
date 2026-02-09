@@ -625,6 +625,7 @@ RSpec.describe MembershipsController, type: :controller do
             before do
               travel_to today
 
+              @event.update_columns(max_virtual: GetSetting.max_virtual('EO'))
               @membership.update_attribute(:role, 'Virtual Participant')
               @event.update_attribute(:start_date, Date.today.beginning_of_week + 3.days)
 
@@ -1055,6 +1056,7 @@ RSpec.describe MembershipsController, type: :controller do
           end
 
           it 'does not invite Observer if max_observers is full' do
+            @event.update_columns(event_format: 'Physical')
             @event.max_participants = @event.num_invited_participants
             @event.max_virtual = @event.num_invited_virtual
             @event.max_observers = @event.num_invited_observers
