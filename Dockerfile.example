@@ -18,7 +18,8 @@ RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources
 # Postgres
 RUN curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 
-RUN apt-get update -qq && apt-get dist-upgrade --yes && \
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D870AB033FB45BD1 && \
+    apt-get update -qq && apt-get dist-upgrade --yes && \
     apt-get install --yes pkg-config apt-utils build-essential cmake automake && \
     apt-get upgrade --fix-missing --yes --allow-remove-essential \
     -o Dpkg::Options::="--force-confold"
