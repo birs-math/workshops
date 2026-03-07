@@ -13,6 +13,8 @@ please [contact me](mailto:brent@netmojo.ca).
 
 Installation instructions are below.
 
+wiki located here https://deepwiki.com/birs-math/workshops
+
 ## Current Features
 *  **Sign-ins and sign-ups** for staff and admin users, and invited workshop participants.
 
