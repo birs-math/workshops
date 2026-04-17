@@ -22,6 +22,10 @@ class DefaultSchedule
     Pundit.policy(@current_user, self).allow?
   end
 
+  def can_view?
+    Pundit.policy(@current_user, self).can_view?
+  end
+
   def empty_or_default
     @schedules.empty? || only_default_entries
   end
@@ -88,6 +92,6 @@ class DefaultSchedule
 
   def published_schedule
     return false unless @event
-    authorized? || @event.publish_schedule
+    can_view?
   end
 end

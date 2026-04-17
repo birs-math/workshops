@@ -9,7 +9,7 @@ class ScheduleController < ApplicationController
   before_action :set_schedule, only: [:show, :update]
   before_action :set_lock_time, only: [:new, :edit, :update, :create]
 
-  before_action :authenticate_user!, except: [:index]
+  before_action :authenticate_user!
   after_action :flash_notice, only: [:create, :update, :edit]
 
 
@@ -18,12 +18,6 @@ class ScheduleController < ApplicationController
   def index
     @schedules = DefaultSchedule.new(@event, current_user).schedules
     @schedule_policy = Schedule.new(event: @event)
-
-    redirect_to sign_in_path if nothing_to_see_here(@schedules)
-  end
-
-  def nothing_to_see_here(schedules)
-    request.format.html? && schedules.empty? && !current_user
   end
 
   # POST /events/:event_id/schedule/schedule_publish

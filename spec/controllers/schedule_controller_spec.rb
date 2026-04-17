@@ -49,7 +49,7 @@ RSpec.describe ScheduleController, type: :controller do
         @event.schedules.delete_all
       end
 
-      it 'if event.publish_schedule is false, redirects to sign-in page' do
+      it 'redirects to sign-in page when publish_schedule is false' do
         @event.publish_schedule = false
         @event.save
 
@@ -59,29 +59,24 @@ RSpec.describe ScheduleController, type: :controller do
         expect(subject).to redirect_to(sign_in_path)
       end
 
-      it 'if event.publish_schedule is true, it assigns @schedules' do
+      it 'redirects to sign-in page even when publish_schedule is true' do
         expect(@event.schedules).not_to be_empty
         @event.publish_schedule = true
         @event.save
 
         get :index, params: { event_id: @event.id }
 
-        expect(@event.schedules).not_to be_empty
-        expect(response.status).to eq(200)
-        expect(response).to render_template('index')
-        expect(assigns(:schedules)).not_to be_empty
-      end
-
-      it 'if event.publish_schedule is true, but @schedules is empty,
-          it redirects to sign-in' do
-        @event.publish_schedule = true
-        @event.schedules.delete_all
-        @event.save
-
-        get :index, params: { format: :html, event_id: @event.id }
-
         expect(response.status).to eq(302)
         expect(subject).to redirect_to(sign_in_path)
+      end
+
+      it 'returns 401 for JSON requests when publish_schedule is true' do
+        @event.publish_schedule = true
+        @event.save
+
+        get :index, params: { event_id: @event.id, format: :json }
+
+        expect(response.status).to eq(401)
       end
     end
 

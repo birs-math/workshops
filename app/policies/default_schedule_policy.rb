@@ -19,4 +19,9 @@ class DefaultSchedulePolicy
     user.is_organizer?(event) || user.is_admin? ||
       (user.is_staff? && user.location == event.location)
   end
+
+  def can_view?
+    return false if user.nil?
+    allow? || user.is_member?(event)
+  end
 end
