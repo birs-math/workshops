@@ -80,6 +80,57 @@ jobs:
             cd /home/app/workshops
             bundle exec rspec
             bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l ruby -p "workshops" -r coverage/lcov/workshops.lcov
+
+  security_scan:
+    docker:
+      - image: birs/workshops:latest
+        environment:
+          RAILS_ENV: test
+    steps:
+      - checkout
+      - run:
+          name: Copy code to app home
+          command: tar cvf - --exclude=".git" . | tar xf - -C /home/app/workshops/
+      - run:
+          name: Install Bundle
+          command: |
+            cd /home/app/workshops
+            gem install bundler -v 2.4.22
+            bundle install
+      - run:
+          name: Brakeman (fails on findings not in config/brakeman.ignore)
+          command: |
+            cd /home/app/workshops
+            bundle exec brakeman --no-pager -q -i config/brakeman.ignore -w1 -z
+      - run:
+          name: bundler-audit (informational; Rails 5.2 baseline has 81 known CVEs)
+          command: |
+            cd /home/app/workshops
+            bundle exec bundle-audit update
+            bundle exec bundle-audit check || echo "WARN bundler-audit reported vulnerabilities (see config/bundler-audit-baseline.txt for known baseline)"
+
+  lint:
+    docker:
+      - image: birs/workshops:latest
+        environment:
+          RAILS_ENV: test
+    steps:
+      - checkout
+      - run:
+          name: Copy code to app home
+          command: tar cvf - --exclude=".git" . | tar xf - -C /home/app/workshops/
+      - run:
+          name: Install Bundle
+          command: |
+            cd /home/app/workshops
+            gem install bundler -v 2.4.22
+            bundle install
+      - run:
+          name: RuboCop
+          command: |
+            cd /home/app/workshops
+            bundle exec rubocop --parallel --no-color
+
   deploy_to_staging:
     docker:
       - image: birs/workshops:latest
@@ -141,6 +192,14 @@ workflows:
   run_the_tests:
     jobs:
       - run_tests:
+          filters:
+            branches:
+              ignore: /staging|production|new_image/
+      - security_scan:
+          filters:
+            branches:
+              ignore: /staging|production|new_image/
+      - lint:
           filters:
             branches:
               ignore: /staging|production|new_image/

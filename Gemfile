@@ -46,6 +46,8 @@ gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'
 
 group :development, :test do
+  gem 'brakeman', require: false
+  gem 'bundler-audit', '~> 0.9', require: false
   gem 'byebug'
   gem 'factory_bot_rails'
   gem 'rspec-rails'
@@ -58,8 +60,10 @@ group :test do
   gem 'database_cleaner'
   gem 'faker'
   gem 'rails-controller-testing'
-  gem 'rubocop'
-  gem 'rubocop-faker'
+  gem 'rubocop', require: false
+  gem 'rubocop-faker', require: false
+  gem 'rubocop-performance', require: false
+  gem 'rubocop-rspec', require: false
   gem 'selenium-webdriver'
   gem 'simplecov'
   gem 'simplecov-lcov'
@@ -74,13 +78,7 @@ group :development do
   gem 'bcrypt_pbkdf', '~> 1.0'
   gem 'capistrano', '~> 3.10', require: false
   gem 'capistrano-rails', '~> 1.4', require: false
-  gem 'pronto'
-  gem 'pronto-brakeman'
-  gem 'pronto-flay'
-  gem 'pronto-poper'
-  gem 'pronto-reek'
-  gem 'pronto-rubocop'
   gem 'rbnacl', '~> 7.0'
-  gem 'rubocop-rails'
+  gem 'rubocop-rails', require: false
   gem 'web-console'
 end

@@ -1,0 +1,45 @@
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "12450285ad4ea2d9350d2efe946496fe75c8553ad60143e94be976c912e87f8d",
+      "note": "BASELINE: Dangerous Eval (High) in app/services/get_setting.rb:63 - User input in eval"
+    },
+    {
+      "fingerprint": "12450285ad4ea2d9350d2efe946496fe75c8553ad60143e94be976c912e87f8d",
+      "note": "BASELINE: Dangerous Eval (High) in app/services/get_setting.rb:64 - User input in eval"
+    },
+    {
+      "fingerprint": "49de2a402a121600b61137bd26a5192de9ef4d733a14604bdfcf3f39976dd60f",
+      "note": "BASELINE: Cross-Site Scripting (Weak) in app/views/events/show.html.erb:71 - Potentially unsafe model attribute in `link_to` href"
+    },
+    {
+      "fingerprint": "803fb1408edc4989a77c97451ef52a2ee0e6e43b8d69ca9766f5cf2691329311",
+      "note": "BASELINE: SQL Injection (Weak) in app/models/concerns/event_decorators.rb:77 - Possible SQL injection"
+    },
+    {
+      "fingerprint": "84994d54610e87d9f357706579883c238388ab34645aca077b10af2ba1de45ee",
+      "note": "BASELINE: Denial of Service (Medium) in app/forms/invitation_form.rb:26 - Model attribute used in regular expression"
+    },
+    {
+      "fingerprint": "b2b8818e646bf1c277a27eae9a0e98766968d4d38e3b2e1e59b0fe1fa37218dc",
+      "note": "BASELINE: Cross-Site Scripting (Weak) in Gemfile.lock:294 - rails-html-sanitizer 1.4.2 is vulnerable to cross-site scripting when `select` a"
+    },
+    {
+      "fingerprint": "cb6177c52c78097458ae4692ce6805a61a145aba4b0428f2e3b1e7084a41adcf",
+      "note": "BASELINE: Mass Assignment (Medium) in app/controllers/memberships_controller.rb:251 - Potentially dangerous key allowed for mass assignment"
+    },
+    {
+      "fingerprint": "d58adda011cbcb3306e0095299e401699fdfc7c92eb75778c76319327dd83b28",
+      "note": "BASELINE: Cross-Site Scripting (Weak) in app/views/memberships/_new_people.html.erb:9 - Unescaped model attribute"
+    },
+    {
+      "fingerprint": "d84924377155b41e094acae7404ec2e521629d86f97b0ff628e3d1b263f8101c",
+      "note": "BASELINE: Unmaintained Dependency (High) in Gemfile.lock:274 - Support for Rails 5.2.4.6 ended on 2022-06-01"
+    },
+    {
+      "fingerprint": "def32f308a1a8b242289255b95373a412c85fa61e3dfe648abb2b33f9364ae19",
+      "note": "BASELINE: Dynamic Render Path (Weak) in app/views/settings/edit.html.erb:5 - Render path contains parameter value"
+    }
+  ],
+  "notes": "Baseline generated 2026-04-22. New findings must be fixed or explicitly added here with justification."
+}
