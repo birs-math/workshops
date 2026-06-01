@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+ruby '2.7.8'
+
 gem 'activerecord-session_store'
 gem "administrate", ">= 0.13.0"
 gem 'bcrypt'
