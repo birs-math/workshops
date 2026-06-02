@@ -17,5 +17,15 @@ module Workshops
     # the framework and any gems in your application.
 
     config.time_zone = "Mountain Time (US & Canada)"
+
+    # Rails 5.2.8.1 switched ActiveRecord YAML columns to Psych safe_load, which rejects
+    # classes not on this allowlist. Membership#invite_reminders is a Hash keyed by DateTime
+    # (and Person#grants), so without these we get Psych::DisallowedClass on load (500s the
+    # memberships page + crashes the reminder/stats/sync jobs). Allowlist keeps the hardening.
+    config.active_record.yaml_column_permitted_classes = [
+      Symbol, Date, Time, DateTime, BigDecimal,
+      ActiveSupport::TimeWithZone, ActiveSupport::TimeZone,
+      ActiveSupport::HashWithIndifferentAccess
+    ]
   end
 end
