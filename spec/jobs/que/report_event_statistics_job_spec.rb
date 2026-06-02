@@ -57,6 +57,22 @@ RSpec.describe Que::ReportEventStatisticsJob, type: :job do
     end
   end
 
+  describe 'when automated event emails are suppressed (2026/2027 hold)' do
+    before { allow(AutomatedEmailPolicy).to receive(:enabled?).and_return(false) }
+
+    let(:event) { create(:event_with_members, start_date: 3.month.from_now, end_date: 3.month.from_now + 5.days) }
+
+    it 'does not send the statistics email' do
+      allow(EventStatisticsMailer).to receive(:notify).and_call_original
+      subject
+      expect(EventStatisticsMailer).not_to have_received(:notify)
+    end
+
+    it 'still reschedules the job so recurrence survives a resume' do
+      expect { subject }.to change { QueJobs.count }.by(1)
+    end
+  end
+
   describe 'participants count' do
     let(:event) { create(:event, event_format: 'Hybrid', max_participants: max_participants, max_virtual: 10) }
 

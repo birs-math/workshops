@@ -31,6 +31,7 @@ module Que
 
     def alert_staff
       return if email_group.count.zero?
+      return unless ::AutomatedEmailPolicy.enabled? # suppressed during the 2026/2027 hold
 
       AttendanceConfirmationMailer.alert_staff(event_id: event.id).deliver_now
     end
@@ -50,6 +51,8 @@ module Que
     end
 
     def send_emails
+      return unless ::AutomatedEmailPolicy.enabled? # suppressed during the 2026/2027 hold
+
       email_group.each do |invitation|
         AttendanceConfirmationMailer.remind(invitation_id: invitation.id).deliver_now
       end

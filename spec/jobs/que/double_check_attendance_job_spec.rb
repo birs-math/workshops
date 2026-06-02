@@ -45,6 +45,18 @@ RSpec.describe Que::DoubleCheckAttendanceJob, type: :job do
     create(:invitation, membership: create_membership('Participant', attendance: 'Undecided'))
   end
 
+  describe 'when automated event emails are suppressed (2026/2027 hold)' do
+    before { allow(AutomatedEmailPolicy).to receive(:enabled?).and_return(false) }
+
+    subject { described_class.run(event_id: event.id, step: :rsvp_one_month_before_event) }
+
+    let(:start_date) { Date.today + 3.weeks } # would otherwise send 3 reminders
+
+    it 'does not send RSVP reminders' do
+      expect { subject }.not_to change { ActionMailer::Base.deliveries.count }
+    end
+  end
+
   describe '.enqueue' do
     context 'when event is Online' do
       let(:format) { 'Online' }
