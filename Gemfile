@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+ruby '2.7.8'
+
 gem 'activerecord-session_store'
 gem "administrate", ">= 0.13.0"
 gem 'bcrypt'
@@ -33,7 +35,7 @@ gem 'que', '~> 2.2.1'
 gem 'que-scheduler'
 gem 'rack', ">= 2.2.3"
 gem 'rack-cors', require: 'rack/cors'
-gem 'rails', '~> 5.2.4.5'
+gem 'rails', '~> 5.2.8.1'
 gem 'rails-settings-cached', '0.7.2'
 gem 'rest-client'
 gem 'sassc-rails'
