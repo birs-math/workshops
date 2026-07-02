@@ -28,6 +28,7 @@ class Liquid::Resolver < ActionView::Resolver
     # format column is nullable; Rails 6 requires a symbol and rejects nil
     ActionView::Template.new(record.body, identifier, handler,
                              format: (record.format || 'html').to_sym,
+                             locals: [],
                              virtual_path: record.path)
   end
 end

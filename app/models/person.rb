@@ -30,8 +30,7 @@ class Person < ApplicationRecord
   serialize :grants
 
   validates :email, presence: true,
-                    case_sensitive: false,
-                    uniqueness: true,
+                    uniqueness: { case_sensitive: false },
                     email: true
   validates :firstname, :lastname, :updated_by, presence: true
   validates :gender, :country, presence: true, if: :is_rsvp
