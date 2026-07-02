@@ -25,8 +25,9 @@ class Liquid::Resolver < ActionView::Resolver
     identifier = "#{record.class} - #{record.id} - #{record.path}"
     handler = ActionView::Template.registered_template_handler(record.handler)
 
+    # format column is nullable; Rails 6 requires a symbol and rejects nil
     ActionView::Template.new(record.body, identifier, handler,
-                             format: record.format.to_sym,
+                             format: (record.format || 'html').to_sym,
                              virtual_path: record.path)
   end
 end

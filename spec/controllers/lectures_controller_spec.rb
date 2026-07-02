@@ -32,7 +32,7 @@ RSpec.describe LecturesController, type: :controller do
         get :today, params: { room: @room, format: 'rss' }
 
         expect(response).to render_template('lectures/today')
-        expect(response.content_type).to eq("application/rss+xml")
+        expect(response.media_type).to eq("application/rss+xml")
       end
 
       it 'produces emtpy feed if no lectures scheduled today' do
@@ -74,7 +74,7 @@ RSpec.describe LecturesController, type: :controller do
         get :current, params: { room: @room, format: 'rss' }
 
         expect(response).to render_template('lectures/current')
-        expect(response.content_type).to eq("application/rss+xml")
+        expect(response.media_type).to eq("application/rss+xml")
       end
 
       it 'produces emtpy feed if no current lecture' do
@@ -116,7 +116,7 @@ RSpec.describe LecturesController, type: :controller do
       get :next, params: { room: @room, format: 'rss' }
 
       expect(response).to render_template('lectures/next')
-      expect(response.content_type).to eq("application/rss+xml")
+      expect(response.media_type).to eq("application/rss+xml")
     end
 
     it 'produces emtpy feed if no current lecture' do

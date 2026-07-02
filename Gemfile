@@ -80,7 +80,14 @@ group :development do
   gem 'rubocop-rails'
   gem 'web-console'
 end
+# Pins forced by the Rails 6.0 bump — each names its unblock condition:
+# concurrent-ruby 1.3.5+ breaks Rails 6.0's activesupport (Logger not yet
+# required); fixed in Rails 6.1 — DROP this pin at the 6.1 bump.
 gem 'concurrent-ruby', '< 1.3.5'
+# dry-container/dry-auto_inject 0.9+ break devise-jwt's warden-jwt_auth 0.5;
+# revisit when devise-jwt is bumped (planned with dry-configurable 1.x, Phase 5).
 gem 'dry-container', '~> 0.8.0'
 gem 'dry-auto_inject', '~> 0.8.0'
+# administrate 1.0 removes valid_action?/routes used by our dashboards;
+# held at 0.16 until dashboards are migrated to the 1.x API.
 gem 'administrate', '~> 0.16.0'
