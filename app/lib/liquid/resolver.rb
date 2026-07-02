@@ -11,7 +11,7 @@ require 'singleton'
 class Liquid::Resolver < ActionView::Resolver
   include Singleton
 
-  def find_templates(name, prefix, _partial, _details)
+  def find_templates(name, prefix, _partial, _details, _locals = [])
     EmailNotification.resolver_lookup(path: build_path(name, prefix)).map do |record|
       to_template(record)
     end
@@ -26,7 +26,7 @@ class Liquid::Resolver < ActionView::Resolver
     handler = ActionView::Template.registered_template_handler(record.handler)
 
     ActionView::Template.new(record.body, identifier, handler,
-                             format: record.format,
+                             format: record.format.to_sym,
                              virtual_path: record.path)
   end
 end

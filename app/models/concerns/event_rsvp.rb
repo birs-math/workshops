@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module EventRSVP
+module EventRsvp
   extend ActiveSupport::Concern
 
   def one_month_before_start
