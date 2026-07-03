@@ -12,6 +12,6 @@ class EmailFailedRsvpJob < ApplicationJob
 
   def perform(membership_id, params)
     membership = Membership.find_by_id(membership_id)
-    StaffMailer.rsvp_failed(membership, args: params).deliver_now
+    StaffMailer.rsvp_failed(membership, params).deliver_now
   end
 end

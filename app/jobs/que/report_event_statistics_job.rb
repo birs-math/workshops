@@ -7,7 +7,7 @@ module Que
 
       # Suppressed while BIRS holds 2026/2027 workshops (see AutomatedEmailPolicy).
       # Still reschedule so the recurrence survives a resume when the hold lifts.
-      EventStatisticsMailer.notify(event_id: event_id).deliver_now if ::AutomatedEmailPolicy.enabled?
+      EventStatisticsMailer.notify(event_id).deliver_now if ::AutomatedEmailPolicy.enabled?
 
       schedule_job(event)
     end

@@ -61,7 +61,7 @@ class StaffMailer < ApplicationMailer
     mail(to: to_email, subject: subject, template_name: 'notify_sysadmin')
   end
 
-  def event_update(event, args:)
+  def event_update(event, args)
     @updated_by = args[:updated_by]
     @event_name = "#{event.code}: #{event.name} (#{event.dates})"
     @event_url = event.url
@@ -73,7 +73,7 @@ class StaffMailer < ApplicationMailer
     mail(to: to_email, subject: subject)
   end
 
-  def nametag_update(event, args:)
+  def nametag_update(event, args)
     @short_name = args[:short_name]
     @updated_by = args[:updated_by]
     @event_name = "#{event.code}: #{event.name} (#{event.dates})"
@@ -100,7 +100,7 @@ class StaffMailer < ApplicationMailer
     mail(to: staff_email, subject: subject)
   end
 
-  def site_feedback(section:, membership:, message:)
+  def site_feedback(section, membership, message)
     feedback_email = GetSetting.site_email('rsvp_feedback') || ENV['DEVISE_EMAIL']
     return if feedback_email.blank?
 
@@ -111,7 +111,7 @@ class StaffMailer < ApplicationMailer
     mail(to: feedback_email, subject: subject)
   end
 
-  def rsvp_failed(membership, args:)
+  def rsvp_failed(membership, args)
     @membership = membership
     location = membership.event.location
     @error_messages = args['error']

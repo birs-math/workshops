@@ -17,7 +17,7 @@ RSpec.describe EmailNametagUpdateJob, type: :job do
       described_class.new.perform(event.id, args)
 
       expect(StaffMailer).to have_received(:nametag_update)
-        .with(event, args: args)
+        .with(event, args)
     end
   end
 

@@ -116,7 +116,7 @@ RSpec.describe Que::DoubleCheckAttendanceJob, type: :job do
 
           subject
 
-          expect(AttendanceConfirmationMailer).to have_received(:alert_staff).with(event_id: event.id)
+          expect(AttendanceConfirmationMailer).to have_received(:alert_staff).with(event.id)
         end
       end
 

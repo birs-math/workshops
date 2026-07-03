@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '3.1.7'
+ruby '3.2.8'
 
 gem 'activerecord-session_store'
 # gem "administrate", ">= 0.13.0"

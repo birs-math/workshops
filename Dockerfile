@@ -76,8 +76,8 @@ COPY entrypoint.sh /sbin/entrypoint.sh
 RUN chmod 755 /sbin/entrypoint.sh
 COPY entrypoint-que.sh /sbin/entrypoint-que.sh
 RUN chmod 755 /sbin/entrypoint-que.sh
-RUN echo 'export PATH=$PATH:./bin:/usr/local/rvm/rubies/ruby-3.1.7/bin'>> /root/.bashrc
+RUN echo 'export PATH=$PATH:./bin:/usr/local/rvm/rubies/ruby-3.2.8/bin'>> /root/.bashrc
 RUN echo 'alias rspec="bundle exec rspec"' >> /root/.bashrc
 
-# Install Ruby 3.1.7 on the proven 2.4.1 base (minimal change vs swapping the whole base image)
-RUN /bin/bash -lc "rvm install 3.1.7 && rvm --default use 3.1.7 && rvm cleanup all"
+# Install Ruby 3.2.8 on the proven 2.4.1 base (minimal change vs swapping the whole base image)
+RUN /bin/bash -lc "rvm install 3.2.8 && rvm --default use 3.2.8 && rvm cleanup all"

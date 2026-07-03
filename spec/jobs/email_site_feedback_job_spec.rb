@@ -16,7 +16,7 @@ RSpec.describe EmailSiteFeedbackJob, type: :job do
       described_class.new.perform('RSVP', membership.id, 'Hello')
 
       expect(StaffMailer).to have_received(:site_feedback)
-        .with(section: 'RSVP', membership: membership, message: 'Hello')
+        .with('RSVP', membership, 'Hello')
     end
   end
 

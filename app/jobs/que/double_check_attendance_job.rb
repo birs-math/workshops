@@ -33,7 +33,7 @@ module Que
       return if email_group.count.zero?
       return unless ::AutomatedEmailPolicy.enabled? # suppressed during the 2026/2027 hold
 
-      AttendanceConfirmationMailer.alert_staff(event_id: event.id).deliver_now
+      AttendanceConfirmationMailer.alert_staff(event.id).deliver_now
     end
 
     def enqueue_step(step:, run_at:)
@@ -54,12 +54,12 @@ module Que
       return unless ::AutomatedEmailPolicy.enabled? # suppressed during the 2026/2027 hold
 
       email_group.each do |invitation|
-        AttendanceConfirmationMailer.remind(invitation_id: invitation.id).deliver_now
+        AttendanceConfirmationMailer.remind(invitation.id).deliver_now
       end
     end
 
     def email_group
-      Invitation.no_rsvp_from_confirmed.with_event(event_id: event.id)
+      Invitation.no_rsvp_from_confirmed.with_event(event.id)
     end
 
     def today_in_event_tz

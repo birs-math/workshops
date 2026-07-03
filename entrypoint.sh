@@ -34,11 +34,11 @@ yarn --version
 
 echo
 echo "Installing bundler..."
-/usr/local/rvm/bin/rvm-exec 3.1.7 gem install bundler -v 2.4.22
+/usr/local/rvm/bin/rvm-exec 3.2.8 gem install bundler -v 2.4.22
 
 echo
 echo "Bundle install..."
-su - app -c "cd /home/app/workshops; /usr/local/rvm/bin/rvm-exec 3.1.7 bundle install"
+su - app -c "cd /home/app/workshops; /usr/local/rvm/bin/rvm-exec 3.2.8 bundle install"
 
 if [ ! -d "${GEM_HOME}/gems" ]; then
   echo
@@ -53,13 +53,13 @@ chown app:app -R /usr/local/rvm/gems
 
 echo
 echo "Running migrations..."
-/usr/local/rvm/bin/rvm-exec 3.1.7 bundle exec rails db:migrate
+/usr/local/rvm/bin/rvm-exec 3.2.8 bundle exec rails db:migrate
 
 echo
 echo "Checking for WebPacker..."
 if [ ! -e /home/app/workshops/bin/webpack ]; then
   echo "Installing webpacker..."
-  RAILS_ENV=production /usr/local/rvm/bin/rvm-exec 3.1.7 bundle exec rails webpacker:install
+  RAILS_ENV=production /usr/local/rvm/bin/rvm-exec 3.2.8 bundle exec rails webpacker:install
   echo "Done!"
   echo
 fi
@@ -81,4 +81,4 @@ su - app -c "cd /home/app/workshops; yarn"
 #su - app -c "ruby /home/app/workshops/bin/webpack-dev-server &"
 echo
 echo "Starting web server..."
-/usr/local/rvm/bin/rvm-exec 3.1.7 bundle exec passenger start #--min-instances 2
+/usr/local/rvm/bin/rvm-exec 3.2.8 bundle exec passenger start #--min-instances 2

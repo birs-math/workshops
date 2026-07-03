@@ -24,7 +24,7 @@ class ConfirmEmailMailer < ApplicationMailer
   app_email = GetSetting.site_email('webmaster_email')
   default from: app_email
 
-  def send_msg(confirm_id, mode: 'replace')
+  def send_msg(confirm_id, mode = 'replace')
     confirm = ConfirmEmailChange.find(confirm_id)
     @replace_person = Person.find_by_id(confirm.replace_person_id)
     @replace_with_person = Person.find_by_id(confirm.replace_with_id)
