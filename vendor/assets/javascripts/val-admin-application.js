@@ -15,7 +15,7 @@
 //= require vali-admin/docs/js/popper.min
 //= require vali-admin/docs/js/bootstrap.min
 //= require vali-admin/docs/js/plugins/bootstrap-notify.min
-//= require turbolinks
+//= require turbo
 //= require_self
 //= require main
 

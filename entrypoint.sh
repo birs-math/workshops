@@ -55,14 +55,6 @@ echo
 echo "Running migrations..."
 /usr/local/rvm/bin/rvm-exec 3.2.8 bundle exec rails db:migrate
 
-echo
-echo "Checking for WebPacker..."
-if [ ! -e /home/app/workshops/bin/webpack ]; then
-  echo "Installing webpacker..."
-  RAILS_ENV=production /usr/local/rvm/bin/rvm-exec 3.2.8 bundle exec rails webpacker:install
-  echo "Done!"
-  echo
-fi
 
 if [ ! -e /home/app/workshops/tmp ]; then
   mkdir /home/app/workshops/tmp
@@ -77,8 +69,6 @@ su - app -c "cd /home/app/workshops; RAILS_ENV=production SECRET_KEY_BASE=token 
 su - app -c "cd /home/app/workshops; yarn"
 
 #echo
-#echo "Launching webpack-dev-server..."
-#su - app -c "ruby /home/app/workshops/bin/webpack-dev-server &"
 echo
 echo "Starting web server..."
 /usr/local/rvm/bin/rvm-exec 3.2.8 bundle exec passenger start #--min-instances 2

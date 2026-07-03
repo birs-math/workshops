@@ -7,10 +7,10 @@
 
   <title><%= Setting.Site['title'] %></title>
 
-  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
-  <%= stylesheet_link_tag    'application', media: 'screen, projection', 'data-turbolinks-track' => true %>
-  <%= stylesheet_link_tag    'print', media: 'print', 'data-turbolinks-track' => true %>
-  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbo-track' => true %>
+  <%= stylesheet_link_tag    'application', media: 'screen, projection', 'data-turbo-track' => true %>
+  <%= stylesheet_link_tag    'print', media: 'print', 'data-turbo-track' => true %>
+  <%= javascript_include_tag 'application', 'data-turbo-track' => true %>
   <%= csrf_meta_tags %>
 
   <%= render 'layouts/favicon' %>
