@@ -33,6 +33,16 @@ echo "Yarn version:"
 yarn --version
 
 echo
+# The rubygems dir is a persisted volume. On a host whose volume predates this
+# Ruby (e.g. staging/prod carried a 2.7.8 gemset), the 3.2.8 gemset bin/ starts
+# empty, so `gem install bundler` writes a bundle wrapper whose shebang points
+# at a gemset-local ruby that was never created -> exec ruby: not found (exit
+# 127) at boot. Ensure the gemset ruby wrapper exists before installing bundler.
+echo "Ensuring rvm gemset ruby wrapper..."
+mkdir -p /usr/local/rvm/gems/ruby-3.2.8/bin
+ln -sf /usr/local/rvm/rubies/ruby-3.2.8/bin/ruby /usr/local/rvm/gems/ruby-3.2.8/bin/ruby
+
+echo
 echo "Installing bundler..."
 /usr/local/rvm/bin/rvm-exec 3.2.8 gem install bundler -v 2.4.22
 
