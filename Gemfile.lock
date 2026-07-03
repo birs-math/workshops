@@ -483,6 +483,8 @@ GEM
       ostruct
     sucker_punch (3.3.0)
       concurrent-ruby (~> 1.0)
+    terser (1.2.7)
+      execjs (>= 0.3.0, < 3)
     thor (1.5.0)
     tilt (2.7.0)
     timeout (0.6.1)
@@ -491,8 +493,6 @@ GEM
     turbolinks-source (5.2.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-    uglifier (4.2.1)
-      execjs (>= 0.3.0, < 3)
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.2.0)
@@ -593,8 +593,8 @@ DEPENDENCIES
   spring
   sqlite3 (~> 1.7)
   sucker_punch
+  terser
   turbolinks
-  uglifier
   web-console
   webpacker (~> 5.x)
   wicked_pdf
