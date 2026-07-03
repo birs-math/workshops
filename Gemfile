@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.7.8'
+ruby '3.1.7'
 
 gem 'activerecord-session_store'
 # gem "administrate", ">= 0.13.0"
@@ -29,7 +29,11 @@ gem 'paper_trail'
 gem 'passenger', '~> 6.0.12'
 gem 'pg', '~> 1.5'
 gem 'popper_js', '~> 1.16.0'
-gem 'psych', '~> 3.3.2'
+# psych stays at 3.x even on Ruby 3.1 (which bundles psych 4): psych 4 makes
+# YAML.load safe-by-default, and rails-settings-cached 0.7.2 raw-YAML.loads its
+# value column (bypassing AR's yaml_column_permitted_classes) -> DisallowedClass
+# on every Setting read. Unblock when rails-settings-cached >= 2.x lands (Phase 5).
+gem 'psych', '~> 3.3'
 gem 'pundit'
 gem 'que', '~> 2.2.1'
 gem 'que-scheduler'
@@ -52,7 +56,7 @@ group :development, :test do
   gem 'factory_bot_rails'
   gem 'rspec-rails'
   gem 'spring'
-  gem 'sqlite3', '~> 1.3.6'
+  gem 'sqlite3', '~> 1.7'
 end
 
 group :test do

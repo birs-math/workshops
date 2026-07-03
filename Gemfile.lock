@@ -449,7 +449,8 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
-    sqlite3 (1.3.13)
+    sqlite3 (1.7.3)
+      mini_portile2 (~> 2.8.0)
     sshkit (1.25.0)
       base64
       logger
@@ -545,7 +546,7 @@ DEPENDENCIES
   passenger (~> 6.0.12)
   pg (~> 1.5)
   popper_js (~> 1.16.0)
-  psych (~> 3.3.2)
+  psych (~> 3.3)
   pundit
   que (~> 2.2.1)
   que-scheduler
@@ -567,7 +568,7 @@ DEPENDENCIES
   simplecov
   simplecov-lcov
   spring
-  sqlite3 (~> 1.3.6)
+  sqlite3 (~> 1.7)
   sucker_punch
   turbolinks
   uglifier
@@ -577,7 +578,7 @@ DEPENDENCIES
   wkhtmltopdf-binary
 
 RUBY VERSION
-   ruby 2.7.8p225
+   ruby 3.1.7p261
 
 BUNDLED WITH
    2.4.22
