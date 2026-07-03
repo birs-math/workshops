@@ -26,7 +26,10 @@ gem 'listen'
 gem 'mailgun-ruby'
 gem 'momentjs-rails'
 gem 'paper_trail'
-gem 'passenger', '~> 6.0.12'
+# 6.0.15+ required on Ruby 3.2 (6.0.12's own platform_info uses File.exists?,
+# removed in 3.2). Newer passenger downloads a fresh nginx engine: the untracked
+# per-env nginx.conf.erb must NOT contain 'ssl off;' (removed 2026-07-01).
+gem 'passenger', '~> 6.0.15'
 gem 'pg', '~> 1.5'
 gem 'popper_js', '~> 1.16.0'
 # psych stays at 3.x even on Ruby 3.1 (which bundles psych 4): psych 4 makes
