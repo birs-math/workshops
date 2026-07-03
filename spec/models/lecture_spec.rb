@@ -94,7 +94,7 @@ RSpec.describe Lecture, type: :model do
 
   it 'is invalid if the end time is outside of the event\'s dates' do
     expect(@lecture).to be_valid
-    @lecture.end_time = (@event_end + 1.days + 11.hours).to_s(:db)
+    @lecture.end_time = (@event_end + 1.days + 11.hours).to_fs(:db)
     expect(@lecture).not_to be_valid
     expect(@lecture.errors).to include(:end_time)
   end

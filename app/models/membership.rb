@@ -14,7 +14,7 @@ class Membership < ApplicationRecord
   belongs_to :person
   accepts_nested_attributes_for :person
   has_one :invitation, dependent: :delete
-  serialize :invite_reminders, Hash
+  serialize :invite_reminders, coder: YAML, type: Hash
 
   before_save :set_billing, :set_guests
   after_save :update_counter_cache

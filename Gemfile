@@ -38,11 +38,11 @@ gem 'popper_js', '~> 1.16.0'
 # on every Setting read. Unblock when rails-settings-cached >= 2.x lands (Phase 5).
 gem 'psych', '~> 3.3'
 gem 'pundit'
-gem 'que', '~> 2.2.1'
+gem 'que', '~> 2.4'
 gem 'que-scheduler'
 gem 'rack', ">= 2.2.3"
 gem 'rack-cors', require: 'rack/cors'
-gem 'rails', '~> 7.0.8'
+gem 'rails', '~> 7.1.5'
 gem 'rails-settings-cached', '0.7.2'
 gem 'rest-client'
 gem 'sassc-rails'
