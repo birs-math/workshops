@@ -42,7 +42,7 @@ gem 'que', '~> 2.2.1'
 gem 'que-scheduler'
 gem 'rack', ">= 2.2.3"
 gem 'rack-cors', require: 'rack/cors'
-gem 'rails', '~> 6.1.7'
+gem 'rails', '~> 7.0.8'
 gem 'rails-settings-cached', '0.7.2'
 gem 'rest-client'
 gem 'sassc-rails'
@@ -95,8 +95,3 @@ gem 'dry-auto_inject', '~> 0.8.0'
 # administrate 1.0 removes valid_action?/routes used by our dashboards;
 # held at 0.16 until dashboards are migrated to the 1.x API.
 gem 'administrate', '~> 0.16.0'
-# concurrent-ruby 1.3.5+ removed its 'logger' require; activesupport 6.x
-# (both 6.0 and 6.1 — verified empirically 2026-07-02) references Logger
-# before requiring it. NOT fixed in 6.1 (EOL). Re-test the unblock at the
-# Rails 7.0 bump.
-gem 'concurrent-ruby', '< 1.3.5'

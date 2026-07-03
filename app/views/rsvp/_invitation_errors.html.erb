@@ -3,8 +3,8 @@
     <div class="row">
       <h3>There is a problem with that invitation code:</h3>
       <ul>
-        <% @invitation.errors.each do |key, message| %>
-          <li><strong><%= key %></strong>: <%= message.html_safe %></li>
+        <% @invitation.errors.each do |error| %>
+          <li><strong><%= error.attribute %></strong>: <%= error.message.html_safe %></li>
         <% end %>
       </ul>
       <h4>
