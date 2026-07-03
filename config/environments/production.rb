@@ -40,10 +40,9 @@ Rails.application.configure do
   # config.action_cable.allowed_request_origins = [ 'http://example.com', /http:\/\/example.*/ ]
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
+  # Rails 7.0 removed controller-level force_ssl (ActionController::ForceSSL);
+  # config.force_ssl covers the whole app via middleware, incl. Devise
   config.force_ssl = true
-  config.to_prepare { Devise::SessionsController.force_ssl }
-  config.to_prepare { Devise::RegistrationsController.force_ssl }
-  config.to_prepare { Devise::PasswordsController.force_ssl }
 
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.
@@ -116,8 +115,4 @@ Rails.application.configure do
   config.action_mailer.logger = ActiveSupport::Logger.new("log/mailer.log")
   config.action_mailer.logger.level = ActiveSupport::Logger::Severity::INFO
 
-  # Devise should always use SSL
-  config.to_prepare { Devise::SessionsController.force_ssl }
-  config.to_prepare { Devise::RegistrationsController.force_ssl }
-  config.to_prepare { Devise::PasswordsController.force_ssl }
 end
