@@ -53,7 +53,7 @@ RSpec.describe 'Model validations: Invitation', type: :model do
     i = create(:invitation, membership: membership)
 
     end_time = event.end_date.end_of_day.in_time_zone(event.time_zone)
-    expect(i.expires).to eq(end_time)
+    expect(i.expires.to_i).to eq(end_time.to_i) # second precision: DB casts sub-second
   end
 
   it 'for hybrid events & virtual attendees, sets expiry date to workshop
@@ -63,7 +63,7 @@ RSpec.describe 'Model validations: Invitation', type: :model do
     i = create(:invitation, membership: membership)
 
     end_time = event.end_date.end_of_day.in_time_zone(event.time_zone)
-    expect(i.expires).to eq(end_time)
+    expect(i.expires.to_i).to eq(end_time.to_i) # second precision: DB casts sub-second
   end
 
   context '.send_invite' do

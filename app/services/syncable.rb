@@ -137,9 +137,12 @@ module Syncable
   end
 
   def skip_update_fields(k)
-    # 'id': remote hashes carry the sender's row id; assigning it onto a new
-    # local record makes Rails 6 INSERT an explicit NULL/foreign primary key
-    k == 'id' || k == 'legacy_id' || k == 'email' || k == 'biography' ||
+    # 'id'/'created_at'/'updated_at': remote hashes carry the sender's row
+    # metadata; assigning them onto a local record inserts explicit NULLs
+    # (or foreign values) for columns Rails manages itself. updated_at
+    # bookkeeping is handled by update_record_updateds.
+    k == 'id' || k == 'created_at' || k == 'updated_at' ||
+      k == 'legacy_id' || k == 'email' || k == 'biography' ||
       k == 'research_areas'
   end
 
