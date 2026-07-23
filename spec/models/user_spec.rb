@@ -73,4 +73,113 @@ RSpec.describe User, type: :model do
     expect(u.role).not_to eq('staff')
     expect(u).to be_valid
   end
+
+  describe 'role predicates' do
+    it '#is_admin? true for admin' do
+      expect(build(:user, :admin).is_admin?).to be true
+    end
+
+    it '#is_admin? true for super_admin' do
+      expect(build(:user, :super_admin).is_admin?).to be true
+    end
+
+    it '#is_admin? false for staff' do
+      expect(build(:user, :staff).is_admin?).to be false
+    end
+
+    it '#is_admin? false for member' do
+      expect(build(:user).is_admin?).to be false
+    end
+
+    it '#is_staff? true for staff, admin, and super_admin' do
+      expect(build(:user, :staff).is_staff?).to be true
+      expect(build(:user, :admin).is_staff?).to be true
+      expect(build(:user, :super_admin).is_staff?).to be true
+    end
+
+    it '#is_staff? false for member' do
+      expect(build(:user).is_staff?).to be false
+    end
+  end
+
+  describe 'event membership predicates' do
+    let(:event) { create(:event, current: true) }
+    let(:other_event) { create(:event, current: true) }
+    let(:person) { create(:person) }
+    let(:user) { create(:user, person: person) }
+
+    describe '#is_organizer?' do
+      it 'true when person has Organizer role' do
+        create(:membership, person: person, event: event, role: 'Organizer')
+        expect(user.is_organizer?(event)).to be true
+      end
+
+      it 'true when person has Contact Organizer role' do
+        create(:membership, person: person, event: event, role: 'Contact Organizer')
+        expect(user.is_organizer?(event)).to be true
+      end
+
+      it 'false when person has Participant role' do
+        create(:membership, person: person, event: event, role: 'Participant')
+        expect(user.is_organizer?(event)).to be false
+      end
+
+      it 'false when person is organizer on a different event' do
+        create(:membership, person: person, event: other_event, role: 'Organizer')
+        expect(user.is_organizer?(event)).to be false
+      end
+
+      it 'false when no membership exists' do
+        expect(user.is_organizer?(event)).to be false
+      end
+    end
+
+    describe '#is_member?' do
+      %w[Confirmed Invited Undecided].each do |status|
+        it "true when attendance is #{status}" do
+          create(:membership, person: person, event: event, attendance: status)
+          expect(user.is_member?(event)).to be true
+        end
+      end
+
+      ['Declined', 'Not Yet Invited'].each do |status|
+        it "false when attendance is #{status}" do
+          create(:membership, person: person, event: event, attendance: status)
+          expect(user.is_member?(event)).to be false
+        end
+      end
+
+      it 'false when membership is for another event' do
+        create(:membership, person: person, event: other_event, attendance: 'Confirmed')
+        expect(user.is_member?(event)).to be false
+      end
+
+      it 'false when no membership exists' do
+        expect(user.is_member?(event)).to be false
+      end
+    end
+
+    describe '#is_confirmed_member?' do
+      it 'true when attendance is Confirmed' do
+        create(:membership, person: person, event: event, attendance: 'Confirmed')
+        expect(user.is_confirmed_member?(event)).to be true
+      end
+
+      %w[Invited Undecided Declined].each do |status|
+        it "false when attendance is #{status}" do
+          create(:membership, person: person, event: event, attendance: status)
+          expect(user.is_confirmed_member?(event)).to be false
+        end
+      end
+
+      it 'false when confirmed on a different event' do
+        create(:membership, person: person, event: other_event, attendance: 'Confirmed')
+        expect(user.is_confirmed_member?(event)).to be false
+      end
+
+      it 'false when no membership exists' do
+        expect(user.is_confirmed_member?(event)).to be false
+      end
+    end
+  end
 end
