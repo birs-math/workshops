@@ -88,8 +88,10 @@ class InvitationChecker
     check_attendance(invitation)
 
     unless @errors.empty?
-      @errors.each do |k, v|
-        invitation.errors.add(k.to_sym, v.to_s)
+      # Rails 7.0: ActiveModel::Errors#each yields Error objects (the two-param
+      # hash-style block raised ArgumentError from 7.0)
+      @errors.each do |error|
+        invitation.errors.add(error.attribute, error.message)
       end
     end
   end

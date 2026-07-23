@@ -17,7 +17,7 @@ RSpec.describe EmailEventUpdateJob, type: :job do
       described_class.new.perform(event.id, args)
 
       expect(StaffMailer).to have_received(:event_update)
-        .with(event, args: args)
+        .with(event, args)
     end
   end
 

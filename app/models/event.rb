@@ -45,7 +45,7 @@ class Event < ApplicationRecord
 
   # app/models/concerns/event_decorators.rb
   include EventDecorators
-  include EventRSVP
+  include EventRsvp
 
   # Find by code
   def to_param

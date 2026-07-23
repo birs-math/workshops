@@ -272,9 +272,9 @@ RSpec.describe RsvpController, type: :controller do
       expect(response).to render_template(:yes)
     end
 
-    it 'assigns an array of years' do
+    it 'assigns an array of years, 1930 to current, newest first' do
       get :yes, params: { otp: @invitation.code }
-      expect(assigns(:years)).to include(1930..Date.current.year)
+      expect(assigns(:years)).to eq((1930..Date.current.year).to_a.reverse)
     end
   end
 

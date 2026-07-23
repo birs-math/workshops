@@ -142,9 +142,9 @@ RSpec.describe 'Model validations: Schedule', type: :model do
 
   it 'is invalid if the start time is outside of the event\'s dates' do
     schedule = build(:schedule, event: @event)
-    schedule.start_time = (schedule.event.start_date - 1.days + 11.hours).to_s(:db)
+    schedule.start_time = (schedule.event.start_date - 1.days + 11.hours).to_fs(:db)
     expect(schedule).not_to be_valid
-    schedule.start_time = (schedule.event.end_date + 1.days + 11.hours).to_s(:db)
+    schedule.start_time = (schedule.event.end_date + 1.days + 11.hours).to_fs(:db)
     expect(schedule).not_to be_valid
   end
 

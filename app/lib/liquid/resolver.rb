@@ -11,7 +11,7 @@ require 'singleton'
 class Liquid::Resolver < ActionView::Resolver
   include Singleton
 
-  def find_templates(name, prefix, _partial, _details)
+  def find_templates(name, prefix, _partial, _details, _locals = [])
     EmailNotification.resolver_lookup(path: build_path(name, prefix)).map do |record|
       to_template(record)
     end
@@ -25,8 +25,10 @@ class Liquid::Resolver < ActionView::Resolver
     identifier = "#{record.class} - #{record.id} - #{record.path}"
     handler = ActionView::Template.registered_template_handler(record.handler)
 
+    # format column is nullable; Rails 6 requires a symbol and rejects nil
     ActionView::Template.new(record.body, identifier, handler,
-                             format: record.format,
+                             format: (record.format || 'html').to_sym,
+                             locals: [],
                              virtual_path: record.path)
   end
 end

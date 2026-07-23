@@ -27,11 +27,10 @@ class Person < ApplicationRecord
 
   before_validation :downcase_email
   before_save :clean_data, :set_usa, :grants_to_array
-  serialize :grants
+  serialize :grants, coder: YAML
 
   validates :email, presence: true,
-                    case_sensitive: false,
-                    uniqueness: true,
+                    uniqueness: { case_sensitive: false },
                     email: true
   validates :firstname, :lastname, :updated_by, presence: true
   validates :gender, :country, presence: true, if: :is_rsvp

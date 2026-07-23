@@ -1,4 +1,13 @@
 Rails.application.configure do
+  config.assets.check_precompiled_asset = false
+
+  # Rails 6 HostAuthorization allows only localhost in development by default,
+  # but wstaging runs the development environment (via Passengerfile) behind
+  # its real hostname — without this, every external request is a 403
+  # "Blocked host". APPLICATION_HOST is e.g. "wstaging.birs.ca" or
+  # "localhost:3000"; config.hosts wants the bare hostname.
+  config.hosts << ENV['APPLICATION_HOST'].split(':').first if ENV['APPLICATION_HOST'].present?
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # In the development environment your application's code is reloaded on

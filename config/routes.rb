@@ -86,10 +86,6 @@ Rails.application.routes.draw do
   get '/invitations' => 'invitations#index'
   get '/invitations/new/(:id)' => 'invitations#new', as: :invitations_new
   post '/invitations/create' => 'invitations#create'
-  get '/invitations/send/:membership_id' => 'invitations#send_invite',
-      as: :invitations_send
-  get '/invitations/send_all/:event_id' => 'invitations#send_all_invites',
-      as: :all_invitations_send
 
   get '/rsvp' => 'rsvp#index'
   get '/rsvp/confirm/:otp' => 'rsvp#confirm_attendance', as: :rsvp_confirm_attendance

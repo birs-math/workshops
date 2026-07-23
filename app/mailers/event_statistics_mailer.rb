@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class EventStatisticsMailer < ApplicationMailer
-  def notify(event_id:)
+  def notify(event_id)
     @event = Event.find(event_id)
 
     @confirmed_count = Membership.in_person.confirmed.where(event: @event).count

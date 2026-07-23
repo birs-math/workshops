@@ -19,7 +19,9 @@ Rails.application.configure do
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
   # Compress JavaScripts and CSS.
-  config.assets.js_compressor = Uglifier.new(harmony: true)
+  # Rails 7 ships rails-ujs as ES2015+/ES2020; uglify-es (even harmony mode)
+  # cannot parse it. terser is the maintained drop-in successor.
+  config.assets.js_compressor = :terser
   # config.assets.css_compressor = :sass
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
@@ -40,10 +42,9 @@ Rails.application.configure do
   # config.action_cable.allowed_request_origins = [ 'http://example.com', /http:\/\/example.*/ ]
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
+  # Rails 7.0 removed controller-level force_ssl (ActionController::ForceSSL);
+  # config.force_ssl covers the whole app via middleware, incl. Devise
   config.force_ssl = true
-  config.to_prepare { Devise::SessionsController.force_ssl }
-  config.to_prepare { Devise::RegistrationsController.force_ssl }
-  config.to_prepare { Devise::PasswordsController.force_ssl }
 
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.
@@ -116,8 +117,4 @@ Rails.application.configure do
   config.action_mailer.logger = ActiveSupport::Logger.new("log/mailer.log")
   config.action_mailer.logger.level = ActiveSupport::Logger::Severity::INFO
 
-  # Devise should always use SSL
-  config.to_prepare { Devise::SessionsController.force_ssl }
-  config.to_prepare { Devise::RegistrationsController.force_ssl }
-  config.to_prepare { Devise::PasswordsController.force_ssl }
 end

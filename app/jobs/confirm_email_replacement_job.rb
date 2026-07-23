@@ -11,7 +11,7 @@ class ConfirmEmailReplacementJob < ApplicationJob
   queue_as :urgent
 
   def perform(confirm_id)
-    ConfirmEmailMailer.send_msg(confirm_id, mode: 'replace').deliver_now
-    ConfirmEmailMailer.send_msg(confirm_id, mode: 'replace_with').deliver_now
+    ConfirmEmailMailer.send_msg(confirm_id, 'replace').deliver_now
+    ConfirmEmailMailer.send_msg(confirm_id, 'replace_with').deliver_now
   end
 end

@@ -19,7 +19,7 @@ class Invitation < ApplicationRecord
   scope :no_rsvp_from_confirmed, lambda {
     joins(:membership).where(memberships: { attendance: 'Confirmed', role: Membership::IN_PERSON_ROLES })
   }
-  scope :with_event, ->(event_id:) { joins(:membership).where(memberships: { event_id: event_id }) }
+  scope :with_event, ->(event_id) { joins(:membership).where(memberships: { event_id: event_id }) }
 
   def generate_code
     self.code = SecureRandom.urlsafe_base64(37) if self.code.blank?

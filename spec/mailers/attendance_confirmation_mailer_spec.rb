@@ -8,7 +8,7 @@ RSpec.describe AttendanceConfirmationMailer do
   let(:event) { create(:event) }
 
   describe '.remind' do
-    subject { described_class.remind(invitation_id: invitation.id).deliver_now }
+    subject { described_class.remind(invitation.id).deliver_now }
 
     let(:invitation) { create(:invitation, membership: create(:membership, event: event)) }
 
@@ -24,7 +24,7 @@ RSpec.describe AttendanceConfirmationMailer do
   end
 
   describe '.alert_staff' do
-    subject { described_class.alert_staff(event_id: event.id).deliver_now }
+    subject { described_class.alert_staff(event.id).deliver_now }
 
     let(:membership) { create(:membership, attendance: 'Confirmed', role: 'Participant', event: event) }
 

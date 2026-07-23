@@ -1,9 +1,9 @@
 source 'https://rubygems.org'
 
-ruby '2.7.8'
+ruby '3.2.8'
 
 gem 'activerecord-session_store'
-gem "administrate", ">= 0.13.0"
+# gem "administrate", ">= 0.13.0"
 gem 'bcrypt'
 gem 'bootsnap'
 gem 'bootstrap', '~> 4.5.0'
@@ -26,24 +26,30 @@ gem 'listen'
 gem 'mailgun-ruby'
 gem 'momentjs-rails'
 gem 'paper_trail'
-gem 'passenger'
-gem 'pg', '1.1.3'
+# 6.0.15+ required on Ruby 3.2 (6.0.12's own platform_info uses File.exists?,
+# removed in 3.2). Newer passenger downloads a fresh nginx engine: the untracked
+# per-env nginx.conf.erb must NOT contain 'ssl off;' (removed 2026-07-01).
+gem 'passenger', '~> 6.0.15'
+gem 'pg', '~> 1.5'
 gem 'popper_js', '~> 1.16.0'
-gem 'psych', '~> 3.3.2'
+# psych stays at 3.x even on Ruby 3.1 (which bundles psych 4): psych 4 makes
+# YAML.load safe-by-default, and rails-settings-cached 0.7.2 raw-YAML.loads its
+# value column (bypassing AR's yaml_column_permitted_classes) -> DisallowedClass
+# on every Setting read. Unblock when rails-settings-cached >= 2.x lands (Phase 5).
+gem 'psych', '~> 3.3'
 gem 'pundit'
-gem 'que', '~> 2.2.1'
+gem 'que', '~> 2.4'
 gem 'que-scheduler'
 gem 'rack', ">= 2.2.3"
 gem 'rack-cors', require: 'rack/cors'
-gem 'rails', '~> 5.2.8.1'
+gem 'rails', '~> 7.1.5'
 gem 'rails-settings-cached', '0.7.2'
 gem 'rest-client'
 gem 'sassc-rails'
 gem 'sdoc', group: :doc
 gem 'sucker_punch'
 gem 'turbolinks'
-gem 'uglifier'
-gem 'webpacker', '~> 5.x'
+gem 'terser'
 gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'
 
@@ -52,7 +58,7 @@ group :development, :test do
   gem 'factory_bot_rails'
   gem 'rspec-rails'
   gem 'spring'
-  gem 'sqlite3', '~> 1.3.6'
+  gem 'sqlite3', '~> 1.7'
 end
 
 group :test do
@@ -76,13 +82,15 @@ group :development do
   gem 'bcrypt_pbkdf', '~> 1.0'
   gem 'capistrano', '~> 3.10', require: false
   gem 'capistrano-rails', '~> 1.4', require: false
-  gem 'pronto'
-  gem 'pronto-brakeman'
-  gem 'pronto-flay'
-  gem 'pronto-poper'
-  gem 'pronto-reek'
-  gem 'pronto-rubocop'
   gem 'rbnacl', '~> 7.0'
   gem 'rubocop-rails'
   gem 'web-console'
 end
+# Pins forced by the Rails 6.0 bump — each names its unblock condition:
+# dry-container/dry-auto_inject 0.9+ break devise-jwt's warden-jwt_auth 0.5;
+# revisit when devise-jwt is bumped (planned with dry-configurable 1.x, Phase 5).
+gem 'dry-container', '~> 0.8.0'
+gem 'dry-auto_inject', '~> 0.8.0'
+# administrate 1.0 removes valid_action?/routes used by our dashboards;
+# held at 0.16 until dashboards are migrated to the 1.x API.
+gem 'administrate', '~> 0.16.0'

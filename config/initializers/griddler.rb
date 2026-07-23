@@ -36,9 +36,13 @@ Griddler::Email.class_eval do
   prepend GriddlerEmailExtensions
 end
 
-Griddler.configure do |config|
-  config.email_service = :mailgun
-  config.processor_class = EmailProcessor
-  config.processor_method = :process
+# Rails 7.0: referencing autoloadable app constants during initialization is an
+# error; resolve EmailProcessor lazily inside to_prepare (re-runs on reload)
+Rails.application.config.to_prepare do
+  Griddler.configure do |config|
+    config.email_service = :mailgun
+    config.processor_class = EmailProcessor
+    config.processor_method = :process
+  end
 end
 

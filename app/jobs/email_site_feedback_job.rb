@@ -12,7 +12,6 @@ class EmailSiteFeedbackJob < ApplicationJob
 
   def perform(section, membership_id, message)
     membership = Membership.find_by_id(membership_id)
-    StaffMailer.site_feedback(section: section, membership: membership,
-      message: message).deliver_now
+    StaffMailer.site_feedback(section, membership, message).deliver_now
   end
 end

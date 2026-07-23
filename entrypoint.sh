@@ -33,12 +33,22 @@ echo "Yarn version:"
 yarn --version
 
 echo
+# The rubygems dir is a persisted volume. On a host whose volume predates this
+# Ruby (e.g. staging/prod carried a 2.7.8 gemset), the 3.2.8 gemset bin/ starts
+# empty, so `gem install bundler` writes a bundle wrapper whose shebang points
+# at a gemset-local ruby that was never created -> exec ruby: not found (exit
+# 127) at boot. Ensure the gemset ruby wrapper exists before installing bundler.
+echo "Ensuring rvm gemset ruby wrapper..."
+mkdir -p /usr/local/rvm/gems/ruby-3.2.8/bin
+ln -sf /usr/local/rvm/rubies/ruby-3.2.8/bin/ruby /usr/local/rvm/gems/ruby-3.2.8/bin/ruby
+
+echo
 echo "Installing bundler..."
-/usr/local/rvm/bin/rvm-exec 2.7.8 gem install bundler -v 2.4.22
+/usr/local/rvm/bin/rvm-exec 3.2.8 gem install bundler -v 2.4.22
 
 echo
 echo "Bundle install..."
-su - app -c "cd /home/app/workshops; /usr/local/rvm/bin/rvm-exec 2.7.8 bundle install"
+su - app -c "cd /home/app/workshops; /usr/local/rvm/bin/rvm-exec 3.2.8 bundle install"
 
 if [ ! -d "${GEM_HOME}/gems" ]; then
   echo
@@ -53,16 +63,8 @@ chown app:app -R /usr/local/rvm/gems
 
 echo
 echo "Running migrations..."
-/usr/local/rvm/bin/rvm-exec 2.7.8 bundle exec rails db:migrate
+/usr/local/rvm/bin/rvm-exec 3.2.8 bundle exec rails db:migrate
 
-echo
-echo "Checking for WebPacker..."
-if [ ! -e /home/app/workshops/bin/webpack ]; then
-  echo "Installing webpacker..."
-  RAILS_ENV=production /usr/local/rvm/bin/rvm-exec 2.7.8 bundle exec rails webpacker:install
-  echo "Done!"
-  echo
-fi
 
 if [ ! -e /home/app/workshops/tmp ]; then
   mkdir /home/app/workshops/tmp
@@ -77,8 +79,6 @@ su - app -c "cd /home/app/workshops; RAILS_ENV=production SECRET_KEY_BASE=token 
 su - app -c "cd /home/app/workshops; yarn"
 
 #echo
-#echo "Launching webpack-dev-server..."
-#su - app -c "ruby /home/app/workshops/bin/webpack-dev-server &"
 echo
 echo "Starting web server..."
-/usr/local/rvm/bin/rvm-exec 2.7.8 bundle exec passenger start #--min-instances 2
+/usr/local/rvm/bin/rvm-exec 3.2.8 bundle exec passenger start #--min-instances 2

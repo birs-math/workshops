@@ -2,6 +2,6 @@
 
 class AttendanceConfirmationMailerPreview < ActionMailer::Preview
   def remind
-    AttendanceConfirmationMailer.remind(invitation_id: Invitation.last.id)
+    AttendanceConfirmationMailer.remind(Invitation.last.id)
   end
 end

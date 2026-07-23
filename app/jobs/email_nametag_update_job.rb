@@ -12,6 +12,6 @@ class EmailNametagUpdateJob < ApplicationJob
 
   def perform(event_code, params)
     event = Event.find(event_code)
-    StaffMailer.nametag_update(event, args: params).deliver_now
+    StaffMailer.nametag_update(event, params).deliver_now
   end
 end

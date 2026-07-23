@@ -62,7 +62,9 @@ describe Api::V1::EventsController do
     end
 
     it 'assigns max_participants to Settings.Location[location][max_participants]' do
-      event = build(:event, max_participants: nil)
+      # Physical format: the model forces max_participants to 0 for Online
+      # events, and the factory samples a random format
+      event = build(:event, max_participants: nil, event_format: 'Physical')
       @payload['event'] = event.as_json
 
       post '/api/v1/events.json', params: @payload.to_json

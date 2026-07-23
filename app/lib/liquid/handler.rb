@@ -14,8 +14,10 @@ module Liquid
   class Handler
     include ActionView::Helpers::TextHelper
 
-    def self.call(template)
-      "Liquid::Handler.new(self).render(#{template.source.inspect}, local_assigns)"
+    # Rails 6.1+ passes (template, source); source may be nil for legacy callers
+    def self.call(template, source = nil)
+      src = source || template.source
+      "Liquid::Handler.new(self).render(#{src.inspect}, local_assigns)"
     end
 
     def initialize(view)

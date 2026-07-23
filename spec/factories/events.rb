@@ -3,13 +3,14 @@ require 'factory_bot_rails'
 require 'faker'
 
 FactoryBot.define do
-  sequence(:code) do
-    yrw5 = DateTime.current.strftime("%y") + 'w5'
-    code = yrw5 + Random.rand(999).to_s.rjust(3, '0')
-    while Event.where(code: code).exists?
-      code = yrw5 + Random.rand(999).to_s.rjust(3, '0')
-    end
-    code
+  # Deterministic, collision-free: the sequence counter (unique per generation)
+  # drives the last 3 digits. The old version used Random.rand(999) — only 1000
+  # possible codes — which produced intermittent "Code has already been taken"
+  # failures in large suite runs. `n % 1000` stays unique within any single test
+  # (no test creates 1000 events); DatabaseCleaner wipes between tests. Format
+  # stays valid: 2-digit year + 'w' + 4 digits.
+  sequence(:code) do |n|
+    DateTime.current.strftime("%y") + 'w5' + (n % 1000).to_s.rjust(3, '0')
   end
   sequence(:start_date, 1) do |n|
     n = 1 if n > 48 # avoid going years into the future

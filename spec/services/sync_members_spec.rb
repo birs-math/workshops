@@ -523,7 +523,7 @@ describe "SyncMembers" do
         lc = FakeLegacyConnector.new
         changes = { m: membership, sn: 'Hi', updated_at: DateTime.now }
         allow(lc).to receive(:get_members).with(membership.event)
-                      .and_return(lc.get_members_with_changed_membership(changes))
+                      .and_return(lc.get_members_with_changed_membership(**changes))
         expect(LegacyConnector).to receive(:new).and_return(lc)
 
         SyncMembers.new(membership.event)

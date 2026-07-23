@@ -18,7 +18,7 @@ RSpec.describe Que::ReportEventStatisticsJob, type: :job do
     it 'calls EventStatisticsMailer' do
       allow(EventStatisticsMailer).to receive(:notify).and_call_original
       subject
-      expect(EventStatisticsMailer).to have_received(:notify).with(event_id: event.id)
+      expect(EventStatisticsMailer).to have_received(:notify).with(event.id)
     end
 
     describe 'rescheduling' do
