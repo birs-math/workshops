@@ -41,6 +41,32 @@ describe Api::V1::LecturesController, type: :request do
       expect(Lecture.find(@lecture.id).title).to eq('A new title')
     end
 
+    it 'url-decodes the license fields sent by the video system' do
+      # The automated video system (castle) sends licenses URL-encoded, so they
+      # must be decoded before storage or staff see "%20"-mangled licence text.
+      @payload[:lecture] = {
+        archiving_license: 'Creative%20Commons%20BY-NC-ND%204.0',
+        hosting_license: 'BIRS%20Standard%20License'
+      }
+      put "/api/v1/lectures.json", params: @payload.to_json
+
+      expect(response).to be_created
+      lecture = Lecture.find(@lecture.id)
+      expect(lecture.archiving_license).to eq('Creative Commons BY-NC-ND 4.0')
+      expect(lecture.hosting_license).to eq('BIRS Standard License')
+    end
+
+    it 'preserves "+" in license text rather than turning it into a space' do
+      # Guards the URI::DEFAULT_PARSER.unescape choice: CGI.unescape would
+      # decode "+" to a space and silently corrupt licence names containing it.
+      @payload[:lecture] = { archiving_license: 'CC%20BY%204.0+addendum' }
+      put "/api/v1/lectures.json", params: @payload.to_json
+
+      expect(response).to be_created
+      expect(Lecture.find(@lecture.id).archiving_license)
+        .to eq('CC BY 4.0+addendum')
+    end
+
     it 'given invalid or missing lecture_id, it fails' do
       @payload[:lecture_id] = 'X'
       put "/api/v1/lectures.json", params: @payload.to_json
