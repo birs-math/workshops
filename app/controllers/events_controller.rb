@@ -110,6 +110,7 @@ class EventsController < ApplicationController
           @members << @event.member_info(member.person)
         end
       end
+      @show_member_list = member_list_visible?
       SyncEventMembersJob.perform_later(@event.id) if policy(@event).sync?
     else
       redirect_to root_path, error: 'No valid event specified.'
@@ -182,6 +183,32 @@ class EventsController < ApplicationController
   end
 
   private
+
+  # Hosts permitted to receive the confirmed-participant list from the JSON
+  # representation of an event. archytas2 is the primary record holder and polls
+  # this endpoint continuously; it must keep receiving exactly what it receives
+  # today, because we cannot be sure whether an empty list would propagate as
+  # deletions there.
+  #
+  # Verified 2026-07-25 that request.remote_ip cannot be forged in this
+  # deployment: X-Forwarded-For (single and chained), X-Real-IP, X-Client-IP and
+  # Forwarded are all ignored in favour of the address nginx-proxy appends, and
+  # Client-IP is rejected upstream. Revisit if the proxy layer changes.
+  MEMBER_LIST_ALLOWED_IPS = %w[137.82.175.102].freeze
+
+  # events#show is deliberately public, and EventPolicy#show? only hides template
+  # events -- so this JSON view was handing every confirmed participant's name and
+  # affiliation to anonymous callers, for workshops that had not yet run. The HTML
+  # memberships page has always required sign-in. Scammers harvest those lists to
+  # send participants fake hotel-booking mail, so the JSON must match the HTML.
+  def member_list_visible?
+    return true if MEMBER_LIST_ALLOWED_IPS.include?(request.remote_ip)
+    return false if current_user.nil?
+
+    policy(@event).event_staff? ||
+      current_user.is_organizer?(@event) ||
+      current_user.is_member?(@event)
+  end
 
   def notify_staff(event: original_event, params: update_params)
     if params[:short_name] != event.short_name && event.upcoming?
