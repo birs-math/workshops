@@ -112,4 +112,52 @@ describe 'GET /events/:id.json member privacy', type: :request do
       expect(members_in_response).to eq([])
     end
   end
+
+  # The JSON view was written in 2016 with its own idea of who may see members.
+  # The rule was then tightened on the HTML side between 2019 and 2025 and this
+  # representation was never swept, which is how participant lists stayed public
+  # for a decade. Both must now answer to one predicate; this fails if a future
+  # change re-introduces a second copy of the rule.
+  describe 'agreement with the HTML member list' do
+    def json_shows_members?(user)
+      user ? sign_in(user) : nil
+      get "/events/#{@event.code}.json"
+      result = !members_in_response.empty?
+      sign_out(user) if user
+      result
+    end
+
+    def html_would_show_members?(user)
+      EventPolicy.new(user, @event).view_attendance_status?('Confirmed')
+    end
+
+    def organizer_user(event)
+      person = create(:person)
+      create(:membership, event: event, person: person, role: 'Organizer')
+      create(:user, person: person, email: person.email)
+    end
+
+    def event_member_user(event)
+      person = create(:person)
+      create(:membership, event: event, person: person,
+                          role: 'Participant', attendance: 'Confirmed')
+      create(:user, person: person, email: person.email)
+    end
+
+    {
+      'an organizer' => ->(e) { organizer_user(e) },
+      'a confirmed member' => ->(e) { event_member_user(e) },
+      'staff at the location' => ->(e) { create(:user, :staff, location: e.location) },
+      'staff elsewhere' => ->(_e) { create(:user, :staff, location: 'Somewhere Else') },
+      'an admin' => ->(_e) { create(:user, :admin) },
+      'an unrelated member' => ->(_e) { create(:user) }
+    }.each do |label, build_user|
+      it "matches the HTML rule for #{label}" do
+        user = instance_exec(@event, &build_user)
+
+        expect(json_shows_members?(user)).to eq(html_would_show_members?(user)),
+          "JSON and HTML disagree for #{label} -- the two representations have drifted again"
+      end
+    end
+  end
 end
