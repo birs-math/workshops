@@ -15,10 +15,10 @@ class Api::V1::LecturesController < Api::V1::BaseController
     @json['lecture']['updated_by'] = 'Automated Video System'
 
     unless @json['lecture']['archiving_license'].blank?
-      @json['lecture']['archiving_license'] = URI.decode(@json['lecture']['archiving_license'])
+      @json['lecture']['archiving_license'] = URI::DEFAULT_PARSER.unescape(@json['lecture']['archiving_license'])
     end
     unless @json['lecture']['hosting_license'].blank?
-      @json['lecture']['hosting_license'] = URI.decode(@json['lecture']['hosting_license'])
+      @json['lecture']['hosting_license'] = URI::DEFAULT_PARSER.unescape(@json['lecture']['hosting_license'])
     end
 
     @lecture.assign_attributes(@json['lecture'])

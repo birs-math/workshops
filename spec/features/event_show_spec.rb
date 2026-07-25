@@ -205,4 +205,25 @@ describe 'Event Show Page', type: :feature do
     end
   end
 
+  context 'With a custom field containing LaTeX' do
+    # Custom fields hold raw LaTeX from proposals, where "<" is a comparison
+    # operator. An HTML parser reads "$$a=x_0<x_1<\cdots<x_n=b$$" as a <x_1> tag
+    # whose attributes are the rest of the field; past 400 of them the Rails 7.1
+    # HTML5 sanitizer raises and 500s this page. Custom fields render only for
+    # staff/organizers, so this broke exactly the people who needed the page.
+    before do
+      latex = "$$a=x_0" + (1..500).map { |i| "<x_#{i}" }.join(' ') + "<x_n=b$$"
+      create(:custom_field, event: @event, title: 'Overview', value: latex)
+      @non_member_user.staff!
+      login_as @non_member_user, scope: :user
+    end
+
+    it 'renders the page instead of returning a server error' do
+      visit event_path(@event)
+
+      expect(page.status_code).to eq(200)
+      expect(page.body).to have_text('Overview')
+    end
+  end
+
 end
