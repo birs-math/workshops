@@ -2,16 +2,15 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# Note that this schema.rb definition is the authoritative source for your
-# database schema. If you need to create the application database on another
-# system, you should be using db:schema:load, not running all the migrations
-# from scratch. The latter is a flawed and unsustainable approach (the more migrations
-# you'll amass, the slower it'll run and the greater likelihood for issues).
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_04_22_090508) do
-
+ActiveRecord::Schema[7.1].define(version: 2026_06_01_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -79,6 +78,7 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
     t.integer "max_virtual", default: 0, null: false
     t.text "event_format"
     t.integer "state", default: 0, null: false
+    t.boolean "online", default: false
     t.index ["code"], name: "index_events_on_code", unique: true
   end
 
@@ -290,7 +290,9 @@ ActiveRecord::Schema.define(version: 2024_04_22_090508) do
     t.string "thing_type", limit: 30
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["id"], name: "settings_id_key", unique: true
     t.index ["thing_type", "thing_id", "var"], name: "index_settings_on_thing_type_and_thing_id_and_var", unique: true
+    t.index ["var"], name: "settings_var_key", unique: true
   end
 
   create_table "users", id: :serial, force: :cascade do |t|
