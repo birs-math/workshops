@@ -212,7 +212,8 @@ describe 'Event Show Page', type: :feature do
     # HTML5 sanitizer raises and 500s this page. Custom fields render only for
     # staff/organizers, so this broke exactly the people who needed the page.
     before do
-      latex = "$$a=x_0" + (1..500).map { |i| "<x_#{i}" }.join(' ') + "<x_n=b$$"
+      latex = "$$a=x_0" + (1..500).map { |i| "<x_#{i}" }.join(' ') +
+              "<x_n=b$$ CLOSING_PARAGRAPH_TEXT."
       create(:custom_field, event: @event, title: 'Overview', value: latex)
       @non_member_user.staff!
       login_as @non_member_user, scope: :user
@@ -223,6 +224,15 @@ describe 'Event Show Page', type: :feature do
 
       expect(page.status_code).to eq(200)
       expect(page.body).to have_text('Overview')
+    end
+
+    # The page rendering is not enough: the sanitizer used to drop everything
+    # after the first "<", so staff saw a silently truncated Overview. MathJax
+    # typesets this text, so the lost part is the actual mathematics.
+    it 'keeps the text that follows the LaTeX instead of truncating it' do
+      visit event_path(@event)
+
+      expect(page.body).to have_text('CLOSING_PARAGRAPH_TEXT')
     end
   end
 

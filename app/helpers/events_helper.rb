@@ -5,6 +5,37 @@
 # See the COPYRIGHT file for details and exceptions.
 
 module EventsHelper
+  # A well-formed HTML tag: a name, optional attributes, and a closing ">" with
+  # no "<" in between. LaTeX comparisons like "$a<b$" deliberately don't match,
+  # because nothing closes them.
+  HTML_TAG = %r{</?([a-zA-Z][\w:-]*)(?:\s[^<>]*)?/?>}.freeze
+
+  # Event custom fields hold raw LaTeX from proposals, where "<" is a comparison
+  # operator rather than a tag opener. An HTML parser reads
+  # "$$a=x_0<x_1<\cdots<x_n=b$$" as an <x_1> tag whose attributes are the rest of
+  # the field, so sanitize() silently drops everything after the first "<" --
+  # 26w5609's Overview rendered 2,145 of 14,087 characters. (Under Rails 7.1's
+  # HTML5 parser it raised outright instead; see config/application.rb.)
+  #
+  # Escaping every "<" would fix the LaTeX but wreck the 72 of 933 fields that
+  # carry real <p>/<b>/<br>/<i> markup, so only escape the ones that don't open a
+  # well-formed allowlisted tag. Matching on the tag name alone is not enough:
+  # b, i, p, a, sub and sup are all allowed tags *and* common math variables.
+  def escape_stray_angle_brackets(text)
+    allowed = ActionView::Helpers::SanitizeHelper.sanitizer_vendor
+                                                 .safe_list_sanitizer.allowed_tags
+    string = text.to_s
+    escaped = +''
+    cursor = 0
+
+    while (tag = HTML_TAG.match(string, cursor))
+      escaped << string[cursor...tag.begin(0)].gsub('<', '&lt;')
+      escaped << (allowed.include?(tag[1].downcase) ? tag[0] : tag[0].sub('<', '&lt;'))
+      cursor = tag.end(0)
+    end
+
+    escaped << string[cursor..].to_s.gsub('<', '&lt;')
+  end
 
   def get_text(field)
     if field.blank?
