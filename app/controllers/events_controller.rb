@@ -198,16 +198,23 @@ class EventsController < ApplicationController
 
   # events#show is deliberately public, and EventPolicy#show? only hides template
   # events -- so this JSON view was handing every confirmed participant's name and
-  # affiliation to anonymous callers, for workshops that had not yet run. The HTML
-  # memberships page has always required sign-in. Scammers harvest those lists to
-  # send participants fake hotel-booking mail, so the JSON must match the HTML.
+  # affiliation to anonymous callers, for workshops that had not yet run. Scammers
+  # harvest those lists to send participants fake hotel-booking mail.
+  #
+  # Defer to the same predicate the HTML member list uses
+  # (memberships/index.html.erb), rather than restating the rule here. The rule
+  # was tightened on the HTML side between 2019 and 2025 while this JSON view,
+  # written in 2016, kept its own behaviour -- a second copy is precisely how the
+  # two drifted apart. Anything that changes who may see the member list now
+  # changes both representations at once.
+  #
+  # The JSON only ever contained Confirmed members, so 'Confirmed' is the status
+  # to ask about.
   def member_list_visible?
     return true if MEMBER_LIST_ALLOWED_IPS.include?(request.remote_ip)
     return false if current_user.nil?
 
-    policy(@event).event_staff? ||
-      current_user.is_organizer?(@event) ||
-      current_user.is_member?(@event)
+    policy(@event).view_attendance_status?('Confirmed')
   end
 
   def notify_staff(event: original_event, params: update_params)
